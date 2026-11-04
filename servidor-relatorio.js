@@ -1,15 +1,21 @@
 "use strict";
+// v2.24.0 (vindo do FBK): leituras de arquivo/DNS que demoram ocupam threads de E/S do
+// Node (4 por padrão). Com mais threads, uma leitura lenta não segura o resto.
+if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.23.1
+ * @version 2.24.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.23.1 - 2026-10-30 01:00 - "Recarregar ao detectar mudanças" LIGADO recarrega como F5 (limpa
- *     busca, filtros, rolagem e janelas); só a recarga forçada mantém o estado.
+ *   2.24.0 - 2026-11-04 12:00 - Melhorias trazidas do Relatorios-FDB-FBK.
+ *     - Gerador acha o node.exe de novo e tenta outra vez sozinho quando o Node é atualizado
+ *       com o servidor ligado (antes: "spawn ...node.exe ENOENT" em todo relatório).
+ *     - Comandos da bandeja chegam às telas sem o modal; /config volta para a tela de origem.
+ *     - Mais threads de E/S (UV_THREADPOOL_SIZE=16).
  */
 
 
@@ -17,7 +23,7 @@
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.23.1";
+const SERVER_VERSION = "2.24.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -1827,11 +1833,37 @@ var _BOOT_GERADOR =
     "process.stdin.removeListener('end',fim);process.stdin.removeAllListeners('data');process.stdin.pause();" +
     "var m=JSON.parse(b.slice(0,i));var e=m.env||{};Object.keys(e).forEach(function(k){process.env[k]=e[k];});" +
     "process.argv=[process.execPath].concat(m.argv);require(m.argv[0]);});";
+// Node.exe para os processos do gerador (v2.24.0, vindo do FBK). Antes era sempre
+// process.execPath: se o Node fosse atualizado/reinstalado com o servidor rodando, aquele
+// caminho deixava de existir e toda geração falhava com "spawn ...\\node.exe ENOENT" até
+// reiniciar. Agora confere o caminho e, se sumiu, procura o Node nas pastas de instalação
+// e no PATH (só no disco do sistema — pasta de rede travaria o servidor).
+var _nodeExeCache = { exe: "", ts: 0 };
+var _nodeExe = function(forcar) {
+    var agora = Date.now();
+    if (!forcar && _nodeExeCache.exe && agora - _nodeExeCache.ts < 10000) return _nodeExeCache.exe;
+    var win = process.platform === "win32", nome = win ? "node.exe" : "node";
+    var cands = [process.execPath];
+    if (win) {
+        [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.ProgramW6432].forEach(function(b) { if (b) cands.push(path.join(b, "nodejs", nome)); });
+        if (process.env.LOCALAPPDATA) cands.push(path.join(process.env.LOCALAPPDATA, "Programs", "nodejs", nome));
+    }
+    String(process.env.PATH || process.env.Path || "").split(path.delimiter).forEach(function(d) {
+        d = String(d || "").replace(/^"|"$/g, "").trim();
+        if (d && !/^\\\\/.test(d) && (!win || d.slice(0, 1).toUpperCase() === String(process.env.SystemDrive || "C:").slice(0, 1).toUpperCase())) cands.push(path.join(d, nome));
+    });
+    var achado = "";
+    for (var i = 0; i < cands.length && !achado; i++) { try { if (fs.statSync(cands[i]).isFile()) achado = cands[i]; } catch (_) {} }
+    if (!achado) achado = process.execPath;
+    if (achado !== process.execPath && achado !== _nodeExeCache.exe) logTs("Node.js do servidor não está mais em " + process.execPath + " (atualizado ou reinstalado?) — o gerador usa " + achado + ". Reinicie o servidor pela bandeja quando puder.");
+    _nodeExeCache = { exe: achado, ts: agora };
+    return achado;
+};
 var _geradorReserva = null;
 var _prepararReserva = function() {
     if (_geradorReserva || _encerrando) return;
     try {
-        var p = spawn(process.execPath, ["-e", _BOOT_GERADOR, __dirname],
+        var p = spawn(_nodeExe(), ["-e", _BOOT_GERADOR, __dirname],
                       {stdio:["pipe","pipe","pipe"], env:_ENV_FILHO, windowsHide:true});
         p.on("error", function() { if (_geradorReserva === p) _geradorReserva = null; });
         p.on("exit",  function() { if (_geradorReserva === p) _geradorReserva = null; });
@@ -1852,7 +1884,7 @@ var _obterGerador = function(nArgs) {
             proc = p;
         } catch (_) { try { p.kill(); } catch (__) {} }
     } else if (p) { try { p.kill(); } catch (_) {} }
-    if (!proc) proc = spawn(process.execPath, nArgs, {stdio:["ignore","pipe","pipe"], env:_ENV_FILHO, windowsHide:true});
+    if (!proc) proc = spawn(_nodeExe(), nArgs, {stdio:["ignore","pipe","pipe"], env:_ENV_FILHO, windowsHide:true});
     setImmediate(_prepararReserva); // repõe a reserva para a próxima geração
     return proc;
 };
@@ -2130,7 +2162,21 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
         _limparRecursosProprios();
         _liberarKillProprio();
         if (_ehSupersedida()) return; // não sobrescreve a entrada da geração nova
-        cache[chave]={html:null,gerando:false,erro:"Falha ao iniciar node: "+e.message};
+        // v2.24.0 (vindo do FBK): Node.exe sumiu (atualização/reinstalação do Node com o
+        // servidor rodando): procura de novo e tenta outra vez sozinho, sem página de erro.
+        if (e && e.code === "ENOENT" && _tentativa < MAX_TENTATIVAS) {
+            _nodeExeCache.ts = 0; _descartarReserva();
+            logTs("Node.js não encontrado ao gerar o relatório (" + label + ") — procurando de novo e tentando outra vez em 3 s (" + _tentativa + "/" + MAX_TENTATIVAS + ").");
+            cache[chave] = {html:null, gerando:false, erro:null, qt:0, tot:0, matando:true, tentativa:_tentativa};
+            setTimeout(function() {
+                if (_ehSupersedida()) return;
+                try { _nodeExe(true); gerarEmBackground(inicio, fim, chave, _pollTriggered); } catch (_) {}
+            }, 3000);
+            return;
+        }
+        cache[chave]={html:null,gerando:false,erro:(e && e.code === "ENOENT")
+            ? "O Node.js não foi encontrado (foi atualizado ou removido com o servidor ligado?). Reinicie o servidor pela bandeja (Reiniciar servidor) ou rode o instalador de novo. Detalhe: " + e.message
+            : "Falha ao iniciar node: "+e.message};
         _gerarTentativas[chave] = 0;
     });
     // CONCLUSÃO ANTECIPADA (v2.13.0): o gerador imprime "@@RELATORIO_PRONTO@@"
@@ -2345,8 +2391,10 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "setTimeout(function(){_aw.style.opacity='0';setTimeout(function(){try{_aw.parentNode&&_aw.parentNode.removeChild(_aw);}catch(_){}},450);},_as*1000);" +
             "}catch(_){}}" +
             "if(d.type==='navigate-hash'&&d.hash){" +
-            "if(typeof __abrirModalConfig==='function'&&d.hash==='config'){__abrirModalConfig();}" +
-            "else if(typeof __abrirModalPeriodo==='function'&&d.hash==='periodo'){__abrirModalPeriodo();}" +
+            // v2.24.0 (vindo do FBK): tela sem o modal (página de período antiga, erro...)
+            // vai para onde o comando funciona, em vez de ignorar em silêncio.
+            "if(d.hash==='config'){if(typeof __abrirModalConfig==='function')__abrirModalConfig();else window.location.assign('/config?voltar='+encodeURIComponent(window.location.pathname+window.location.search));}" +
+            "else if(d.hash==='periodo'){if(typeof __abrirModalPeriodo==='function')__abrirModalPeriodo();else window.location.assign('/#periodo');}" +
             "}" +
             "}catch(e){};};" +
             "_es.onopen=function(){_connTry=0;console.log('[srv] SSE conectado');};" +
@@ -2357,6 +2405,12 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "}catch(e){console.log('[srv] SSE falhou: '+e.message);setTimeout(_conn,5000);}" +
             "};" +
             "_conn();" +
+            // Chegou com #periodo ou #config (comando da bandeja vindo de outra tela): abre o modal.
+            "window.addEventListener('load',function(){try{var _h=window.location.hash;" +
+            "if(_h!=='#periodo'&&_h!=='#config')return;" +
+            "try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(_){}" +
+            "setTimeout(function(){try{if(_h==='#config'&&typeof __abrirModalConfig==='function')__abrirModalConfig();" +
+            "else if(_h==='#periodo'&&typeof __abrirModalPeriodo==='function')__abrirModalPeriodo();}catch(_){}},150);}catch(_){}});" +
             // Poll HTTP (fallback — detecta mesmo sem SSE)
             "var _pollErros=0;" +
             // DEDUP FIX (auditoria v2.5.0): /api/status agora devolve 'correcoes' por
@@ -3932,6 +3986,8 @@ var paginaLoading=function(titulo,sub,chavePoll,urlDest){
         "try{_pEs=new EventSource('/api/events');" +
         "_pEs.onmessage=function(ev){try{var d=JSON.parse(ev.data);" +
         "if(d.type==='reload'){window.location.replace(_dest);}" +
+        "else if(d.type==='navigate'){var _u=String(d.url||'/');if(_u.charAt(0)!=='/'||_u.charAt(1)==='/')_u='/';window.location.assign(_u);}" +
+        "else if(d.type==='navigate-hash'&&d.hash==='config'){window.location.assign('/config?voltar='+encodeURIComponent(window.location.pathname+window.location.search));}" +
         "}catch(_){};};" +
         "_pEs.onopen=function(){" +
         // Ao conectar SSE, verifica /pronto imediatamente — HTML pode já estar pronto
@@ -5685,6 +5741,15 @@ var server=http.createServer(function(req,res){
     // /config — página HTML
     if(rota==="/config"){
         var SC3="</"+"script>";
+        // "Voltar" (v2.24.0, vindo do FBK): para a tela de onde o comando veio (período,
+        // carregamento...). Só caminho deste servidor ("/..."), nunca outro site ("//",
+        // "\\", esquema) nem a própria /config.
+        var _voltarCfg = (function(){
+            var v = String(parsed.searchParams.get("voltar") || "");
+            if (!v || v.length > 600 || v.charAt(0) !== "/" || v.charAt(1) === "/" || /[\\\s<>"'`]/.test(v)) return "/";
+            if (/^\/config(?:[?#/]|$)/i.test(v)) return "/";
+            return v;
+        })();
         var cfgHtml=(function(){
             // Usa _config em memória — sem readFileSync por request de página
             var cc=_config;
@@ -5744,7 +5809,7 @@ var server=http.createServer(function(req,res){
             "<textarea id=\"proibidos\" placeholder=\"Nome1\nNome2\nProduto A\"></textarea>"+
             "<p class=\"hint\">Vendas com esses termos serao ocultadas do relatorio.</p></div>"+
             "<button class=\"btn\" id=\"salvarBtn\" onclick=\"salvar()\">Salvar configuracoes</button>"+
-            "<button class=\"btn btn-sec\" style=\"margin-top:10px\" onclick=\"window.location.href='/'\">Voltar para o relatorio</button>"+
+            "<button class=\"btn btn-sec\" style=\"margin-top:10px\" id=\"voltarBtn\" data-voltar=\""+escH(_voltarCfg)+"\" onclick=\"window.location.href=this.getAttribute('data-voltar')||'/'\">"+(_voltarCfg === "/" ? "Voltar para o relatorio" : "Voltar para a tela anterior")+"</button>"+
             "</div>"+
             "<script>"+
             "(function(){"+

@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.23.1 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.28.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.7.1 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.0 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.14.1 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.0.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | 1.2.0 |
@@ -28,6 +28,18 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.0 — 2026-11-04 12:00
+
+**Melhorias trazidas do Relatorios-FDB-FBK** (projeto irmão, que lê o banco por uma cópia offline).
+
+- **"Erro ao gerar relatório — Falha ao iniciar node: spawn ...\\node.exe ENOENT".** O gerador era sempre aberto pelo mesmo caminho do `node.exe` que iniciou o servidor. Se o Node.js fosse atualizado ou reinstalado com o servidor ligado, esse caminho deixava de existir e todo relatório falhava até reiniciar.
+  - Agora o servidor confere o caminho e, se ele sumiu, procura o Node nas pastas de instalação e no PATH (só no disco do sistema). Depois **tenta de novo sozinho**, e a tela continua em "gerando...".
+  - Se mesmo assim não achar, a mensagem diz o que fazer: reiniciar pela bandeja ou rodar o instalador.
+- **Comandos da bandeja em telas sem o modal.** Em telas como a página de período antiga ou a de carregamento, "Editar configurações" e "Gerar por período" eram ignorados em silêncio. Agora levam para `/config` ou para `/#periodo`, e o relatório abre a janela sozinho ao chegar com `#periodo` ou `#config`. A tela de carregamento também obedece a "navegar" e "configurações".
+- **`/config` volta para a tela de origem** (`?voltar=`), com o botão "Voltar para a tela anterior". Só aceita caminhos deste servidor: nunca outro site (`//`, `\\`, esquema), espaços, aspas ou a própria `/config`.
+- Mais threads de E/S para o Node (`UV_THREADPOOL_SIZE=16`): uma leitura de arquivo ou DNS lenta não segura o resto.
+- Teste novo para o "Voltar" (29 testes).
 
 ### 2.23.1 — 2026-10-30 01:00
 
@@ -720,6 +732,13 @@ Cliente de linha de comando.
 ## `iniciar-tray.ps1`
 
 Ícone da bandeja.
+
+### 1.8.0 — 2026-11-04 12:00
+
+**Trazido do Relatorios-FDB-FBK.**
+
+- **Ícone da bandeja sem bordas pretas.** O ícone era convertido com `Bitmap.GetHicon()`, que descarta a transparência suave e fazia o Windows pintar a borda de preto. Agora é montado como um `.ico` de verdade (32 bits com canal alfa) em vários tamanhos (16 a 64 px), e o Windows escolhe o certo para o DPI da tela. Vale para o ícone padrão e para o `favicon.png` personalizado, que também mantém a proporção.
+- O servidor é iniciado com mais threads de E/S (`UV_THREADPOOL_SIZE=16`).
 
 ### 1.7.1 — 2026-11-04 10:00
 

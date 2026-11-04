@@ -1,5 +1,5 @@
 # =============================================================================
-# _remover-inicializacao.ps1                                          v1.0.1
+# _remover-inicializacao.ps1                                          v1.1.0
 # Autor: Ruda Gabriel
 # -----------------------------------------------------------------------------
 # Auxiliar do remover-inicializacao.bat (nao precisa ser executado direto).
@@ -11,8 +11,9 @@
 #     sistema;
 #   - a pasta %LOCALAPPDATA%\RelatoriosBootstrap (bootstrap.vbs e
 #     launcher.path), apagando so' esses arquivos, por nome;
-#   - bootstrap.vbs/launcher.vbs que estejam AGUARDANDO a rede para subir o
-#     servidor (sem isso o servidor subiria ate 30 min depois da remocao).
+#   - bootstrap.vbs/launcher.vbs ou a espera da tarefa (PowerShell com o
+#     marcador #RelatoriosAguardaRede) que estejam AGUARDANDO a rede para
+#     subir o servidor (sem isso ele subiria ate 30 min depois da remocao).
 # Com -MatarProcessos tambem encerra o servidor (primeiro de forma ordenada,
 # pela /api/encerrar, para registrar no log e avisar as telas abertas), o
 # icone da bandeja e geracoes de relatorio em andamento.
@@ -34,7 +35,11 @@
 # Codigo de saida: 0 = tudo removido/encerrado, 1 = sobrou algo (listado).
 #
 # (Historico completo das versoes: CHANGELOG.md no repositorio.)
-# CHANGELOG 1.0.1 - 2026-10-07 22:30 - Data e hora do log do MESMO instante.
+# CHANGELOG 1.1.0 - 2026-11-04 - Reconhece a espera embutida na tarefa.
+#   - Tarefas, atalhos e o PowerShell que aguarda a rede com o marcador
+#     #RelatoriosAguardaRede (instalador 1.15.0, sem bootstrap.vbs) tambem
+#     sao removidos/encerrados. A pasta RelatoriosBootstrap antiga continua
+#     sendo limpa.
 # =============================================================================
 
 param(
@@ -105,10 +110,11 @@ if (-not $APP_NAME) { $APP_NAME = 'Relatorios' }
 # DESTA pasta. Os demais nomes sao exclusivos do sistema.
 $LAUNCHER_RX = [regex]::Escape((Join-Path $PASTA_PROJ 'launcher.vbs'))
 # Linha de comando de processos: casa com arquivos do sistema.
-$PADRAO_PROC   = "servidor-relatorio\.js|gerar-relatorio-html\.js|iniciar-tray\.ps1|RelatoriosBootstrap|$LAUNCHER_RX"
+# RelatoriosAguardaRede: marcador da espera embutida na tarefa (v1.1.0).
+$PADRAO_PROC   = "servidor-relatorio\.js|gerar-relatorio-html\.js|iniciar-tray\.ps1|RelatoriosBootstrap|RelatoriosAguardaRede|$LAUNCHER_RX"
 # Itens de inicializacao (tarefa, atalho, registro): a cadeia de
 # inicializacao e os pontos de entrada que alguem possa ter posto ali.
-$PADRAO_INICIO = "RelatoriosBootstrap|iniciar-tray\.ps1|servidor-relatorio\.js|gerar-relatorio-html\.js|gerar_relatorio_(do_dia|por_data|intervalo)\.bat|$LAUNCHER_RX"
+$PADRAO_INICIO = "RelatoriosBootstrap|RelatoriosAguardaRede|iniciar-tray\.ps1|servidor-relatorio\.js|gerar-relatorio-html\.js|gerar_relatorio_(do_dia|por_data|intervalo)\.bat|$LAUNCHER_RX"
 
 function Write-RemLog([string]$Msg) {
     try {
@@ -170,6 +176,7 @@ function Get-DescricaoProc($Proc) {
     if ($cl -match 'gerar-relatorio-html\.js')   { return 'geracao de relatorio' }
     if ($cl -match 'iniciar-tray\.ps1')          { return 'icone da bandeja' }
     if ($cl -match 'RelatoriosBootstrap')        { return 'bootstrap aguardando a rede' }
+    if ($cl -match 'RelatoriosAguardaRede')      { return 'inicializacao aguardando a rede' }
     if ($cl -match 'launcher\.vbs')              { return 'launcher' }
     return 'relatorio'
 }
@@ -180,6 +187,8 @@ function Stop-ProcessosRelatorio {
 
     # 1) Bootstrap/launcher primeiro: senao relancam o tray no meio do caminho.
     foreach ($p in (Get-ProcessosRelatorio @('wscript.exe', 'cscript.exe'))) { Stop-ProcessoRelatorio $p }
+    # v1.1.0: e a espera da tarefa (abriria o launcher no meio da remocao).
+    foreach ($p in (Get-ProcessosRelatorio @('powershell.exe', 'pwsh.exe') | Where-Object { ([string]$_.CommandLine) -match 'RelatoriosAguardaRede' })) { Stop-ProcessoRelatorio $p }
 
     # 2) Encerramento ordenado do servidor: registra no relatorio.log e
     #    mostra "Servidor encerrado" nas telas abertas. Feito ANTES de matar
@@ -216,8 +225,11 @@ function Stop-ProcessosRelatorio {
 }
 
 # So' bootstrap/launcher aguardando a rede (sem matar servidor nem tray).
+# v1.1.0: inclui o PowerShell da espera embutida na tarefa - reconhecido pelo
+# marcador, nunca o do tray (iniciar-tray.ps1 nao tem o marcador).
 function Stop-BootstrapAguardando {
     $lista = @(Get-ProcessosRelatorio @('wscript.exe', 'cscript.exe'))
+    $lista += @(Get-ProcessosRelatorio @('powershell.exe', 'pwsh.exe') | Where-Object { ([string]$_.CommandLine) -match 'RelatoriosAguardaRede' })
     if ($lista.Count -eq 0) { return }
     Write-Host ''
     Write-Host 'Encerrando inicializacao automatica em andamento...' -ForegroundColor Cyan

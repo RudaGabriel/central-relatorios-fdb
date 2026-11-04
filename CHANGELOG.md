@@ -10,7 +10,7 @@ Versões em uso hoje:
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.23.1 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.28.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.7.0 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.7.1 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.14.1 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.0.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | 1.2.0 |
@@ -720,6 +720,16 @@ Cliente de linha de comando.
 ## `iniciar-tray.ps1`
 
 Ícone da bandeja.
+
+### 1.7.1 — 2026-11-04 10:00
+
+**O servidor volta a iniciar sozinho com o Windows.**
+
+- Na 1.7.0, a porta passou a ser testada só por conexão, com 2 s de espera. No Windows, uma porta **fechada** demora cerca de 2 s para recusar a conexão.
+  - Ao ligar o computador, a porta saía "incerta", e a bandeja registrava "Porta ja estava ocupada ao iniciar - assumindo servidor ja rodando" sem iniciar o servidor.
+  - O vigia também não iniciava em porta incerta. Só "Reiniciar servidor" resolvia.
+- Agora a porta é testada pela lista do próprio Windows de quem está escutando (`GetActiveTcpListeners`): a resposta é imediata, sem tempo de espera e sem precisar de administrador. A conexão fica só como reserva, com 3 s.
+- Rede de segurança: se a porta continuar "incerta" por 3 checagens seguidas (~30 s) com o servidor fora do ar, o vigia inicia o servidor mesmo assim. Se outro servidor já ocupa a porta, o novo só se encerra.
 
 ### 1.7.0 — 2026-10-30 10:00
 

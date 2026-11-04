@@ -3,13 +3,13 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.7.0
+# @version 1.7.1
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.7.0 - 2026-10-30 10:00 - Vigia do servidor sem reinicios falsos em maquina lenta: porta
-#     "incerta" nao abre outro servidor, checagem com 2 s/6 s sem proxy, reinicio so' apos ~60 s
-#     sem resposta, motivo das falhas e codigo de saida no log, freio para quedas em sequencia.
+#   1.7.1 - 2026-11-04 10:00 - Servidor volta a iniciar sozinho com o Windows: a porta e' testada
+#     pela lista do proprio Windows (GetActiveTcpListeners), sem tempo de espera. Na 1.7.0 a porta
+#     fechada demorava ~2 s para recusar e saia "incerta" - a bandeja nao iniciava o servidor.
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -164,9 +164,9 @@ function Test-ServidorAtivo {
     # Agora: 2 s para conectar, 6 s para responder, sem proxy. O motivo de cada falha
     # fica em $script:falhaVigia (vai para o log).
     $script:falhaVigia = ""
-    $estado = Get-EstadoPorta -Porta $PORT -EsperaMs 2000
+    $estado = Get-EstadoPorta -Porta $PORT
     if ($estado -ne "ocupada") {
-        $script:falhaVigia = if ($estado -eq "livre") { "porta $PORT fechada" } else { "porta $PORT sem resposta em 2 s" }
+        $script:falhaVigia = if ($estado -eq "livre") { "porta $PORT fechada" } else { "porta $PORT sem resposta em 3 s" }
         return $false
     }
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -242,12 +242,20 @@ $psi.UseShellExecute = $false
 # watchdog a cada 10s e pelo clique em "Reiniciar servidor"), um travamento
 # aqui congelava o icone inteiro da bandeja. ConnectAsync(...).Wait(500) usa
 # o mesmo padrao ja correto de Test-ServidorAtivo neste arquivo.
-# v1.7.0: tres estados. "livre" = conexao recusada; "ocupada" = alguem atendeu;
-# "incerto" = nao respondeu no tempo. Antes o "sem resposta" contava como LIVRE: com a
-# maquina carregada, o vigia achava que o servidor nao existia e abria OUTRO, que se
-# encerrava na hora ("porta ja em uso") - e o aviso "reiniciado" se repetia a cada 10 s.
+# Estado da porta: "livre", "ocupada" ou "incerto".
+# v1.7.1: pergunta ao proprio Windows quem esta escutando (GetActiveTcpListeners) -
+# resposta imediata, sem tempo de espera e sem precisar de administrador. Na 1.7.0 o
+# teste era so' por conexao com 2 s de espera, mas no Windows uma porta FECHADA demora
+# ~2 s para recusar a conexao: ao ligar o computador a porta saia "incerta", a bandeja
+# achava que o servidor ja estava rodando e nao o iniciava (so' "Reiniciar" resolvia).
+# A conexao fica so' como reserva, com 3 s.
 function Get-EstadoPorta {
-    param([int]$Porta, [int]$EsperaMs = 2000)
+    param([int]$Porta, [int]$EsperaMs = 3000)
+    try {
+        $escutando = [System.Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners()
+        foreach ($ep in $escutando) { if ($ep.Port -eq $Porta) { return "ocupada" } }
+        return "livre"
+    } catch {}
     $tc = $null
     try {
         $tc = New-Object Net.Sockets.TcpClient
@@ -263,7 +271,7 @@ function Get-EstadoPorta {
 }
 function Test-PortaLivre {
     param([int]$Porta)
-    return ((Get-EstadoPorta -Porta $Porta -EsperaMs 2000) -eq "livre")
+    return ((Get-EstadoPorta -Porta $Porta) -eq "livre")
 }
 
 # ---------------------------------------------------------------------------
@@ -1507,6 +1515,7 @@ $script:falhasConsecutivas = 0
 $script:quedasRapidas = 0
 $script:esperarAte = [DateTime]::MinValue
 $script:avisouQuedas = $false
+$script:incertoSeguidos = 0
 # v1.7.0: so' reinicia apos ~60 s sem resposta (6 checagens), registra o motivo de cada
 # falha, o codigo de saida e o tempo no ar quando o Node cai, e freia reinicios em
 # sequencia (3 quedas logo apos iniciar = espera 1 min e avisa uma vez).
@@ -1540,7 +1549,16 @@ $watchTimer.Add_Tick({
                     return
                 }
             }
-            $estado = Get-EstadoPorta -Porta $PORT -EsperaMs 2000
+            $estado = Get-EstadoPorta -Porta $PORT
+            # Rede de seguranca (v1.7.1): porta "incerta" por 3 checagens seguidas (~30 s) com o
+            # servidor fora -> inicia mesmo assim (se outro servidor ja ocupa a porta, o novo
+            # so' se encerra com "porta ja em uso").
+            if ($estado -eq "incerto") { $script:incertoSeguidos++ } else { $script:incertoSeguidos = 0 }
+            if ($estado -eq "incerto" -and $script:incertoSeguidos -ge 3) {
+                $script:incertoSeguidos = 0
+                Write-TrayLog "Porta $PORT sem resposta clara ha ~30 s e servidor fora do ar - iniciando assim mesmo." "AVISO"
+                $estado = "livre"
+            }
             if ($estado -eq "livre") {
                 Write-TrayLog "Servidor fora do ar e porta $PORT livre - iniciando de novo." "AVISO"
                 $script:nodeProc = [System.Diagnostics.Process]::Start($psi)

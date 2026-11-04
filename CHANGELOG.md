@@ -8,7 +8,7 @@ Versões em uso hoje:
 | Arquivo | Versão |
 |---|---|
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.28.1 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.0 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.0 |
@@ -286,6 +286,12 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.29.0 — 2026-11-04
+
+**Copiar: venda com duas ou mais formas de pagamento mostra o valor de cada uma.**
+
+Antes saía `067427	356,50	CREDITO | DEBITO` (só o total). Agora sai `067427	175,00 CREDITO | 181,50 DEBITO`, na ordem da coluna Pagamentos — em *Copiar tudo*, *Sem dinheiro*, *Copiar + itens* e nos botões de cópia do modal da venda. Venda com uma forma só, NF-e (mostra a natureza) ou sem valores por forma continuam no formato de antes.
 
 ### 3.28.1 — 2026-10-30 01:00
 

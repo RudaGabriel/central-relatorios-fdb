@@ -629,6 +629,21 @@ test("servidor: acesso de fora — túnel/proxy nunca vale como o computador do 
     } finally { srv.parar(); }
 });
 
+test("servidor: /config volta para a tela de origem só dentro deste servidor; tela de carregamento obedece a bandeja", async () => {
+    const dir = montarPasta({}, { nfce: [{ numero: "700", hora: horaHaMin(5) }] });
+    const srv = await iniciarServidor(dir);
+    try {
+        const voltar = async q => { const h = await fetch(srv.base + "/config" + q).then(r => r.text()); const m = h.match(/data-voltar="([^"]*)"/); return m ? m[1] : null; };
+        assert.strictEqual(await voltar(""), "/");
+        assert.strictEqual(await voltar("?voltar=" + encodeURIComponent("/periodo?i=2026-10-01&f=2026-10-02")), "/periodo?i=2026-10-01&amp;f=2026-10-02");
+        for (const ruim of ["//evil.example/x", "https://evil.example", "\\\\evil\\x", "/a b", "/x\"onmouseover=\"alert(1)", "/config", "/config?voltar=/"]) {
+            assert.strictEqual(await voltar("?voltar=" + encodeURIComponent(ruim)), "/", "voltar recusado: " + ruim);
+        }
+        const h = await fetch(srv.base + "/config?voltar=" + encodeURIComponent("/periodo")).then(r => r.text());
+        assert.match(h, /Voltar para a tela anterior/);
+    } finally { srv.parar(); }
+});
+
 test("servidor: dispositivos conectados — log com tipo, IP e nome, rotas, telas e /api/dispositivos", { timeout: 60000 }, async () => {
     const dir = montarPasta();
     // RELATORIO_DISP_LOCAL=1: trata 127.0.0.1 como um aparelho da rede (só para o teste).

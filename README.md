@@ -70,7 +70,7 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 <details>
 <summary><b>O que a inicialização automática faz</b></summary>
 
-A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco.
+A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco. A espera pela pasta de rede é feita pela própria tarefa (sem nenhum script extra copiado para o computador). Ao instalar a versão nova, a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap` é apagada sozinha.
 
 </details>
 
@@ -81,7 +81,8 @@ Execute **`remover-inicializacao.bat`**. Ele remove tudo o que inicia o relatór
 
 - a tarefa agendada (com qualquer nome, inclusive de versões antigas);
 - o atalho na pasta Inicializar e as entradas `Run` do registro;
-- o bootstrap local em `%LOCALAPPDATA%\RelatoriosBootstrap`.
+- a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap`, se ainda existir (versões anteriores do instalador);
+- a espera pela rede em andamento (para o servidor não subir minutos depois da remoção).
 
 Antes, ele pergunta se deve **encerrar os processos do relatório**:
 
@@ -446,7 +447,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 29 testes cobrem 
 
 ```
  Windows (logon)
-   └─ Tarefa agendada ─▶ bootstrap.vbs ─▶ launcher.vbs ─▶ iniciar-tray.ps1   (bandeja + watchdog)
+   └─ Tarefa agendada (espera a rede) ─▶ launcher.vbs ─▶ iniciar-tray.ps1   (bandeja + watchdog)
                                                             └─▶ node servidor-relatorio.js
                                                                   ├─ fast-poll ──────┐
                                                                   ├─ verificação     ├─▶ Firebird (SMALL.FDB) — SOMENTE LEITURA
@@ -462,7 +463,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 29 testes cobrem 
 | `servidor-relatorio.js` | Servidor HTTP/SSE: detecta o banco, monitora mudanças, cache, gerações, dispositivos, preferências por aparelho, Tailscale e QR code |
 | `gerar-relatorio-html.js` | Subprocesso que consulta o Firebird e monta o relatório (dados, interface e scripts, inclusive a atualização sem recarregar) |
 | `iniciar-tray.ps1` | Ícone na bandeja, menu, watchdog e janela *Dispositivos conectados* |
-| `launcher.vbs` / `bootstrap.vbs` | Iniciam a bandeja de forma oculta (o bootstrap espera a pasta de rede no logon) |
+| `launcher.vbs` | Inicia a bandeja de forma oculta (no logon, a tarefa agendada espera a pasta de rede e então o abre) |
 | `instalar-na-inicializacao.bat` · `_criar-tarefa.ps1` | Inicialização automática, firewall e nome do sistema |
 | `remover-inicializacao.bat` · `_remover-inicializacao.ps1` | Desfazem a inicialização automática |
 | `gerar_relatorio_do_dia.bat` · `_por_data.bat` · `_intervalo.bat` | Abrem o relatório (iniciam o servidor se preciso) |
@@ -496,7 +497,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 29 testes cobrem 
 | Ao ligar o computador o relatório fica fora do ar (só volta com "Reiniciar servidor") | Atualize o `iniciar-tray.ps1` para a 1.7.1 ou mais nova (a 1.7.0 tinha esse defeito no teste da porta) |
 | Servidor não inicia no logon | Rode `instalar-na-inicializacao.bat` de novo e veja as linhas `[INSTALL]` e `[TRAY]` no log |
 | Continua iniciando sozinho após remover | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
-| Instalador: "falha ao criar o bootstrap" / antivírus acusa o `bootstrap.vbs` | Falso positivo. Em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção*, escolha *Permitir no dispositivo* e rode o instalador de novo |
+| Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |
 | "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor acha o Node de novo e tenta sozinho; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |
 

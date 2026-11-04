@@ -1,5 +1,5 @@
 # =============================================================================
-# _criar-tarefa.ps1                                                   v1.0.0
+# _criar-tarefa.ps1                                                   v1.1.0
 # Autor: Ruda Gabriel
 # -----------------------------------------------------------------------------
 # Auxiliar do instalar-na-inicializacao.bat (nao precisa ser executado direto).
@@ -23,15 +23,25 @@
 # dois disparando juntos nao duplicam nada: "nao iniciar outra instancia" na
 # tarefa e o mutex do proprio tray garantem uma unica copia.
 #
+# Acao da tarefa (v1.1.0): o proprio PowerShell, oculto, espera ate 30 min o
+# launcher.vbs aparecer (pasta de rede ainda nao montada no logon) e o abre.
+# Nao existe mais bootstrap.vbs: nenhum script fica copiado no AppData nem
+# vai no .zip, e o antivirus nao tem o que acusar. O comando termina com o
+# marcador "#RelatoriosAguardaRede", usado pelo removedor para reconhecer a
+# espera em andamento.
+#
 # Codigo de saida: 0 = criada e conferida, 1 = falhou (o .bat cai no schtasks).
 #
 # (Historico completo das versoes: CHANGELOG.md no repositorio.)
-# CHANGELOG 1.0.0 - 2026-10-07 10:00 - Primeira versao.
+# CHANGELOG 1.1.0 - 2026-11-04 - Sem bootstrap.vbs (falso positivo do Defender).
+#   - A tarefa chama o PowerShell oculto, que espera o launcher.vbs aparecer
+#     (ate 120 x 15 s = 30 min) e o abre pelo wscript. Parametro -Bootstrap
+#     trocado por -Launcher.
 # =============================================================================
 
 param(
     [Parameter(Mandatory = $true)][string]$Nome,
-    [Parameter(Mandatory = $true)][string]$Bootstrap,
+    [Parameter(Mandatory = $true)][string]$Launcher,
     [string]$Usuario = ''
 )
 
@@ -41,12 +51,25 @@ try {
     if (-not (Get-Command Register-ScheduledTask -ErrorAction SilentlyContinue)) {
         throw 'modulo ScheduledTasks indisponivel neste Windows'
     }
-    if (-not (Test-Path -LiteralPath $Bootstrap)) { throw "bootstrap nao encontrado: $Bootstrap" }
+    $Launcher = $Launcher.Trim()
+    # Caminho absoluto (C:\... ou \\servidor\...): a tarefa roda em
+    # System32, um caminho relativo nunca seria achado.
+    if (-not $Launcher -or -not [System.IO.Path]::IsPathRooted($Launcher)) { throw "caminho do launcher invalido: '$Launcher'" }
+    # Nao precisa existir agora (pasta de rede pode nao estar montada); so' avisa.
+    if (-not (Test-Path -LiteralPath $Launcher)) { Write-Output "  [AVISO] launcher.vbs ainda nao encontrado em $Launcher - a tarefa espera ate 30 min por ele no logon." }
+    # "%" seria expandido pelo Agendador como variavel de ambiente.
+    if ($Launcher.Contains('%')) { throw "o caminho do launcher nao pode conter '%': $Launcher" }
     if (-not $Usuario) {
         $Usuario = if ($env:USERDOMAIN) { "$env:USERDOMAIN\$env:USERNAME" } else { $env:USERNAME }
     }
 
-    $acao = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument ('"' + $Bootstrap + '"')
+    # Comando sem aspas duplas internas (vai inteiro entre aspas duplas) e
+    # com o caminho entre aspas simples (apostrofo dobrado). "& wscript.exe"
+    # nao espera: o wscript e' programa de janela, o PowerShell sai em seguida.
+    $caminhoPs = $Launcher.Replace("'", "''")
+    $espera = "`$p='" + $caminhoPs + "';for(`$i=0;`$i -lt 120;`$i++){if(Test-Path -LiteralPath `$p){& wscript.exe `$p;exit 0};Start-Sleep -Seconds 15};exit 5 #RelatoriosAguardaRede"
+    $argumentos = '-NoProfile -NonInteractive -WindowStyle Hidden -Command "' + $espera + '"'
+    $acao = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argumentos
 
     # -AtLogOn sem -User = "Quando qualquer usuario fizer logon".
     $gatilhos = @(

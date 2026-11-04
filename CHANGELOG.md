@@ -11,12 +11,12 @@ Versões em uso hoje:
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.28.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.0 |
-| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.14.1 |
-| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.0.0 |
-| [`bootstrap.vbs`](#bootstrapvbs) | 1.2.0 |
+| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.0 |
+| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.1.0 |
+| [`bootstrap.vbs`](#bootstrapvbs) | removido |
 | [`launcher.vbs`](#launchervbs) | 1.0.1 |
 | [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.0 |
-| [`_remover-inicializacao.ps1`](#_remover-inicializacaops1) | 1.0.1 |
+| [`_remover-inicializacao.ps1`](#_remover-inicializacaops1) | 1.1.0 |
 | [`_instalar-node.ps1`](#_instalar-nodeps1) | 1.3.0 |
 | [`node-firebird.bat`](#node-firebirdbat) | 1.1.1 |
 | [`gerar_relatorio_do_dia.bat`](#gerar_relatorio_do_diabat) | 1.4.2 |
@@ -841,6 +841,12 @@ a linha de comando de qualquer processo e' visivel a todos os usuarios da maquin
 
 Instalador da inicialização automática.
 
+### 1.15.0 — 2026-11-04
+
+**Sem bootstrap.vbs (falso positivo do Defender).**
+
+O `bootstrap.vbs` saiu do projeto: nada mais é copiado para `%LOCALAPPDATA%`; a pasta `RelatoriosBootstrap` antiga é apagada (por nome, e a pasta só se ficar vazia). A tarefa completa espera o `launcher.vbs` na rede; a tarefa básica (`schtasks`) e o atalho da pasta Inicializar abrem o `launcher.vbs` direto.
+
 ### 1.14.1 — 2026-10-29
 
 **Primeira instalação do Node.js.**
@@ -903,6 +909,12 @@ o "!APP_NAME: =!" que so' deveria TESTAR se o nome estava vazio sobrescrevia a p
 
 Auxiliar do instalador (tarefa agendada).
 
+### 1.1.0 — 2026-11-04
+
+**A tarefa espera a rede sozinha (sem bootstrap.vbs).**
+
+A ação da tarefa agora é o PowerShell oculto, que espera até 30 min (120 × 15 s) o `launcher.vbs` aparecer e o abre pelo `wscript`. O comando termina com o marcador `#RelatoriosAguardaRede`, que o removedor usa para reconhecê-lo. Parâmetro `-Bootstrap` trocado por `-Launcher` (caminho absoluto, sem `%`; apóstrofo escapado).
+
 ### 1.0.0 — 2026-10-07 10:00
 
 **Primeira versao.**
@@ -912,6 +924,12 @@ Auxiliar do instalador (tarefa agendada).
 ## `bootstrap.vbs`
 
 Bootstrap do logon.
+
+### Removido — 2026-11-04
+
+**Arquivo excluído do projeto.**
+
+Mesmo simplificado, o Microsoft Defender continuava acusando o arquivo (`Trojan:Script/Sabsik.FL.A!ml`, falso positivo do modelo de aprendizado de máquina) no `.zip` baixado do GitHub. A espera pela pasta de rede passou para a própria tarefa agendada (`_criar-tarefa.ps1` 1.1.0) e o instalador 1.15.0 apaga a cópia antiga em `%LOCALAPPDATA%\RelatoriosBootstrap`.
 
 ### 1.2.0 — 2026-10-29
 
@@ -958,6 +976,12 @@ Mantem CRLF e somente ASCII - edite com editor que preserve CRLF.
 ## `_remover-inicializacao.ps1`
 
 Auxiliar do removedor.
+
+### 1.1.0 — 2026-11-04
+
+**Reconhece a espera embutida na tarefa.**
+
+Tarefas, atalhos e o PowerShell que aguarda a rede com o marcador `#RelatoriosAguardaRede` também são removidos/encerrados (antes do launcher, para não religar o tray no meio da remoção). A pasta antiga `RelatoriosBootstrap` continua sendo limpa.
 
 ### 1.0.1 — 2026-10-07 22:30
 

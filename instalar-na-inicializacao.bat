@@ -142,17 +142,16 @@ timeout /t 5 >nul
 :ja_elevado
 
 :: =========================================================
-:: instalar-na-inicializacao.bat                       v1.14.1
+:: instalar-na-inicializacao.bat                       v1.15.0
 ::  Autor: Ruda Gabriel
 :: Configura o servidor para iniciar automaticamente no logon.
 ::
 :: (Historico completo das versoes: CHANGELOG.md no repositorio.)
-:: CHANGELOG 1.14.1 - 2026-10-29 - Primeira instalacao do Node.js.
-::   - Num computador sem Node, a 1a execucao parava em "Node.js nao foi
-::     instalado corretamente" e so' a 2a funcionava: o PATH desta janela era
-::     relido so' do sistema, sem expandir variaveis. Agora procura nas pastas
-::     conhecidas do Node, rele Machine + User expandidos e espera ate 30 s.
-::   - Cria %%APPDATA%%\npm antes do "npm install" (npm novo falhava com ENOENT).
+:: CHANGELOG 1.15.0 - 2026-11-04 - Sem bootstrap.vbs (falso positivo do Defender).
+::   - O Defender acusava o bootstrap.vbs (Trojan:Script/Sabsik.FL.A!ml).
+::     Ele saiu do projeto: a propria tarefa agendada espera o launcher.vbs
+::     aparecer na rede (ate 30 min) e o abre. Nada mais e' copiado para
+::     %%LOCALAPPDATA%%; a pasta RelatoriosBootstrap antiga e' apagada.
 ::
 :: =========================================================
 
@@ -162,8 +161,8 @@ echo   Configurar Inicializacao Automatica
 echo =======================================================
 echo.
 echo Configura o servidor para iniciar automaticamente ao fazer login.
-echo O bootstrap fica LOCAL na maquina e aguarda ate 30 min pelo
-echo servidor na rede antes de lanca-lo.
+echo A tarefa agendada aguarda ate 30 min pelo servidor na rede
+echo antes de lanca-lo.
 echo.
 
 :: ---------------------------------------------------------------------------
@@ -330,144 +329,62 @@ echo Sistema: !APP_NAME!
 echo.
 
 :: ---------------------------------------------------------------------------
-:: 4. Gera o bootstrap LOCAL
-::    O bootstrap aguarda o launcher.vbs ficar disponivel na rede (ate 30 min)
-::    e entao o executa. Fica em %LOCALAPPDATA% - sempre acessivel sem rede.
+:: 4. Caminho do launcher na rede
+::    A espera pela pasta de rede (ate 30 min) fica na propria tarefa
+::    agendada (v1.15.0) - ver _criar-tarefa.ps1.
 :: ---------------------------------------------------------------------------
 set "LAUNCHER_PATH=%~dp0launcher.vbs"
 :: PRECISAO FIX (v1.4.0): avisa (sem abortar) se o launcher.vbs nao estiver
-:: presente. Aqui NAO e' erro fatal de proposito: o bootstrap foi desenhado
-:: para aguardar ate 30 min o launcher aparecer, justamente porque %~dp0
-:: pode ser uma pasta de REDE ainda nao montada no momento da instalacao.
-:: Mas se o arquivo simplesmente nao existe (instalacao incompleta - cenario
-:: real, ele estava faltando no projeto original), o usuario terminaria a
-:: instalacao achando que deu tudo certo e descobriria a falha so' no
-:: proximo logon, esperando 30 min por algo que nunca vai aparecer.
+:: presente. Aqui NAO e' erro fatal de proposito: a tarefa aguarda ate 30 min
+:: o launcher aparecer, justamente porque %~dp0 pode ser uma pasta de REDE
+:: ainda nao montada no momento da instalacao. Mas se o arquivo simplesmente
+:: nao existe (instalacao incompleta), o usuario terminaria a instalacao
+:: achando que deu tudo certo e descobriria a falha so' no proximo logon.
 if not exist "!LAUNCHER_PATH!" (
     echo.
     echo AVISO: launcher.vbs nao foi encontrado em:
     echo   !LAUNCHER_PATH!
     echo.
     echo Se essa pasta e' de REDE e ainda nao esta montada, pode ignorar -
-    echo o bootstrap aguarda ate 30 min por ele no logon.
+    echo a tarefa aguarda ate 30 min por ele no logon.
     echo Caso contrario, a instalacao esta incompleta e o servidor NAO vai
     echo iniciar automaticamente: copie o launcher.vbs para essa pasta.
     echo.
     timeout /t 8 >nul
 )
 set "TASK_NAME=!APP_NAME! - Relatorios"
+
+:: ---------------------------------------------------------------------------
+:: LIMPEZA DO BOOTSTRAP ANTIGO (v1.15.0)
+:: Versoes ate a 1.14.x copiavam bootstrap.vbs + launcher.path para
+:: %%LOCALAPPDATA%%\RelatoriosBootstrap. Nao sao mais usados: apaga por NOME
+:: (nunca com curinga) e a pasta so' se ficar vazia. Falha aqui nao impede a
+:: instalacao - a tarefa nova nao aponta mais para eles.
+:: ---------------------------------------------------------------------------
 set "BOOTSTRAP_DIR=%LOCALAPPDATA%\RelatoriosBootstrap"
-set "BOOTSTRAP_FILE=!BOOTSTRAP_DIR!\bootstrap.vbs"
-
-if not exist "!BOOTSTRAP_DIR!" md "!BOOTSTRAP_DIR!" >nul 2>&1
-
-:: ---------------------------------------------------------------------------
-:: LIMPEZA (v1.10.0) - remove o bootstrap anterior ANTES de gerar o novo.
-:: Sem isso, um bootstrap.vbs invalido de uma execucao anterior podia
-:: sobreviver: se a gravacao nova falhasse por qualquer motivo (permissao,
-:: arquivo em uso, PowerShell bloqueado), a checagem "if not exist" mais
-:: abaixo encontrava o arquivo VELHO e reportava "Bootstrap criado com
-:: sucesso" -- mascarando a falha e mantendo em producao um arquivo quebrado.
-:: Foi o que aconteceu com o bootstrap gravado com BOM (erro 800A0408): ele
-:: continuava la depois da correcao, ate ser apagado na mao.
-:: Apaga por NOME especifico, nunca a pasta inteira nem com curinga: a pasta
-:: fica em %%LOCALAPPDATA%% e um "del *.*" ali seria destrutivo demais se a
-:: variavel viesse vazia ou errada.
-:: ---------------------------------------------------------------------------
-if not exist "!BOOTSTRAP_FILE!" goto :bootstrap_limpo
-del /f /q "!BOOTSTRAP_FILE!" >nul 2>&1
-set "_LT=%TIME: =0%"
-set "_LT=!_LT:~0,8!"
-if exist "!BOOTSTRAP_FILE!" (
-    echo.
-    echo ERRO: nao foi possivel apagar o bootstrap anterior:
-    echo   !BOOTSTRAP_FILE!
-    echo O arquivo pode estar em uso. Feche o Windows Script Host
-    echo ^(wscript.exe^) pelo Gerenciador de Tarefas e tente novamente.
-    echo.
-    >>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] ERRO: bootstrap anterior nao pode ser apagado - arquivo em uso.
-    pause
-    exit /b 1
-)
+if not exist "!BOOTSTRAP_DIR!\" goto :bootstrap_limpo
+if exist "!BOOTSTRAP_DIR!\bootstrap.vbs" del /f /q "!BOOTSTRAP_DIR!\bootstrap.vbs" >nul 2>&1
 if exist "!BOOTSTRAP_DIR!\launcher.path" del /f /q "!BOOTSTRAP_DIR!\launcher.path" >nul 2>&1
->>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] Bootstrap anterior removido antes de recriar.
-echo Bootstrap anterior removido.
-:bootstrap_limpo
-
-echo Criando bootstrap local em:
-echo   !BOOTSTRAP_FILE!
-echo.
-
-:: Gera bootstrap.vbs via PowerShell (aspas internas usam Chr(34))
-:: BUG FIX: mesma classe de problema do appName acima - LAUNCHER_PATH e
-:: BOOTSTRAP_FILE tambem sao caminhos de arquivo que podem conter apostrofo
-:: (ex: perfil de usuario "C:\Users\O'Brien\..."), e sao embutidos em
-:: strings PowerShell de aspas simples. Escapado da mesma forma.
-:: ---------------------------------------------------------------------------
-:: BOOTSTRAP (v1.11.0): COPIA o bootstrap.vbs do projeto em vez de gera-lo.
-:: A geracao linha a linha por "echo" exigia escapar ( ) & < > e conviver
-:: com as regras de expansao do cmd -- falhou de tres formas diferentes em
-:: producao: bloco fechando cedo (arquivo pela metade), BOM que o wscript
-:: recusa (800A0408) e escapes vazando (erro de sintaxe na linha 6,
-:: 800A03EA). Copiar nao tem escape, nem expansao, nem encoding a definir.
-:: O caminho do launcher vai num arquivo texto de uma linha ao lado --
-:: unico dado dinamico, gravado com um echo simples e sem escape.
-:: ---------------------------------------------------------------------------
-if not exist "%~dp0bootstrap.vbs" (
-    echo.
-    echo ERRO: bootstrap.vbs nao encontrado em:
-    echo   %~dp0
-    echo Verifique se a pasta do sistema esta completa.
-    echo.
-    pause
-    exit /b 1
+rd "!BOOTSTRAP_DIR!" >nul 2>&1
+set "_LT=%TIME: =0%"
+set "_LT=!_LT:~0,8!"
+if exist "!BOOTSTRAP_DIR!\bootstrap.vbs" (
+    echo AVISO: o bootstrap.vbs antigo nao pode ser apagado ^(em uso^):
+    echo   !BOOTSTRAP_DIR!\bootstrap.vbs
+    echo Ele nao e' mais usado - pode apaga-lo depois, na mao.
+    >>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] AVISO: bootstrap.vbs antigo nao pode ser apagado.
+) else (
+    echo Bootstrap antigo removido ^(nao e' mais necessario^).
+    >>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] Bootstrap antigo removido de %%LOCALAPPDATA%%.
 )
-
-copy /y "%~dp0bootstrap.vbs" "!BOOTSTRAP_FILE!" >nul 2>&1
-:: v1.14.0: o antivirus pode apagar a copia alguns instantes depois - confere de novo.
-timeout /t 2 /nobreak >nul
-if not exist "!BOOTSTRAP_FILE!" goto :bootstrap_falhou
-
-:: Grava o caminho do launcher (unica informacao dinamica do bootstrap) em
-:: UTF-16, que o bootstrap.vbs le direto. O caminho vai por variavel de
-:: ambiente (Unicode, sem escape). Sem PowerShell: echo simples (ANSI), que o
-:: bootstrap tambem le.
-set "_LP_ARQ=!BOOTSTRAP_DIR!\launcher.path"
-powershell -NoProfile -Command "[System.IO.File]::WriteAllText($env:_LP_ARQ, $env:LAUNCHER_PATH, [System.Text.Encoding]::Unicode)" >nul 2>&1
-if not exist "!_LP_ARQ!" >"!_LP_ARQ!" echo !LAUNCHER_PATH!
-if not exist "!_LP_ARQ!" goto :bootstrap_falhou
-
-set "_LT=%TIME: =0%"
-set "_LT=!_LT:~0,8!"
->>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] Bootstrap copiado e launcher.path gravado.
-echo Bootstrap criado com sucesso.
-goto :bootstrap_ok
-
-:bootstrap_falhou
-echo.
-echo ERRO: falha ao criar o bootstrap em:
-echo   !BOOTSTRAP_DIR!
-echo.
-echo Causa mais comum: o antivirus ^(Microsoft Defender^) apagou a copia do
-echo bootstrap.vbs. Abra Seguranca do Windows - Protecao contra virus e
-echo ameacas - Historico de protecao, restaure o arquivo ^(Permitir no
-echo dispositivo^) e rode este instalador de novo.
-echo Outra causa possivel: sem permissao de escrita nessa pasta.
-echo.
-set "_LT=%TIME: =0%"
-set "_LT=!_LT:~0,8!"
->>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] ERRO: falha ao criar bootstrap/launcher.path.
-pause
-exit /b 1
-
-:bootstrap_ok
+:bootstrap_limpo
 echo.
 
 :: ---------------------------------------------------------------------------
-:: 5. Registra tarefa agendada apontando para o BOOTSTRAP LOCAL
-::    - Nunca falha com "arquivo nao encontrado" (bootstrap e local)
-::    - Sem atraso: a espera pela pasta de rede fica com o bootstrap, que
-::      tenta na hora e repete por ate 30 min.
+:: 5. Registra a tarefa agendada
+::    - v1.15.0: a acao e' o PowerShell oculto, que espera o launcher.vbs
+::      aparecer na rede (tenta na hora e repete por ate 30 min) e o abre.
+::      Nunca falha com "arquivo nao encontrado" (powershell.exe e' local).
 ::    - v1.13.0: configuracao completa por _criar-tarefa.ps1 - "Ao fazer
 ::      logon" (qualquer usuario) + "Ao inicializar", sem condicoes,
 ::      reinicio a cada 1 min ate 99x, sem limite de tempo, uma instancia so'.
@@ -482,7 +399,7 @@ if defined APP_NAME_LEGADO if not "!APP_NAME_LEGADO!"=="!APP_NAME!" schtasks /de
 set "TAREFA_OK="
 if not exist "%~dp0_criar-tarefa.ps1" goto :tarefa_schtasks
 echo Criando tarefa agendada...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_criar-tarefa.ps1" -Nome "!TASK_NAME!" -Bootstrap "!BOOTSTRAP_FILE!"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_criar-tarefa.ps1" -Nome "!TASK_NAME!" -Launcher "!LAUNCHER_PATH!"
 if errorlevel 1 goto :tarefa_schtasks
 set "TAREFA_OK=completa"
 set "_LT=%TIME: =0%"
@@ -492,8 +409,11 @@ goto :tarefa_criada
 
 :tarefa_schtasks
 echo   Criando tarefa basica pelo schtasks ^(somente no logon^)...
+:: Tarefa basica abre o launcher direto (o schtasks limita o comando a 261
+:: caracteres, curto demais para a espera). Se a pasta de rede ainda nao
+:: estiver montada no logon, abra o relatorio pelo atalho uma vez.
 schtasks /create /tn "!TASK_NAME!" ^
-    /tr "wscript.exe \"!BOOTSTRAP_FILE!\"" ^
+    /tr "wscript.exe \"!LAUNCHER_PATH!\"" ^
     /sc ONLOGON /ru "%USERNAME%" /rl LIMITED /f >nul 2>&1
 if errorlevel 1 goto :tarefa_falhou
 call :ajustar_tarefa
@@ -511,15 +431,16 @@ if "!TAREFA_OK!"=="completa" (
 ) else (
     echo     1. Tarefa agendada no logon ^(imediata, sem atraso^)
 )
-echo     2. bootstrap.vbs LOCAL aguarda ate 30 min pelo launcher.vbs na rede
+if "!TAREFA_OK!"=="completa" (
+    echo     2. A tarefa aguarda ate 30 min pelo launcher.vbs na rede
+) else (
+    echo     2. Tarefa basica: abre o launcher.vbs direto, sem esperar a rede
+)
 echo     3. launcher.vbs lanca iniciar-tray.ps1 ^(oculto^)
 echo     4. iniciar-tray.ps1 aguarda ate 30 min pelo servidor-relatorio.js
 echo     5. servidor-relatorio.js aguarda ate 30 min pelo banco Firebird
 echo.
-echo   Bootstrap local ^(tarefa aponta aqui^):
-echo     !BOOTSTRAP_FILE!
-echo.
-echo   Launcher na rede ^(bootstrap espera este^):
+echo   Launcher ^(a tarefa abre este^):
 echo     !LAUNCHER_PATH!
 echo.
 echo   Para remover: execute remover-inicializacao.bat
@@ -529,8 +450,8 @@ goto :iniciar_agora
 :tarefa_falhou
 :: Fallback: atalho .lnk na pasta Inicializar (v1.14.0: antes era um .vbs
 :: gerado, outro padrao que antivirus costuma bloquear). O atalho abre o
-:: bootstrap pelo wscript. Caminhos por variavel de ambiente: Unicode e sem
-:: escape.
+:: launcher.vbs pelo wscript (v1.15.0: sem bootstrap). Caminhos por variavel
+:: de ambiente: Unicode e sem escape.
 echo  schtasks falhou. Usando pasta de Inicializacao como fallback...
 set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "SHORTCUT=!STARTUP!\!APP_NAME! Relatorios.lnk"
@@ -541,7 +462,7 @@ if exist "!SHORTCUT!" del /f /q "!SHORTCUT!" >nul 2>&1
 if exist "!STARTUP!\!APP_NAME! Relatorios.vbs" del /f /q "!STARTUP!\!APP_NAME! Relatorios.vbs" >nul 2>&1
 if defined APP_NAME_LEGADO if not "!APP_NAME_LEGADO!"=="!APP_NAME!" del /f /q "!STARTUP!\!APP_NAME_LEGADO! Relatorios.vbs" "!STARTUP!\!APP_NAME_LEGADO! Relatorios.lnk" >nul 2>&1
 
-powershell -NoProfile -Command "try{$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:SHORTCUT);$s.TargetPath=(Join-Path $env:SystemRoot 'System32\wscript.exe');$s.Arguments=[char]34+$env:BOOTSTRAP_FILE+[char]34;$s.WorkingDirectory=$env:BOOTSTRAP_DIR;$s.Save();exit 0}catch{exit 1}" >nul 2>&1
+powershell -NoProfile -Command "try{$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:SHORTCUT);$s.TargetPath=(Join-Path $env:SystemRoot 'System32\wscript.exe');$s.Arguments=[char]34+$env:LAUNCHER_PATH+[char]34;$s.WorkingDirectory=(Split-Path -Parent $env:LAUNCHER_PATH);$s.Save();exit 0}catch{exit 1}" >nul 2>&1
 
 if exist "!SHORTCUT!" (
     echo   Atalho criado em:

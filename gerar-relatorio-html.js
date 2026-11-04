@@ -1,11 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.28.1
+ * @version 3.29.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.28.1 - 2026-10-30 01:00 - Recarga automática (opção ligada) volta limpa, como F5.
+ *   3.29.0 - 2026-11-04 - Copiar: venda com 2+ formas sai com o valor de cada forma.
  */
 
 (function() {
@@ -13,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.28.1";
+    const SCRIPT_VERSION = "3.29.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -5477,12 +5477,31 @@ const passaFiltro = (x, i) => {
 const limparPagamentoCopia=p=>String(p||"").split("|").map(s=>s.trim().replace(/^cartao(?: +|$)/i,"").trim()).filter(Boolean).join(" | ");
 const formasDe=x=>limparPagamentoCopia(x.pagamentos||"").split("|").map(s=>normP(s)).filter(Boolean);
 const temDinheiro=x=>formasDe(x).includes("DINHEIRO");
+// v3.29.0: venda com 2+ formas de pagamento -> cada forma com o próprio valor,
+// na ordem da coluna Pagamentos: "175,00 CREDITO | 181,50 DEBITO". Mesmo
+// critério do modal (formasValores com 2+ valores > 0; NF-e fica como está,
+// mostra a natureza). Nome da forma igual ao da tela; sem valores confiáveis
+// devolve "" e a cópia segue no formato antigo (total + formas).
+const formasComValorCopia=x=>{
+    if(!x||x.modelo===55)return "";
+    const fv=x.formasValores&&typeof x.formasValores==="object"?x.formasValores:null;
+    if(!fv)return "";
+    const ent=Object.entries(fv).map(([f,v])=>[limparPagamentoCopia(f)||String(f||"").trim(),Number(v)]).filter(([f,v])=>f&&isFinite(v)&&v>0);
+    if(ent.length<2)return "";
+    const nomes=limparPagamentoCopia(x.pagamentos||"").split("|").map(s=>s.trim()).filter(Boolean);
+    const pos=f=>{const k=normP(f);const i=nomes.findIndex(n=>normP(n)===k);return i<0?999:i;};
+    ent.sort((a,b)=>pos(a[0])-pos(b[0]));
+    return ent.map(([f,v])=>{const i=pos(f);return fmtCopia(v)+" "+(i<999?nomes[i]:f);}).join(" | ");
+};
 
 const montarTextoCopia=(ignorarDinheiro,ignorarProibidos)=>{
     const filtradas=DADOS.vendas.filter((x,i)=>passaFiltro(x,i)).filter(x=>(!ignorarDinheiro||!temDinheiro(x))&&(!ignorarProibidos||!vendaTemProibido(x)));
     const montarBloco=(nome,arr)=>{
         let out=nome+":\n";
-        for(const x of arr)out+=String(x.numero||"")+"\t"+fmtCopia(x.total||0)+"\t"+limparPagamentoCopia(x.pagamentos||"")+"\n";
+        for(const x of arr){
+            const fvc=formasComValorCopia(x);
+            out+=String(x.numero||"")+"\t"+(fvc||(fmtCopia(x.total||0)+"\t"+limparPagamentoCopia(x.pagamentos||"")))+"\n";
+        }
         return out.trim();
     };
     if(vendAtual)return montarBloco(vendAtual,filtradas);
@@ -5502,6 +5521,8 @@ const linhaCopiaItens=x=>{
         for(let l of linhas){ l=l.replace(/^\d+[\d,]*x\s*/i,"").trim(); if(!l||l==="…"||l==="...")continue; const k=normP(l); if(!k||seen.has(k))continue; seen.add(k); out.push(l); }
         itens=out.join("╰─╮");
     }
+    const fvc=formasComValorCopia(x);
+    if(fvc)return String(x?.numero||"")+"\t"+fvc+"\t"+(itens||"");
     const forma=limparPagamentoCopia(x?.pagamentos||""), parts=forma.split("|").map(s=>normP(s)).filter(Boolean);
     const extraTab=(parts.includes("DEBITO")||parts.includes("PIX")||parts.includes("DINHEIRO"))?"\t":"";
     return String(x?.numero||"")+"\t"+fmtCopia(x?.total||0)+"\t"+forma+"\t"+extraTab+(itens||"");
@@ -5509,6 +5530,8 @@ const linhaCopiaItens=x=>{
 
 // Linha de cópia sem itens — igual a linhaCopiaItens mas omite a coluna de itens
 const linhaCopiaSemItens=x=>{
+    const fvc=formasComValorCopia(x);
+    if(fvc)return String(x?.numero||"")+"\t"+fvc;
     const forma=limparPagamentoCopia(x?.pagamentos||"");
     const parts=forma.split("|").map(s=>normP(s)).filter(Boolean);
     const extraTab=(parts.includes("DEBITO")||parts.includes("PIX")||parts.includes("DINHEIRO"))?"\t":"";

@@ -5,7 +5,7 @@
 ### Painel de vendas em tempo real para lojas que usam o Small Commerce (Firebird)
 
 <img alt="servidor: v2.24.0" src="https://img.shields.io/badge/servidor-v2.24.0-2563EB?style=flat">
-<img alt="gerador: v3.28.1" src="https://img.shields.io/badge/gerador-v3.28.1-2563EB?style=flat">
+<img alt="gerador: v3.29.0" src="https://img.shields.io/badge/gerador-v3.29.0-2563EB?style=flat">
 <img alt="bandeja: v1.8.0" src="https://img.shields.io/badge/bandeja-v1.8.0-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
@@ -147,7 +147,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
   - **Desempenho:** *Completo* (animações de entrada e saída em tudo) ou *Leve* (sem animações, para máquinas fracas); o *Automático* detecta sozinho.
   - **Atualização:** *Recarregar relatório ao detectar mudanças*. **Ligado:** a cada venda a página recarrega como um F5 — limpa busca, filtros e janelas abertas e volta ao topo. **Desligado:** a venda nova entra **sem recarregar** — filtros, busca, rolagem e janelas abertas ficam como estão.
   - **Tamanho do texto** de 80% a 140%, no computador e no celular (salvos separados).
-- **Busca avançada** com coringas (veja [abaixo](#busca)), **filtro de proibidos**, **chip de desconto** nos itens, **ferramentas de cópia** e **teclas de atalho** personalizáveis.
+- **Busca avançada** com coringas (veja [abaixo](#busca)), **filtro de proibidos**, **chip de desconto** nos itens, **ferramentas de cópia** (venda com mais de uma forma de pagamento sai com o valor de cada uma, ex.: `175,00 CREDITO | 181,50 DEBITO`) e **teclas de atalho** personalizáveis.
 - **Recarregamento sem piscar:** quando a página recarrega, ela volta no mesmo ponto da lista e com os mesmos filtros.
 - **Celular:** botão **voltar ao topo** depois de descer bastante; modo detalhado com a lista indo até o fim da tela no computador.
 
@@ -406,7 +406,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.0 | Gerador v3.28.1
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.0 | Gerador v3.29.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```

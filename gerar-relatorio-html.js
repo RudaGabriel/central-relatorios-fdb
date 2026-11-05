@@ -1,11 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.29.0
+ * @version 3.29.1
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.29.0 - 2026-11-04 - Copiar: venda com 2+ formas sai com o valor de cada forma.
+ *   3.29.1 - 2026-11-05 - Textos mais formais (avisos, dicas, ajuda de coringas, QR code).
  */
 
 (function() {
@@ -13,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.29.0";
+    const SCRIPT_VERSION = "3.29.1";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -3821,7 +3821,7 @@ const _perfMedir = () => {
     if (leve && _perfPref() === "auto" && !_perfEhLeve()) {
         document.documentElement.setAttribute("data-perf", "leve");
         document.documentElement.setAttribute("data-perf-motivo", "medido");
-        try { toast("Modo leve", "Este aparelho é mais lento: animações e efeitos foram reduzidos para não travar. Mude em Configurações → Nesta tela → Desempenho."); } catch (e) {}
+        try { toast("Modo leve", "Este aparelho tem desempenho limitado; por isso, animações e efeitos foram reduzidos. Para alterar, acesse Configurações → Nesta tela → Desempenho."); } catch (e) {}
         try { _perfMarcarMenu(); } catch (e) {}
     }
 };
@@ -3853,11 +3853,11 @@ const _htmlPrefsTela = () => '<div class="tmPerf"><div class="tmHead tmPerfHead"
         +     '<button type="button" class="tmPerfOp" role="radio" data-perf="completo">Completo</button>'
         +     '<button type="button" class="tmPerfOp" role="radio" data-perf="leve">Leve</button>'
         +   '</div>'
-        +   '<div class="tmPerfDica">Leve: sem animações, desfoque nem sombras pesadas — para computadores, notebooks e celulares mais fracos. O automático detecta sozinho.</div>'
+        +   '<div class="tmPerfDica">Leve: sem animações, desfoque nem sombras pesadas — indicado para computadores, notebooks e celulares de menor desempenho. A opção Automático identifica o aparelho e escolhe o modo adequado.</div>'
         + '</div>'
         + '<div class="tmPerf"><div class="tmHead tmPerfHead"><span class="tmTitulo">Atualização</span><span class="tmAtual tmRecEstado"></span></div>'
         +   '<label class="tmRecLbl"><input type="checkbox" id="tmRecAuto"><span>Recarregar relatório ao detectar mudanças</span></label>'
-        +   '<div class="tmPerfDica">Ligado: a cada venda a página recarrega como um F5 — limpa busca, filtros e janelas abertas e volta ao topo. Desligado: as vendas novas entram sozinhas sem recarregar — filtros, busca, rolagem e janelas abertas ficam como estão. Vale só para este aparelho.</div>'
+        +   '<div class="tmPerfDica">Ligado: a cada nova venda, a página é recarregada como no F5 — a busca, os filtros e as janelas abertas são limpos e a página volta ao topo. Desligado: as novas vendas são incluídas automaticamente, sem recarregar — filtros, busca, rolagem e janelas abertas são mantidos. Válido somente para este aparelho.</div>'
         + '</div>'
         + '<div class="tmPerf tmZoom"><div class="tmHead tmPerfHead"><span class="tmTitulo">Tamanho do texto</span><span class="tmAtual tmZoomEstado"></span></div>'
         +   '<div class="tmPerfOps tmZoomOps" role="group" aria-label="Tamanho do texto">'
@@ -4644,7 +4644,7 @@ const abrirDuplicatas=(itens, destaque)=>{
                 renderTabela();
             }
             render();
-            toast("Duplicatas", ligar ? "Todas as duplicatas sem escolha salva passam a ser exibidas." : "Modo \"manter todas\" desativado — vale a partir da próxima atualização do relatório.");
+            toast("Duplicatas", ligar ? "Todas as duplicatas sem escolha salva passam a ser exibidas." : "Modo \"manter todas\" desativado — válido a partir da próxima atualização do relatório.");
         });
 
         // Liga os botões de escolha de cada item (pendente: aplica já; decidida:
@@ -6291,7 +6291,7 @@ const _visAplicar = (v) => {
     else { const el = document.getElementById("dash"); if (el) el.innerHTML = ""; }
     try { _visMarcarMenu(); } catch (e) {}
     try { window.dispatchEvent(new Event("resize")); } catch (e) {}
-    try { toast("Visualização", val === "detalhada" ? "Detalhada — painel com gráficos acima da tabela." : "Simplificada — só a tabela."); } catch (e) {}
+    try { toast("Visualização", val === "detalhada" ? "Detalhada — painel com gráficos acima da tabela." : "Simplificada — somente a tabela."); } catch (e) {}
 };
 // Tamanho do texto no celular (menu Tema): 80% a 140%, de 10 em 10. Salvo no aparelho.
 const ZOOM_NIVEIS = [0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4];
@@ -6335,7 +6335,7 @@ const _recMarcarMenu = () => {
 const _recEscolher = (ligar) => {
     try { localStorage.setItem("fdb_recarga_auto", ligar ? "1" : "0"); } catch (e) {}
     _recMarcarMenu();
-    toast("Atualização", ligar ? "A cada venda a página recarrega e limpa filtros e janelas (como F5)." : "As vendas novas continuam entrando, sem recarregar a página.");
+    toast("Atualização", ligar ? "A cada nova venda, a página será recarregada e os filtros e janelas serão limpos (como no F5)." : "As novas vendas continuarão sendo incluídas, sem recarregar a página.");
     try { if (typeof window.__srvRecargaMudou === "function") window.__srvRecargaMudou(!!ligar); } catch (e) {}
 };
 const _visMarcarMenu = () => {
@@ -6526,22 +6526,22 @@ const abrirAjuda=()=>{
     add("=151 ou =151*5","Combinação de vendas que somam até 151. Com tolerância: =151*5 (±5)");
 
     sep("Coringas numéricos (parte inteira)");
-    add("*","1+ dígitos e/ou vírgula — casa do começo do valor. Ex: 15* → 15,00 / 150,00 / 1500,00");
-    add("/","1+ dígitos antes da vírgula — busca dentro da parte inteira. Ex: /15/ → 115,90 / 2150,00");
+    add("*","1 ou mais dígitos e/ou vírgula — corresponde ao início do valor. Ex: 15* → 15,00 / 150,00 / 1500,00");
+    add("/","1 ou mais dígitos antes da vírgula — busca dentro da parte inteira. Ex: /15/ → 115,90 / 2150,00");
     add("?","Exatamente 1 dígito na parte inteira. Ex: 1?0 → 100 / 110 / 190 (dentro do inteiro)");
 
-    sep("Coringas textuais — NOVO");
-    add("palavra*","Começa com — ex: RACAO* encontra RACAO PREMIUM, RACAO GATO etc.");
-    add("*palavra","Termina com — ex: *GATO encontra RACAO GATO, ALIMENTO GATO etc.");
+    sep("Coringas textuais");
+    add("palavra*","Começa com — ex.: RACAO* encontra RACAO PREMIUM, RACAO GATO etc.");
+    add("*palavra","Termina com — ex.: *GATO encontra RACAO GATO, ALIMENTO GATO etc.");
     add("*palavra*","Contém (equivalente a ~palavra) — ex: *RACAO* encontra qualquer item com RACAO");
-    add("p*lavra","Glob livre — * casa qualquer sequência. Ex: R*CAO encontra RACAO, RAÇÃO, RAT CAO etc.");
+    add("p*lavra","Curinga livre — * corresponde a qualquer sequência. Ex.: R*CAO encontra RACAO, RAÇÃO, RAT CAO etc.");
 
-    sep("OR entre termos — NOVO");
+    sep("OU entre termos");
     add("A|B","Mostra vendas que contenham A OU B. Ex: dinheiro|pix  Ex: >100+debito|credito");
-    add("A|B|C","Mais de dois. Ex: granel|entrega|desconto  (funciona em inclusão e em exclusão)");
+    add("A|B|C","Mais de dois termos. Ex.: granel|entrega|desconto (funciona na inclusão e na exclusão)");
 
-    sep("Campo específico — NOVO");
-    add("vendedor:NOME","Filtra pelo vendedor exato (ou glob). Ex: vendedor:FULANO  vend:BELTRANO*");
+    sep("Campo específico");
+    add("vendedor:NOME","Filtra pelo vendedor exato (ou com curinga). Ex: vendedor:FULANO  vend:BELTRANO*");
     add("item:PRODUTO","Filtra por item comprado. Ex: item:*RACAO*  item:GRANEL");
     add("caixa:001","Filtra pelo caixa. Aliases: cx:1  caixa:001");
     add("numero:123","Filtra pelo número do cupom/NF. Alias: num:123");
@@ -6551,12 +6551,12 @@ const abrirAjuda=()=>{
     add("nat:VENDA","Filtra pela natureza da operação. Alias: natureza:*VENDA*");
     add("tipo:ger","Filtra pelo tipo de documento. Valores: ger / nfce / nfe");
 
-    sep("Frase exata — NOVO");
+    sep("Frase exata");
     add('"ração gato"',"Busca a frase inteira no texto da venda (vendedor, itens, pagamento etc.)");
-    add('"ND CAES"+>50',"Combina frase exata com outros filtros via +");
+    add('"ND CAES"+>50',"Combina a frase exata com outros filtros usando +");
 
-    sep("Combinações (AND via +)");
-    add("+ (opcional)","Múltiplos filtros: todos devem satisfazer (AND). Ex: >50+dinheiro+-entrega");
+    sep("Combinações (E, com +)");
+    add("+ (opcional)","Múltiplos filtros: a venda deve atender a todos (E). Ex: >50+dinheiro+-entrega");
     add("A-B-C","Inclusão A com exclusões B e C (sem +). Ex: carto-credito-debito");
     add("> ou < + exclusão","Ex: >100-pix-credito  <200-granel-gerencia-cartao");
     add("Rádio ao lado da busca","Escolha Todos, Gerencial, NFC-e ou NF-e para restringir a pesquisa ao tipo");
@@ -6654,7 +6654,7 @@ const _importarProibidosServidor = (ta, formatar, modo, botoes) => {
         if (nova.join("\n") === atual.join("\n")) { toast("Importar do servidor", "A lista já está igual à do servidor."); return; }
         ta.value = nova.join("\n");
         try { if (typeof formatar === "function") formatar(); } catch (_) {}
-        toast("Importar do servidor", (modo === "juntar" ? novos + " termo(s) acrescentado(s)" : srv.length + " termo(s) importado(s)") + " — confira e clique em Salvar.");
+        toast("Importar do servidor", (modo === "juntar" ? novos + " termo(s) acrescentado(s)" : srv.length + " termo(s) importado(s)") + " — confira a lista e clique em Salvar.");
     }).catch(e => { liberar(); toast("Importar do servidor", "Falha na conexão com o servidor" + (e && e.message ? ": " + e.message : ".")); });
 };
 
@@ -6669,7 +6669,7 @@ const abrirEditorProibidos=()=>{
     if (document.getElementById("ovProib")) return;
     const bg=document.createElement("div"); bg.className="ov"; bg.id="ovProib"; bg.setAttribute("aria-hidden","false");
     const _prRemoto = !!(window.__APARELHO__ && window.__APARELHO__.servidor === false);
-    bg.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mhead"><div><div class="mtitle">Proibidos</div><div class="msub">Um por linha — nome do produto a ocultar. Colou separado por vírgula, ponto e vírgula, tabulação ou em lista? O formato é ajustado sozinho. '+(_prRemoto?'Vale só para este aparelho.':'Salvo no servidor (config.json) — padrão de todos os aparelhos.')+'</div></div><div class="btn" id="prFechar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Fechar</div></div><div class="mbody"><textarea id="prTa" spellcheck="false" style="width:100%;height:260px;resize:vertical;border-radius:14px;border:1px solid var(--field-border);background:var(--field-bg);/*color:#e6eaf2;*/padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;font-size:12px;outline:none"></textarea><div id="prCont" aria-live="polite" style="font-size:12px;color:var(--text-muted);min-height:18px;padding:4px 2px 0;line-height:1.4"></div>'+(_prRemoto?_BTN_IMPORTAR_PR("prImportar","prJuntar"):'')+'<div id="prMsg" style="font-size:12px;color:var(--text-muted);min-height:18px;padding:4px 0"></div><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><div class="btn" id="prCancelar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.42"/></svg>Restaurar padrão</div><div class="btn" id="prSalvar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</div></div></div></div>';
+    bg.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mhead"><div><div class="mtitle">Proibidos</div><div class="msub">Um por linha — nome do produto a ocultar. Colou separado por vírgula, ponto e vírgula, tabulação ou em lista? O formato é ajustado automaticamente. '+(_prRemoto?'Válido somente para este aparelho.':'Salvo no servidor (config.json) — padrão de todos os aparelhos.')+'</div></div><div class="btn" id="prFechar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Fechar</div></div><div class="mbody"><textarea id="prTa" spellcheck="false" style="width:100%;height:260px;resize:vertical;border-radius:14px;border:1px solid var(--field-border);background:var(--field-bg);/*color:#e6eaf2;*/padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;font-size:12px;outline:none"></textarea><div id="prCont" aria-live="polite" style="font-size:12px;color:var(--text-muted);min-height:18px;padding:4px 2px 0;line-height:1.4"></div>'+(_prRemoto?_BTN_IMPORTAR_PR("prImportar","prJuntar"):'')+'<div id="prMsg" style="font-size:12px;color:var(--text-muted);min-height:18px;padding:4px 0"></div><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><div class="btn" id="prCancelar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.42"/></svg>Restaurar padrão</div><div class="btn" id="prSalvar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</div></div></div></div>';
     document.body.appendChild(bg);
     // Fix de transição: className precisa entrar no DOM SEM "on" e ganhar a
     // classe depois (com reflow forçado no meio) — se "on" já vier junto no
@@ -6705,14 +6705,14 @@ const abrirEditorProibidos=()=>{
         ta.value=proibidosPadrao.join("\n");
         formatarPr();
         renderTabela();
-        toast("Proibidos","Restaurado padrão.");
+        toast("Proibidos","Lista padrão restaurada.");
     });
     qs("#prSalvar",bg).addEventListener("click",()=>{
         const lista=formatarPr();
         setProibidosUser(lista);
         if(msg)msg.textContent="Salvando...";
         _salvarProibidosServidor(lista, ()=>{
-            if(msg)msg.textContent="Salvo!";
+            if(msg)msg.textContent="Salvo.";
             setTimeout(()=>{if(msg)msg.textContent="";},2000);
         });
         fechar();
@@ -6838,7 +6838,7 @@ document.querySelectorAll('input[name="tipoBusca"]').forEach(el=>el.addEventList
     }
     calcSomaSel(); renderTabela();
 }); }));
-const _fnLimpar=()=>_movTransicao(()=>{vendAtual="";qAtual="";qInc="";tipoBusca="todos";_invalidarCtxCache();qs("#q").value="";const rb=qs('input[name="tipoBusca"][value="todos"]');if(rb)rb.checked=true;calcSomaSel();renderTabela();atualizarSelecaoVendedores();_atualizarXLimpar();toast("Filtro limpo","Mostrando todos.");});
+const _fnLimpar=()=>_movTransicao(()=>{vendAtual="";qAtual="";qInc="";tipoBusca="todos";_invalidarCtxCache();qs("#q").value="";const rb=qs('input[name="tipoBusca"][value="todos"]');if(rb)rb.checked=true;calcSomaSel();renderTabela();atualizarSelecaoVendedores();_atualizarXLimpar();toast("Filtro removido","Exibindo todas as vendas.");});
 qs("#limpar").addEventListener("click",_fnLimpar);
 const _btnLimTab=qs("#limparTabela");if(_btnLimTab)_btnLimTab.addEventListener("click",_fnLimpar);
 
@@ -6855,11 +6855,11 @@ qs("#q").addEventListener("input", _atualizarXLimpar);
 // Estado inicial (pode haver valor pré-preenchido)
 _atualizarXLimpar();
 qs("#ajuda").addEventListener("click",abrirAjuda);
-const btnPro=qs("#proibidos");if(btnPro)btnPro.addEventListener("click",()=>{const inp=qs("#q");if(!inp)return;let v=String(inp.value||"");if(v.toLowerCase().indexOf("[proibidos]")<0)v=(v+" [proibidos]").trim();inp.value=v;qAtual=v.trim();_invalidarCtxCache();const p=parseBusca(qAtual);qInc=p.inc;calcSomaSel();renderTabela();_atualizarXLimpar();toast("Filtro","Aplicado [proibidos].");});
+const btnPro=qs("#proibidos");if(btnPro)btnPro.addEventListener("click",()=>{const inp=qs("#q");if(!inp)return;let v=String(inp.value||"");if(v.toLowerCase().indexOf("[proibidos]")<0)v=(v+" [proibidos]").trim();inp.value=v;qAtual=v.trim();_invalidarCtxCache();const p=parseBusca(qAtual);qInc=p.inc;calcSomaSel();renderTabela();_atualizarXLimpar();toast("Filtro","Filtro [proibidos] aplicado.");});
 
 qs("#copiarTudo").addEventListener("click",()=>{copiarTexto(montarTextoCopia(false,false));toast("Copiado","Conteúdo completo (com dinheiro).");});
 qs("#copiarTudoItens").addEventListener("click",()=>{copiarTexto(montarTextoCopiaItens(false,false));toast("Copiado","Conteúdo completo + itens.");});
-qs("#copiarSemDinheiro").addEventListener("click",()=>{copiarTexto(montarTextoCopia(true,false));toast("Copiado","Ignorando vendas com Dinheiro.");});
+qs("#copiarSemDinheiro").addEventListener("click",()=>{copiarTexto(montarTextoCopia(true,false));toast("Copiado","Vendas em dinheiro não incluídas.");});
 qs("#copiarGerencial").addEventListener("click",()=>{
     // Gerencial real: modelo 99 + número começa com 0 (padStart de gerencial) + NÃO é recebimento avulso
     const filtradas=DADOS.vendas.map((x,i)=>({x,i}))
@@ -6873,7 +6873,7 @@ qs("#copiarGerencial").addEventListener("click",()=>{
         const vendes=[...map.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
         for(const v of vendes){ out+=v+":\n"; for(const x of map.get(v))out+=String(x.numero||"")+"\n"; out+="\n"; }
     }
-    copiarTexto(out.trim()); toast("Copiado","Somente números de gerencial.");
+    copiarTexto(out.trim()); toast("Copiado","Somente os números das gerenciais.");
 });
 
 qs("#editarProibidos").addEventListener("click",abrirEditorProibidos);
@@ -7045,12 +7045,12 @@ document.addEventListener("keydown",e=>{
     let v=String(inp.value||"");
     if(isDelete){
         if(v.toLowerCase().indexOf("[-proibidos]")<0)v=(v+" [-proibidos]").trim();
-        inp.value=v; qAtual=v.trim(); const p=parseBusca(qAtual); qInc=p.inc; calcSomaSel(); renderTabela(); _atualizarXLimpar(); toast("Filtro","Aplicado [-proibidos].");
+        inp.value=v; qAtual=v.trim(); const p=parseBusca(qAtual); qInc=p.inc; calcSomaSel(); renderTabela(); _atualizarXLimpar(); toast("Filtro","Filtro [-proibidos] aplicado.");
         _atalhoSelecionarGerencialTodos();
     }else{
         if(k==="Insert") _atalhoSelecionarGerencialTodos();
         if(v.toLowerCase().indexOf("[proibidos]")<0)v=(v+" [proibidos]").trim();
-        inp.value=v; qAtual=v.trim(); const p=parseBusca(qAtual); qInc=p.inc; calcSomaSel(); renderTabela(); _atualizarXLimpar(); toast("Filtro","Aplicado [proibidos].");
+        inp.value=v; qAtual=v.trim(); const p=parseBusca(qAtual); qInc=p.inc; calcSomaSel(); renderTabela(); _atualizarXLimpar(); toast("Filtro","Filtro [proibidos] aplicado.");
     }
 });
 
@@ -7194,7 +7194,7 @@ var __abrirModalPeriodo = function() {
         var inicio = document.getElementById("perInicio").value;
         var fim    = document.getElementById("perFim").value;
         if (!inicio || !fim) { toast("Erro", "Informe as duas datas."); return; }
-        if (inicio > fim) { toast("Erro", "A data inicial deve ser anterior ou igual a final."); return; }
+        if (inicio > fim) { toast("Erro", "A data inicial deve ser anterior ou igual à data final."); return; }
         var _st  = document.getElementById("perStatus");
         var _btn = document.getElementById("perGerar");
         if (_st)  _st.style.display = "block";
@@ -7224,7 +7224,7 @@ var __abrirModalQr = function() {
             '<div class="qrCaixa"><img id="qrImg" alt="QR code do endereço do relatório" src="/qr.svg?t=' + Date.now() + '"></div>' +
             '<div class="qrUrl" id="qrUrl">…</div>' +
             '<button class="btn" id="qrCopiar" type="button" style="width:100%;justify-content:center;min-height:42px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar endereço</button>' +
-            '<div class="qrDica" id="qrDica">O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também dá para digitar o endereço no navegador do celular.</div>' +
+            '<div class="qrDica" id="qrDica">O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também é possível digitar o endereço no navegador do celular.</div>' +
           '</div>' +
         '</div>';
     document.body.appendChild(_bg);
@@ -7237,12 +7237,12 @@ var __abrirModalQr = function() {
     document.addEventListener("keydown", _escQr);
     var _img = document.getElementById("qrImg");
     _img.addEventListener("error", function() {
-        var cx = _img.parentNode; if (cx) cx.innerHTML = '<div class="qrDica" style="padding:90px 10px">Não foi possível gerar o QR code — o servidor está ligado?</div>';
+        var cx = _img.parentNode; if (cx) cx.innerHTML = '<div class="qrDica" style="padding:90px 10px">Não foi possível gerar o QR code. Verifique se o servidor está em execução.</div>';
     });
     var _qrDados = { url: location.origin + "/", externo: null, externoNome: null, externoIP: null };
-    var _DICA_LOJA = 'O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também dá para digitar o endereço no navegador do celular.';
-    var _DICA_FORA = 'Funciona em qualquer lugar (4G, outro Wi-Fi) com o app <b>Tailscale</b> ligado no celular, na <b>mesma conta</b> desta máquina. Rede privada e criptografada — só os seus aparelhos entram.';
-    var _DICA_SEM_TS = '<b>Para acessar fora da loja:</b><br>1. Instale o <b>Tailscale</b> nesta máquina (tailscale.com/download) e entre com uma conta.<br>2. Instale o app <b>Tailscale</b> no celular e entre com a <b>mesma conta</b>.<br>3. Abra esta janela de novo: aparece o QR code para usar em qualquer lugar.<br>Grátis, criptografado e sem abrir porta no roteador.';
+    var _DICA_LOJA = 'O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também é possível digitar o endereço no navegador do celular.';
+    var _DICA_FORA = 'Funciona em qualquer lugar (4G, outro Wi-Fi) com o app <b>Tailscale</b> ligado no celular, na <b>mesma conta</b> desta máquina. Rede privada e criptografada — somente os seus aparelhos têm acesso.';
+    var _DICA_SEM_TS = '<b>Para acessar fora da loja:</b><br>1. Instale o <b>Tailscale</b> nesta máquina (tailscale.com/download) e entre com uma conta.<br>2. Instale o app <b>Tailscale</b> no celular e entre com a <b>mesma conta</b>.<br>3. Abra esta janela novamente: será exibido o QR code para acesso de qualquer lugar.<br>Gratuito, criptografado e sem necessidade de abrir portas no roteador.';
     var _abaQr = "loja";
     var _mostrarAba = function(aba) {
         _abaQr = aba;
@@ -7255,7 +7255,7 @@ var __abrirModalQr = function() {
         if (end) _img.src = "/qr.svg?" + (fora ? "externo=1&" : "") + "t=" + Date.now();
         if (d) d.innerHTML = fora
             ? (end ? _DICA_FORA + (_qrDados.externoNome
-                ? '<br><br>Endereço <b>fixo</b> (nome do Tailscale — não muda sozinho). Também funciona pelo IP: <b>' + esc(String(_qrDados.externoIP || "")) + '</b>'
+                ? '<br><br>Endereço <b>fixo</b> (nome do Tailscale — não é alterado automaticamente). Também funciona pelo IP: <b>' + esc(String(_qrDados.externoIP || "")) + '</b>'
                 : '<br><br>Dica: ative o <b>MagicDNS</b> no painel do Tailscale para usar um nome fixo no lugar do IP.') : _DICA_SEM_TS)
             : _DICA_LOJA;
     };
@@ -7334,7 +7334,7 @@ var __abrirModalConfig = function(opcoes) {
                 '<div class="msub">' + (_alvo
                     ? 'Aparelho: <b>' + esc(_apTxt || "?") + '</b> — valem só para ele; aplicadas na tela dele na hora.'
                     : (_remoto
-                        ? 'Valem só para este aparelho' + (_apTxt ? ' (' + esc(_apTxt) + ')' : '') + ' — os outros não são afetados. Nome, intervalo, log, janela de correção e ícone só podem ser alterados no computador do servidor.'
+                        ? 'Válidas somente para este aparelho' + (_apTxt ? ' (' + esc(_apTxt) + ')' : '') + ' — os outros não são afetados. Nome, intervalo, log, janela de correção e ícone só podem ser alterados no computador do servidor.'
                         : 'Padrão de todos os aparelhos (cada um pode ter as suas preferências). Avançado: config.json.')) + '</div>' +
                 (_soPrefs ? '<div class="msub" id="cfgPersInfo" style="margin-top:4px">' + (_listaPers.length ? 'Próprias: ' + esc(_listaPers.join(", ")) + '.' : 'Seguindo o padrão do servidor.') + '</div>' : '') +
               '</div>' +
@@ -7350,7 +7350,7 @@ var __abrirModalConfig = function(opcoes) {
                 : '') +
               (_alvo ? '' :
               '<div class="kv" id="cfgTela" style="flex-direction:column;align-items:stretch;gap:0">' +
-                '<div class="k">Nesta tela <span style="font-weight:400;text-transform:none;letter-spacing:0">(só neste aparelho — vale na hora, sem salvar)</span></div>' +
+                '<div class="k">Nesta tela <span style="font-weight:400;text-transform:none;letter-spacing:0">(somente neste aparelho — aplicado imediatamente, sem necessidade de salvar)</span></div>' +
                 _htmlPrefsTela() +
               '</div>') +
               '<div class="kv"' + _escondeSrv + '>' +
@@ -7391,7 +7391,7 @@ var __abrirModalConfig = function(opcoes) {
                 '</div>' +
               '</div>' +
               '<div class="kv" style="flex-direction:column;gap:8px">' +
-                '<div class="k">Termos proibidos <span style="font-weight:400;text-transform:none;letter-spacing:0">(um por linha — oculta vendas com esses produtos; listas coladas em outro formato são ajustadas sozinhas)</span></div>' +
+                '<div class="k">Termos proibidos <span style="font-weight:400;text-transform:none;letter-spacing:0">(um por linha — oculta as vendas com esses produtos; listas coladas em outro formato são ajustadas automaticamente)</span></div>' +
                 '<textarea id="cfgProibidos" spellcheck="false" style="width:100%;min-height:130px;resize:vertical;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg-app);color:var(--text-main);padding:10px 12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;outline:none;transition:border-color .15s"></textarea>' +
                 '<div id="cfgProibCont" aria-live="polite" style="font-size:12px;color:var(--text-muted);min-height:18px;padding:4px 2px 0;line-height:1.4"></div>' +
                 (_soPrefs ? _BTN_IMPORTAR_PR("cfgPrImportar", "cfgPrJuntar") : '') +
@@ -7678,10 +7678,10 @@ var __abrirModalConfig = function(opcoes) {
             var favFile = !_soPrefs && _fileInp.files && _fileInp.files[0];
 
             if (!_soPrefs && !an) { toast("Erro", "O nome do sistema não pode estar vazio."); return; }
-            if (!_soPrefs && pi < 100) { toast("Erro", "Intervalo mínimo: 100 ms."); return; }
-            if (!_soPrefs && ml < 100) { toast("Erro", "Mínimo de 100 linhas de log."); return; }
-            if (td < 500 || td > 60000) { toast("Erro", "Duração do aviso: entre 500 e 60000 ms."); return; }
-            if (!_soPrefs && !(jh >= 5 && jh <= 720)) { toast("Erro", "Janela de correção de horário: entre 5 e 720 minutos."); return; }
+            if (!_soPrefs && pi < 100) { toast("Erro", "O intervalo mínimo é de 100 ms."); return; }
+            if (!_soPrefs && ml < 100) { toast("Erro", "O log deve ter, no mínimo, 100 linhas."); return; }
+            if (td < 500 || td > 60000) { toast("Erro", "A duração dos avisos deve estar entre 500 e 60.000 ms."); return; }
+            if (!_soPrefs && !(jh >= 5 && jh <= 720)) { toast("Erro", "A janela de correção de horário deve estar entre 5 e 720 minutos."); return; }
 
             _btn.disabled = true; _btn.textContent = "Salvando...";
             if (_st) _st.style.display = "block";
@@ -7723,7 +7723,7 @@ var __abrirModalConfig = function(opcoes) {
                             if (_corpo.proibidos) { try { setProibidosUser(pr); renderTabela(); } catch (_e) {} }
                             toast("Preferências salvas", _corpo.apelido !== undefined && Object.keys(_corpo).length === 1 ? (_corpo.apelido ? "Este aparelho agora se chama “" + _corpo.apelido + "”." : "Apelido removido.") : "Valem só para este aparelho.");
                         } else if (_alvo) {
-                            toast("Preferências do aparelho salvas", "Aplicadas na tela dele agora.");
+                            toast("Preferências do aparelho salvas", "As alterações já foram aplicadas na tela do aparelho.");
                         } else {
                             toast("Configurações salvas", aplTodos ? "Padrão aplicado a todos os aparelhos. O relatório será atualizado em breve." : "O relatório será atualizado em breve.");
                         }
@@ -7757,7 +7757,7 @@ var __abrirModalConfig = function(opcoes) {
                         _doSave();
                     })
                     .catch(function(){
-                        toast("Aviso — ícone", "Falha no upload do ícone, salvando demais configurações.");
+                        toast("Aviso — ícone", "Não foi possível enviar o ícone; as demais configurações serão salvas.");
                         _doSave();
                     });
                 };
@@ -8115,7 +8115,7 @@ const abrirAutoTeste = (todos, verificacoes) => {
         ? '<div style="padding:16px;opacity:.75;font-size:13px">Nenhum problema encontrado nesta geração.</div>'
         : itens.map(linha).join("");
     bg.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><div class="mhead"><div><div class="mtitle">Auto-teste</div>'
-        + '<div class="msub">' + esc(verificacoes) + ' verificações no servidor + conferência da tela. Roda sozinho a cada atualização.</div></div>'
+        + '<div class="msub">' + esc(verificacoes) + ' verificações no servidor + conferência da tela. Executado automaticamente a cada atualização.</div></div>'
         + '<div class="btn" id="autoFechar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Fechar</div></div>'
         + '<div class="mbody" style="max-height:60vh;overflow:auto;padding-top:0">' + corpo + '</div></div>';
     bg.querySelector("#autoFechar").addEventListener("click", fechar);

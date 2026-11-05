@@ -3,13 +3,12 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.8.0
+# @version 1.8.1
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.8.0 - 2026-11-04 12:00 - Icone da bandeja sem bordas pretas (.ico com canal alfa em
-#     varios tamanhos, 16 a 64 px, no lugar de Bitmap.GetHicon) e mais threads de E/S para o
-#     Node (UV_THREADPOOL_SIZE=16) - ambos vindos do Relatorios-FDB-FBK.
+#   1.8.1 - 2026-11-05 - Mensagens e baloes da bandeja mais formais e com acentos
+#     (\uXXXX convertidos por L(); antes do L() existir, [regex]::Unescape direto).
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -214,7 +213,7 @@ while (-not (Test-Path $serverScript) -and $tentativa -lt $maxTentativas) {
 if (-not (Test-Path $serverScript)) {
     Write-TrayLog "servidor-relatorio.js CONTINUA ausente apos 30min de espera - desistindo. Verifique se o arquivo existe em '$DIR'." "ERRO"
     [System.Windows.Forms.MessageBox]::Show(
-        "Nao foi possivel encontrar servidor-relatorio.js em:`n$DIR`n`nReinstale ou verifique se a pasta do sistema esta completa.",
+        (([regex]::Unescape("N\u00e3o foi poss\u00edvel encontrar o servidor-relatorio.js em:`n")) + $DIR + ([regex]::Unescape("`n`nReinstale o sistema ou verifique se a pasta est\u00e1 completa."))),
         "$APP_NAME - Erro",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Error
@@ -325,7 +324,7 @@ if (Test-PortaLivre -Porta $PORT) {
     } catch {
         Write-TrayLog "Falha ao iniciar o servidor: $($_.Exception.Message)" "ERRO"
         [System.Windows.Forms.MessageBox]::Show(
-            "Nao foi possivel iniciar o servidor.`nVerifique se o Node.js esta instalado.",
+            ([regex]::Unescape("N\u00e3o foi poss\u00edvel iniciar o servidor.`nVerifique se o Node.js est\u00e1 instalado.")),
             "$APP_NAME - Erro",
             [System.Windows.Forms.MessageBoxButtons]::OK,
             [System.Windows.Forms.MessageBoxIcon]::Error
@@ -364,7 +363,7 @@ if ($_portaAbriu) {
 } elseif ($script:nodeProc -and $script:nodeProc.HasExited) {
     Write-TrayLog "Processo do servidor encerrou sozinho logo apos iniciar (codigo de saida: $($script:nodeProc.ExitCode)). Verifique relatorio.log na pasta do sistema para o motivo (Node.js ausente, modulo faltando, ou erro ao conectar no Firebird sao as causas mais comuns)." "ERRO"
     [System.Windows.Forms.MessageBox]::Show(
-        "O servidor iniciou mas fechou sozinho logo em seguida.`nConsulte relatorio.log na pasta do sistema para o motivo.`n`nCausas comuns: Node.js nao instalado corretamente, ou banco de dados Firebird inacessivel.",
+        ([regex]::Unescape("O servidor foi iniciado, mas encerrou logo em seguida.`nConsulte o arquivo relatorio.log, na pasta do sistema, para identificar o motivo.`n`nCausas comuns: Node.js n\u00e3o instalado corretamente ou banco de dados Firebird inacess\u00edvel.")),
         "$APP_NAME - Erro",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Error
@@ -1402,7 +1401,7 @@ $subCfg.DropDownItems.Add((New-ItemMenu "Editar configura\u00e7\u00f5es..." "con
             Start-Process "$ADDR/config"
         } catch {
             [System.Windows.Forms.MessageBox]::Show(
-                "Nao foi possivel abrir o painel de configuracoes:`n$ADDR/config",
+                ((L "N\u00e3o foi poss\u00edvel abrir o painel de configura\u00e7\u00f5es:`n") + "$ADDR/config"),
                 "$APP_NAME",
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Warning
@@ -1413,8 +1412,8 @@ $subCfg.DropDownItems.Add((New-ItemMenu "Editar configura\u00e7\u00f5es..." "con
 $subCfg.DropDownItems.Add((New-ItemMenu "Selecionar banco (FDB)..." "banco" "#475569" {
     # 1) Verifica se o servidor esta respondendo antes de qualquer acao
     if (-not (Test-ServidorAtivo)) {
-        $tray.BalloonTipTitle = "$APP_NAME - Atencao"
-        $tray.BalloonTipText  = "O servidor nao esta respondendo.`nAguarde a inicializacao ou use 'Reiniciar servidor'."
+        $tray.BalloonTipTitle = "$APP_NAME - " + (L "Aten\u00e7\u00e3o")
+        $tray.BalloonTipText  = (L "O servidor n\u00e3o est\u00e1 respondendo.`nAguarde a inicializa\u00e7\u00e3o ou utilize a op\u00e7\u00e3o 'Reiniciar servidor'.")
         $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Warning
         $tray.ShowBalloonTip(5000)
         return
@@ -1431,7 +1430,7 @@ $subCfg.DropDownItems.Add((New-ItemMenu "Selecionar banco (FDB)..." "banco" "#47
     # Se banco ja esta OK, pede confirmacao antes de trocar
     if ($dbOk) {
         $resp = [System.Windows.Forms.MessageBox]::Show(
-            "O banco de dados atual esta conectado e funcionando.`n`nDeseja selecionar um banco diferente mesmo assim?",
+            (L "O banco de dados atual est\u00e1 conectado e em funcionamento.`n`nDeseja selecionar outro banco de dados mesmo assim?"),
             "$APP_NAME - Selecionar banco",
             [System.Windows.Forms.MessageBoxButtons]::YesNo,
             [System.Windows.Forms.MessageBoxIcon]::Question
@@ -1453,7 +1452,7 @@ $subCfg.DropDownItems.Add((New-ItemMenu "Selecionar banco (FDB)..." "banco" "#47
             Start-Process "$ADDR/selecionar-fdb"
         } catch {
             [System.Windows.Forms.MessageBox]::Show(
-                "Nao foi possivel abrir o seletor de banco.`nVerifique se o servidor esta rodando.",
+                (L "N\u00e3o foi poss\u00edvel abrir o seletor de banco de dados.`nVerifique se o servidor est\u00e1 em execu\u00e7\u00e3o."),
                 "$APP_NAME",
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Warning
@@ -1573,13 +1572,13 @@ $menu.Items.Add((New-ItemMenu "Reiniciar servidor" "reiniciar" "#D97706" {
     if ($reiniciouOk) {
         Write-TrayLog "Servidor reiniciado manualmente com sucesso (novo PID: $($script:nodeProc.Id))."
         $tray.BalloonTipTitle = $APP_NAME
-        $tray.BalloonTipText  = "Servidor reiniciado com sucesso!"
+        $tray.BalloonTipText  = "Servidor reiniciado com sucesso."
         $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Info
         $tray.ShowBalloonTip(3000)
     } else {
         Write-TrayLog "Falha ao reiniciar o servidor apos clique manual." "ERRO"
         $tray.BalloonTipTitle = "$APP_NAME - Erro"
-        $tray.BalloonTipText  = "Falha ao reiniciar o servidor.`nVerifique se o Node.js esta instalado."
+        $tray.BalloonTipText  = (L "Falha ao reiniciar o servidor.`nVerifique se o Node.js est\u00e1 instalado.")
         $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Error
         $tray.ShowBalloonTip(5000)
     }
@@ -1593,7 +1592,7 @@ $menu.Items.Add((New-ItemMenu "Sair" "sair" "#DC2626" {
     $script:nodeProc = $null
     # Mensagem clara: antes o icone so' sumia, sem confirmar nada.
     [System.Windows.Forms.MessageBox]::Show(
-        "O servidor de relatorios foi encerrado.`n`nOs relatorios abertos no navegador mostram o aviso 'Servidor encerrado' e voltam sozinhos quando o servidor for iniciado de novo.`n`nPara iniciar novamente: abra gerar_relatorio_do_dia.bat ou reinicie o computador.",
+        (L "O servidor de relat\u00f3rios foi encerrado.`n`nOs relat\u00f3rios abertos no navegador exibem o aviso 'Servidor encerrado' e ser\u00e3o restabelecidos automaticamente quando o servidor for iniciado novamente.`n`nPara inici\u00e1-lo novamente, abra o gerar_relatorio_do_dia.bat ou reinicie o computador."),
         "$APP_NAME - Servidor encerrado",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Information
@@ -1644,8 +1643,8 @@ $watchTimer.Add_Tick({
                     Write-TrayLog "O servidor caiu 3 vezes logo depois de iniciar - aguardando 1 min antes de tentar de novo (evita reinicios em sequencia)." "ERRO"
                     if (-not $script:avisouQuedas) {
                         $script:avisouQuedas = $true
-                        $tray.BalloonTipTitle = "$APP_NAME - Atencao"
-                        $tray.BalloonTipText  = "O servidor esta caindo logo apos iniciar. Nova tentativa em 1 minuto. Detalhes em Ferramentas > Abrir o log."
+                        $tray.BalloonTipTitle = "$APP_NAME - " + (L "Aten\u00e7\u00e3o")
+                        $tray.BalloonTipText  = (L "O servidor est\u00e1 sendo encerrado logo ap\u00f3s iniciar. Uma nova tentativa ser\u00e1 feita em 1 minuto. Detalhes em Ferramentas > Abrir o log.")
                         $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Warning
                         $tray.ShowBalloonTip(6000)
                     }
@@ -1689,8 +1688,8 @@ $watchTimer.Add_Tick({
                 try { Start-Process -FilePath "taskkill.exe" -ArgumentList "/F","/T","/PID","$pidTravado" -WindowStyle Hidden -Wait -ErrorAction Stop } catch {}
                 $script:nodeProc = $null
                 $script:falhasConsecutivas = 0
-                $tray.BalloonTipTitle = "$APP_NAME - Atencao"
-                $tray.BalloonTipText  = "Servidor parou de responder e foi reiniciado automaticamente."
+                $tray.BalloonTipTitle = "$APP_NAME - " + (L "Aten\u00e7\u00e3o")
+                $tray.BalloonTipText  = "O servidor parou de responder e foi reiniciado automaticamente."
                 $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Warning
                 $tray.ShowBalloonTip(4000)
             }
@@ -1714,8 +1713,8 @@ $dbTimer.Add_Tick({
         $st = $r.Content | ConvertFrom-Json
         if ($st.scanCompleto -and -not $st.ok) {
             Write-TrayLog "Banco de dados inacessivel na checagem inicial: $($st.erro)" "ERRO"
-            $tray.BalloonTipTitle = "$APP_NAME - Atencao!"
-            $tray.BalloonTipText  = "Nao foi possivel conectar ao banco!`n$($st.erro)`nVerifique se o servidor esta ligado."
+            $tray.BalloonTipTitle = "$APP_NAME - " + (L "Aten\u00e7\u00e3o")
+            $tray.BalloonTipText  = (L "N\u00e3o foi poss\u00edvel conectar ao banco de dados.`n") + $st.erro + (L "`nVerifique se o servidor do banco est\u00e1 ligado.")
             $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Error
             $tray.ShowBalloonTip(10000)
         }
@@ -1728,9 +1727,9 @@ $dbTimer.Start()
 # ---------------------------------------------------------------------------
 $tray.BalloonTipTitle = $APP_NAME
 if ($MAQUINA_IP) {
-    $tray.BalloonTipText = "Servidor iniciado!`nAcesso externo: http://${MAQUINA_IP}:${PORT}`nDuplo clique para abrir."
+    $tray.BalloonTipText = "Servidor iniciado.`nAcesso externo: http://${MAQUINA_IP}:${PORT}`n" + (L "Clique duas vezes para abrir o relat\u00f3rio.")
 } else {
-    $tray.BalloonTipText = "Servidor iniciado! Duplo clique para abrir."
+    $tray.BalloonTipText = (L "Servidor iniciado.`nClique duas vezes para abrir o relat\u00f3rio.")
 }
 $tray.BalloonTipIcon  = [System.Windows.Forms.ToolTipIcon]::Info
 $tray.ShowBalloonTip(3500)

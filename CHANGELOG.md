@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.1 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.0 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.1 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.0 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.1.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -28,6 +28,13 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.1 — 2026-11-05
+
+**Textos mais formais e com acentuação correta.**
+
+A página de configurações (`/config`) estava inteira sem acentos ("Configuracoes", "Duracao do toast"). Ela foi revisada junto com o seletor de período, as páginas de carregamento e de erro, os avisos de queda do servidor e as mensagens de erro da API, em linguagem formal. Os rótulos ficaram mais claros: "Intervalo de verificação" no lugar de "Intervalo de polling" e "Duração dos avisos" no lugar de "Duração do toast". Nenhuma mudança de comportamento.
+
 
 ### 2.24.0 — 2026-11-04 12:00
 
@@ -286,6 +293,13 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.29.1 — 2026-11-05
+
+**Textos mais formais.**
+
+Avisos (toasts), dicas do menu Tema, ajuda de coringas (sem os selos "NOVO"; "OR/AND" virou "OU/E"), janela do QR code, configurações e proibidos foram revisados, com expressões como "volta sozinho", "dá para" e "de novo" substituídas por linguagem formal. Nenhuma mudança de comportamento.
+
 
 ### 3.29.0 — 2026-11-04
 
@@ -738,6 +752,13 @@ Cliente de linha de comando.
 ## `iniciar-tray.ps1`
 
 Ícone da bandeja.
+
+### 1.8.1 — 2026-11-05
+
+**Mensagens da bandeja mais formais e com acentos.**
+
+Janelas de erro e balões ("Nao foi possivel...", "Atencao", "Duplo clique para abrir") passaram a ter acentuação correta e linguagem formal. O arquivo continua 100% ASCII: os acentos vão como `\uXXXX`, convertidos por `L()` ou, nas mensagens anteriores à definição de `L()`, por `[regex]::Unescape`. Nenhuma mudança de comportamento.
+
 
 ### 1.8.0 — 2026-11-04 12:00
 

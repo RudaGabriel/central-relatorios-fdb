@@ -10,7 +10,7 @@ Versões em uso hoje:
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.1 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.1 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.1 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -752,6 +752,12 @@ Cliente de linha de comando.
 ## `iniciar-tray.ps1`
 
 Ícone da bandeja.
+
+### 1.8.2 — 2026-11-05
+
+**"Sair" mostra uma notificação em vez da caixa com OK.**
+
+Ao encerrar o servidor pela bandeja, aparece uma notificação perto do relógio ("Servidor encerrado"), sem precisar clicar em OK. O ícone continua visível por 6 s para a notificação aparecer inteira e então some. O verificador do banco é parado para nenhum outro aviso substituir o de encerramento, e um segundo clique em "Sair" nesse intervalo é ignorado.
 
 ### 1.8.1 — 2026-11-05
 

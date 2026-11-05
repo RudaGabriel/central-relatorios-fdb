@@ -3,12 +3,12 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.8.1
+# @version 1.8.2
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.8.1 - 2026-11-05 - Mensagens e baloes da bandeja mais formais e com acentos
-#     (\uXXXX convertidos por L(); antes do L() existir, [regex]::Unescape direto).
+#   1.8.2 - 2026-11-05 - "Sair" mostra uma notificacao (balao perto do relogio) no lugar
+#     da caixa com "OK"; o icone some 6 s depois.
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -1584,21 +1584,29 @@ $menu.Items.Add((New-ItemMenu "Reiniciar servidor" "reiniciar" "#D97706" {
     }
 })) | Out-Null
 $menu.Items.Add((New-ItemMenu "Sair" "sair" "#DC2626" {
+    # v1.8.2: segundo clique em "Sair" durante a espera da notificacao nao faz nada.
+    if ($script:saindo) { return }
+    $script:saindo = $true
     Write-TrayLog "Encerramento solicitado pelo usuario via bandeja."
     $watchTimer.Stop()   # impede o watchdog de relancar o servidor durante o encerramento
-    $tray.Visible = $false
+    try { $dbTimer.Stop() } catch {}   # nenhum outro balao substitui o de encerramento
+    try { $menu.Enabled = $false } catch {}
     $comoParou = Stop-ServidorOrdenado
     Write-TrayLog "Servidor encerrado pela bandeja ($comoParou). Bandeja finalizada."
     $script:nodeProc = $null
-    # Mensagem clara: antes o icone so' sumia, sem confirmar nada.
-    [System.Windows.Forms.MessageBox]::Show(
-        (L "O servidor de relat\u00f3rios foi encerrado.`n`nOs relat\u00f3rios abertos no navegador exibem o aviso 'Servidor encerrado' e ser\u00e3o restabelecidos automaticamente quando o servidor for iniciado novamente.`n`nPara inici\u00e1-lo novamente, abra o gerar_relatorio_do_dia.bat ou reinicie o computador."),
-        "$APP_NAME - Servidor encerrado",
-        [System.Windows.Forms.MessageBoxButtons]::OK,
-        [System.Windows.Forms.MessageBoxIcon]::Information
-    ) | Out-Null
-    try { $mutex.ReleaseMutex() } catch {}
-    [System.Windows.Forms.Application]::Exit()
+    # v1.8.2: notificacao (balao perto do relogio) no lugar da caixa com "OK".
+    # O icone precisa continuar visivel enquanto a notificacao aparece: some
+    # 6 s depois, por um Timer (a bandeja segue respondendo nesse meio-tempo).
+    Show-Balao ("$APP_NAME - Servidor encerrado") (L "O servidor de relat\u00f3rios foi encerrado. Os relat\u00f3rios abertos no navegador ser\u00e3o restabelecidos automaticamente quando o servidor for iniciado novamente.") "Info" 5000
+    $script:timerSaida = New-Object System.Windows.Forms.Timer
+    $script:timerSaida.Interval = 6000
+    $script:timerSaida.Add_Tick({
+        try { $script:timerSaida.Stop() } catch {}
+        try { $tray.Visible = $false } catch {}   # Dispose fica no fim do script, apos o Run()
+        try { $mutex.ReleaseMutex() } catch {}
+        [System.Windows.Forms.Application]::Exit()
+    })
+    $script:timerSaida.Start()
 })) | Out-Null
 
 $tray.ContextMenuStrip = $menu

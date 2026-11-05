@@ -6,7 +6,7 @@
 
 <img alt="servidor: v2.24.1" src="https://img.shields.io/badge/servidor-v2.24.1-2563EB?style=flat">
 <img alt="gerador: v3.29.1" src="https://img.shields.io/badge/gerador-v3.29.1-2563EB?style=flat">
-<img alt="bandeja: v1.8.1" src="https://img.shields.io/badge/bandeja-v1.8.1-2563EB?style=flat">
+<img alt="bandeja: v1.8.2" src="https://img.shields.io/badge/bandeja-v1.8.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
@@ -152,7 +152,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 - **Celular:** botão **voltar ao topo** depois de descer bastante; modo detalhado com a lista indo até o fim da tela no computador.
 
 ### 🛠️ Operação
-- **Bandeja do Windows** com menu completo e ícones: status ao vivo, abrir, atualizar, período, telas abertas (trazer para frente, recarregar, enviar aviso, tema), dispositivos conectados, configurações, ferramentas (informações, copiar endereço, pasta, log, log ao vivo, `api.ps1`, programas), reiniciar e sair.
+- **Bandeja do Windows** com menu completo e ícones: status ao vivo, abrir, atualizar, período, telas abertas (trazer para frente, recarregar, enviar aviso, tema), dispositivos conectados, configurações, ferramentas (informações, copiar endereço, pasta, log, log ao vivo, `api.ps1`, programas), reiniciar e sair (ao sair, uma notificação perto do relógio confirma o encerramento, sem caixa para clicar em OK).
 - **Watchdog:** reinicia o servidor se cair ou se ficar ~60 s sem responder. Tolerante a máquina lenta (não reinicia à toa), registra no log o motivo de cada falha e o código de saída, e espera 1 min se o servidor cair várias vezes logo ao iniciar.
 - **Detecção do banco:** caminhos conhecidos → `config.json` → varredura da rede na porta 3050 → página para escolher o `SMALL.FDB`. Reconecta sozinho quando o banco volta.
 - **Instalação automática de dependências** (Node.js com verificação de integridade e `node-firebird`).

@@ -1,5 +1,5 @@
 # =============================================================================
-# _criar-tarefa.ps1                                                   v1.1.0
+# _criar-tarefa.ps1                                                   v1.2.0
 # Autor: Ruda Gabriel
 # -----------------------------------------------------------------------------
 # Auxiliar do instalar-na-inicializacao.bat (nao precisa ser executado direto).
@@ -30,13 +30,22 @@
 # marcador "#RelatoriosAguardaRede", usado pelo removedor para reconhecer a
 # espera em andamento.
 #
+# Sem janela nenhuma (v1.2.0): "powershell -WindowStyle Hidden" ainda pisca
+# uma janela preta, porque o console nasce antes de ser escondido. Por isso:
+#   - pasta LOCAL (disco fixo): a tarefa abre direto "wscript.exe launcher.vbs"
+#     - nada aparece e nao ha o que esperar (disco local sempre esta pronto);
+#   - pasta de REDE (\\servidor\... ou unidade mapeada) ou desconhecida: a
+#     espera acima roda dentro de "conhost.exe --headless" (console sem
+#     janela, Windows 10 1809 ou mais novo); em Windows mais antigo, o
+#     PowerShell oculto como antes.
+#
 # Codigo de saida: 0 = criada e conferida, 1 = falhou (o .bat cai no schtasks).
 #
 # (Historico completo das versoes: CHANGELOG.md no repositorio.)
-# CHANGELOG 1.1.0 - 2026-11-04 - Sem bootstrap.vbs (falso positivo do Defender).
-#   - A tarefa chama o PowerShell oculto, que espera o launcher.vbs aparecer
-#     (ate 120 x 15 s = 30 min) e o abre pelo wscript. Parametro -Bootstrap
-#     trocado por -Launcher.
+# CHANGELOG 1.2.0 - 2026-11-05 - Inicializacao 100% silenciosa.
+#   - Pasta local: a tarefa abre o launcher.vbs direto pelo wscript (sem
+#     PowerShell, sem janela). Pasta de rede: a espera roda em
+#     "conhost.exe --headless", sem a janela preta piscando.
 # =============================================================================
 
 param(
@@ -69,7 +78,35 @@ try {
     $caminhoPs = $Launcher.Replace("'", "''")
     $espera = "`$p='" + $caminhoPs + "';for(`$i=0;`$i -lt 120;`$i++){if(Test-Path -LiteralPath `$p){& wscript.exe `$p;exit 0};Start-Sleep -Seconds 15};exit 5 #RelatoriosAguardaRede"
     $argumentos = '-NoProfile -NonInteractive -WindowStyle Hidden -Command "' + $espera + '"'
-    $acao = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argumentos
+
+    # Pasta local? So' disco FIXO conta como local. UNC, unidade mapeada,
+    # removivel ou unidade que esta instancia (elevada) nem enxerga caem na
+    # espera - o lado seguro.
+    $local = $false
+    try {
+        if (-not $Launcher.StartsWith('\\')) {
+            $raiz = [System.IO.Path]::GetPathRoot($Launcher)
+            if ($raiz) { $local = ((New-Object System.IO.DriveInfo($raiz)).DriveType -eq [System.IO.DriveType]::Fixed) }
+        }
+    } catch { $local = $false }
+
+    # conhost --headless: console sem janela (Windows 10 1809 = build 17763+).
+    $conhost = Join-Path $env:SystemRoot 'System32\conhost.exe'
+    $temHeadless = $false
+    try { $temHeadless = ([Environment]::OSVersion.Version.Build -ge 17763) -and (Test-Path -LiteralPath $conhost) } catch { $temHeadless = $false }
+
+    if ($local -and (Test-Path -LiteralPath $Launcher)) {
+        # //B: nenhuma mensagem do Windows Script Host aparece, nem se a pasta
+        # for apagada/movida depois da instalacao.
+        $acao = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument ('//B //Nologo "' + $Launcher + '"')
+        $modo = 'pasta local: wscript direto, sem janela'
+    } elseif ($temHeadless) {
+        $acao = New-ScheduledTaskAction -Execute $conhost -Argument ('--headless powershell.exe ' + $argumentos)
+        $modo = 'pasta de rede: espera em segundo plano (conhost --headless), sem janela'
+    } else {
+        $acao = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argumentos
+        $modo = 'pasta de rede: espera em segundo plano (Windows antigo: pode piscar uma janela no logon)'
+    }
 
     # -AtLogOn sem -User = "Quando qualquer usuario fizer logon".
     $gatilhos = @(
@@ -110,6 +147,7 @@ try {
 
     Write-Output "  [OK] Tarefa '$Nome': ao fazer logon (qualquer usuario) e ao inicializar;"
     Write-Output '       sem condicoes; reinicia a cada 1 min (ate 99x); sem limite de tempo.'
+    Write-Output "       Acao: $modo."
     exit 0
 } catch {
     Write-Output "  [AVISO] Configuracao completa da tarefa falhou: $($_.Exception.Message)"

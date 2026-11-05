@@ -11,8 +11,8 @@ Versões em uso hoje:
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.1 |
-| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.0 |
-| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.1.0 |
+| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.1 |
+| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
 | [`launcher.vbs`](#launchervbs) | 1.0.1 |
 | [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.0 |
@@ -868,6 +868,13 @@ a linha de comando de qualquer processo e' visivel a todos os usuarios da maquin
 
 Instalador da inicialização automática.
 
+### 1.15.1 — 2026-11-05
+
+**Inicialização sem janela.**
+
+O resumo final explica a ação da tarefa (montada pelo `_criar-tarefa.ps1` 1.2.0, sem a janela do PowerShell).
+
+
 ### 1.15.0 — 2026-11-04
 
 **Sem bootstrap.vbs (falso positivo do Defender).**
@@ -935,6 +942,18 @@ o "!APP_NAME: =!" que so' deveria TESTAR se o nome estava vazio sobrescrevia a p
 ## `_criar-tarefa.ps1`
 
 Auxiliar do instalador (tarefa agendada).
+
+### 1.2.0 — 2026-11-05
+
+**Inicialização 100% silenciosa.**
+
+O `powershell -WindowStyle Hidden` da 1.1.0 ainda mostrava uma janela preta por um instante no logon (o console é criado antes de ser escondido). Agora:
+
+- **Pasta local (disco fixo):** a tarefa abre `wscript.exe //B //Nologo "launcher.vbs"` direto. Não aparece nenhuma janela e não há espera, porque o disco local está sempre pronto.
+- **Pasta de rede, unidade mapeada ou desconhecida:** a espera de até 30 min roda dentro de `conhost.exe --headless`, um console sem janela (Windows 10 1809 ou mais novo). Em Windows mais antigo, continua o PowerShell oculto.
+
+A mensagem do instalador informa qual dos dois modos foi usado.
+
 
 ### 1.1.0 — 2026-11-04
 

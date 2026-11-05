@@ -142,15 +142,17 @@ timeout /t 5 >nul
 :ja_elevado
 
 :: =========================================================
-:: instalar-na-inicializacao.bat                       v1.15.1
+:: instalar-na-inicializacao.bat                       v1.15.2
 ::  Autor: Ruda Gabriel
 :: Configura o servidor para iniciar automaticamente no logon.
 ::
 :: (Historico completo das versoes: CHANGELOG.md no repositorio.)
-:: CHANGELOG 1.15.1 - 2026-11-05 - Inicializacao sem janela.
-::   - Mensagem final explica a acao da tarefa (pasta local: abre o launcher
-::     direto; pasta de rede: aguarda em segundo plano). A acao em si e'
-::     montada pelo _criar-tarefa.ps1 1.2.0, sem a janela do PowerShell.
+:: CHANGELOG 1.15.2 - 2026-11-05 - Bandeja aberta SEM Administrador.
+::   - O instalador roda elevado e abria o launcher direto: a bandeja e o
+::     servidor herdavam o Administrador (o removedor sem UAC nao os via e o
+::     menu da bandeja rodava com privilegio a toa). Agora inicia pela tarefa
+::     agendada (roda como usuario comum); sem tarefa, pelo Explorer, que
+::     tambem abre sem elevacao.
 ::
 :: =========================================================
 
@@ -516,7 +518,25 @@ set "_LT=%TIME: =0%"
 set "_LT=!_LT:~0,8!"
 >>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] Instalacao concluida - iniciando servidor via launcher.
 echo Iniciando servidor agora...
-wscript.exe "!LAUNCHER_PATH!"
+:: v1.15.2: esta janela costuma estar ELEVADA (UAC aceito no inicio). Abrir o
+:: launcher daqui faria a bandeja e o servidor rodarem como Administrador.
+:: Com Administrador: dispara a propria tarefa agendada (roda como usuario
+:: comum, sem elevacao) ou, sem tarefa, abre pelo Explorer (que usa a sessao
+:: normal do usuario). Sem Administrador: abre direto, como sempre.
+set "_INICIOU="
+net session >nul 2>&1
+if errorlevel 1 (
+    wscript.exe "!LAUNCHER_PATH!"
+    set "_INICIOU=1"
+)
+if not defined _INICIOU if defined TAREFA_OK (
+    schtasks /run /tn "!TASK_NAME!" >nul 2>&1
+    if not errorlevel 1 set "_INICIOU=1"
+)
+if not defined _INICIOU (
+    explorer.exe "!LAUNCHER_PATH!"
+    set "_INICIOU=1"
+)
 echo.
 echo Pronto^^! O icone aparecera na bandeja em instantes.
 echo.

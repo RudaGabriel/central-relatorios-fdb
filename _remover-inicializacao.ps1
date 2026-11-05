@@ -1,5 +1,5 @@
 # =============================================================================
-# _remover-inicializacao.ps1                                          v1.1.0
+# _remover-inicializacao.ps1                                          v1.2.0
 # Autor: Ruda Gabriel
 # -----------------------------------------------------------------------------
 # Auxiliar do remover-inicializacao.bat (nao precisa ser executado direto).
@@ -35,11 +35,14 @@
 # Codigo de saida: 0 = tudo removido/encerrado, 1 = sobrou algo (listado).
 #
 # (Historico completo das versoes: CHANGELOG.md no repositorio.)
-# CHANGELOG 1.1.0 - 2026-11-04 - Reconhece a espera embutida na tarefa.
-#   - Tarefas, atalhos e o PowerShell que aguarda a rede com o marcador
-#     #RelatoriosAguardaRede (instalador 1.15.0, sem bootstrap.vbs) tambem
-#     sao removidos/encerrados. A pasta RelatoriosBootstrap antiga continua
-#     sendo limpa.
+# CHANGELOG 1.2.0 - 2026-11-05 - Bandeja aberta como Administrador e avisos claros.
+#   - Sem Administrador nao da para ler a linha de comando de um processo
+#     elevado: a bandeja aberta pelo instalador (elevado) passava como
+#     "nenhum processo". Agora, se o servidor ainda responde na porta ou ha
+#     node.exe ilegivel, a parte de processos vai para a etapa com UAC.
+#   - O que depende de Administrador aparece como [ADMIN] (feito em seguida
+#     pelo UAC), nao como [FALHA]; a mesma tarefa nao aparece duas vezes;
+#     mensagens sem a quebra de linha extra do Windows.
 # =============================================================================
 
 param(
@@ -129,8 +132,17 @@ function Add-Removido([string]$Texto) {
     Write-RemLog "Removido: $Texto"
 }
 function Add-Falha([string]$Texto) {
+    # Mensagens do Windows chegam com quebra de linha no fim ("Acesso negado.\r\n").
+    $Texto = ($Texto -replace '\s+', ' ').Trim()
     [void]$script:Falhas.Add($Texto)
     if ($script:EtapaUsuario) { [void]$script:FalhasUsuario.Add($Texto) }
+    # v1.2.0: sem Administrador, o que nao e' do perfil do usuario ainda sera
+    # refeito pela etapa com UAC - nao e' falha (ainda).
+    if ($Escopo -eq 'Usuario' -and -not $script:EtapaUsuario -and -not $script:ehAdmin) {
+        Write-Host "  [ADMIN] $Texto - sera feito com permissao de Administrador" -ForegroundColor DarkYellow
+        Write-RemLog "Exige Administrador: $Texto"
+        return
+    }
     Write-Host "  [FALHA] $Texto" -ForegroundColor Yellow
     Write-RemLog "FALHA: $Texto"
 }
@@ -246,11 +258,13 @@ function Remove-TarefasAgendadas {
     $tarefas = $null
     try { $tarefas = @(Get-ScheduledTask -ErrorAction Stop) } catch { $tarefas = $null }
 
+    $vistas = New-Object System.Collections.Generic.HashSet[string]([StringComparer]::OrdinalIgnoreCase)
     if ($null -ne $tarefas) {
         foreach ($t in $tarefas) {
             $acoes = @($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments)" }) -join ' '
             if ($acoes -notmatch $PADRAO_INICIO) { continue }
             $achou = $true
+            [void]$vistas.Add([string]$t.TaskName)
             $nome = "$($t.TaskPath)$($t.TaskName)"
             try {
                 Unregister-ScheduledTask -TaskName $t.TaskName -TaskPath $t.TaskPath -Confirm:$false -ErrorAction Stop
@@ -266,6 +280,8 @@ function Remove-TarefasAgendadas {
     # que o instalador usa, com e sem espacos (versoes antigas).
     $nomes = @("$APP_NAME - Relatorios", "$($APP_NAME -replace ' ', '') - Relatorios") | Select-Object -Unique
     foreach ($n in $nomes) {
+        # Ja tratada acima (removida ou com falha registrada): nao repete.
+        if ($vistas.Contains($n)) { continue }
         & schtasks.exe /query /tn "$n" *> $null
         if ($LASTEXITCODE -ne 0) { continue }
         $achou = $true
@@ -364,9 +380,32 @@ function Remove-PastaBootstrap {
 # EXECUCAO
 # ---------------------------------------------------------------------------
 $ehAdmin = Test-Admin
+$script:ehAdmin = $ehAdmin
 Write-RemLog ("=== iniciado - escopo={0} admin={1} matarProcessos={2} usuario={3} ===" -f $Escopo, $ehAdmin, [bool]$MatarProcessos, $env:USERNAME)
 
 if ($MatarProcessos) { Stop-ProcessosRelatorio } else { Stop-BootstrapAguardando }
+
+# v1.2.0: processo aberto como Administrador (ex.: bandeja aberta pelo
+# instalador elevado) tem a linha de comando ilegivel aqui e passa como
+# "nenhum processo". Sinais de que sobrou algo: o servidor ainda responde na
+# porta, ou ha node.exe cuja linha de comando nao pode ser lida. Nesse caso a
+# parte de processos vai para a etapa com Administrador.
+if ($MatarProcessos -and -not $ehAdmin -and $Escopo -eq 'Usuario') {
+    $sobrou = $false
+    try {
+        $c = New-Object System.Net.Sockets.TcpClient
+        $ar = $c.BeginConnect('127.0.0.1', [int]$PORTA, $null, $null)
+        if ($ar.AsyncWaitHandle.WaitOne(1000) -and $c.Connected) { $sobrou = $true }
+        $c.Close()
+    } catch {}
+    if (-not $sobrou) {
+        try {
+            $ilegiveis = @(Get-CimInstance Win32_Process -Filter "Name='node.exe'" -ErrorAction Stop | Where-Object { -not $_.CommandLine })
+            if ($ilegiveis.Count -gt 0) { $sobrou = $true }
+        } catch {}
+    }
+    if ($sobrou) { Add-Falha 'processos do relatorio abertos como Administrador (servidor/bandeja)' }
+}
 
 Remove-TarefasAgendadas
 

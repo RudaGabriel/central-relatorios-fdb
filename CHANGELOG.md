@@ -11,12 +11,12 @@ Versões em uso hoje:
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.2 |
-| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.1 |
+| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
 | [`launcher.vbs`](#launchervbs) | 1.0.1 |
 | [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.0 |
-| [`_remover-inicializacao.ps1`](#_remover-inicializacaops1) | 1.1.0 |
+| [`_remover-inicializacao.ps1`](#_remover-inicializacaops1) | 1.2.0 |
 | [`_instalar-node.ps1`](#_instalar-nodeps1) | 1.3.0 |
 | [`node-firebird.bat`](#node-firebirdbat) | 1.1.1 |
 | [`gerar_relatorio_do_dia.bat`](#gerar_relatorio_do_diabat) | 1.4.2 |
@@ -874,6 +874,13 @@ a linha de comando de qualquer processo e' visivel a todos os usuarios da maquin
 
 Instalador da inicialização automática.
 
+### 1.15.2 — 2026-11-05
+
+**Bandeja aberta sem Administrador.**
+
+O instalador roda elevado e, no fim, abria o `launcher.vbs` direto, então a bandeja e o servidor herdavam o privilégio de Administrador. Por isso o removedor, sem UAC, dizia "Nenhum processo do relatório estava em execução". Agora a bandeja é iniciada pela própria tarefa agendada (`schtasks /run`, que roda como usuário comum) ou, sem tarefa, pelo Explorer, que também abre sem elevação.
+
+
 ### 1.15.1 — 2026-11-05
 
 **Inicialização sem janela.**
@@ -1028,6 +1035,15 @@ Mantem CRLF e somente ASCII - edite com editor que preserve CRLF.
 ## `_remover-inicializacao.ps1`
 
 Auxiliar do removedor.
+
+### 1.2.0 — 2026-11-05
+
+**Processos abertos como Administrador e avisos mais claros.**
+
+- Se, depois de encerrar os processos, o servidor ainda responde na porta, ou se existe `node.exe` cuja linha de comando não pode ser lida (processo elevado), a parte de processos vai para a etapa com permissão de Administrador (UAC).
+- O que depende de Administrador aparece como `[ADMIN] … será feito com permissão de Administrador`, e não mais como `[FALHA]`.
+- A mesma tarefa não aparece duas vezes, e as mensagens do Windows não trazem mais a linha em branco extra.
+
 
 ### 1.1.0 — 2026-11-04
 

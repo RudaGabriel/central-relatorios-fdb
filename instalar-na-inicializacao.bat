@@ -142,16 +142,15 @@ timeout /t 5 >nul
 :ja_elevado
 
 :: =========================================================
-:: instalar-na-inicializacao.bat                       v1.15.0
+:: instalar-na-inicializacao.bat                       v1.15.1
 ::  Autor: Ruda Gabriel
 :: Configura o servidor para iniciar automaticamente no logon.
 ::
 :: (Historico completo das versoes: CHANGELOG.md no repositorio.)
-:: CHANGELOG 1.15.0 - 2026-11-04 - Sem bootstrap.vbs (falso positivo do Defender).
-::   - O Defender acusava o bootstrap.vbs (Trojan:Script/Sabsik.FL.A!ml).
-::     Ele saiu do projeto: a propria tarefa agendada espera o launcher.vbs
-::     aparecer na rede (ate 30 min) e o abre. Nada mais e' copiado para
-::     %%LOCALAPPDATA%%; a pasta RelatoriosBootstrap antiga e' apagada.
+:: CHANGELOG 1.15.1 - 2026-11-05 - Inicializacao sem janela.
+::   - Mensagem final explica a acao da tarefa (pasta local: abre o launcher
+::     direto; pasta de rede: aguarda em segundo plano). A acao em si e'
+::     montada pelo _criar-tarefa.ps1 1.2.0, sem a janela do PowerShell.
 ::
 :: =========================================================
 
@@ -432,7 +431,7 @@ if "!TAREFA_OK!"=="completa" (
     echo     1. Tarefa agendada no logon ^(imediata, sem atraso^)
 )
 if "!TAREFA_OK!"=="completa" (
-    echo     2. A tarefa aguarda ate 30 min pelo launcher.vbs na rede
+    echo     2. A tarefa abre o launcher.vbs sem nenhuma janela ^(pasta de rede: aguarda ate 30 min^)
 ) else (
     echo     2. Tarefa basica: abre o launcher.vbs direto, sem esperar a rede
 )

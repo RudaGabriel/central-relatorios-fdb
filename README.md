@@ -70,7 +70,7 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 <details>
 <summary><b>O que a inicialização automática faz</b></summary>
 
-A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco. A espera pela pasta de rede é feita pela própria tarefa (sem nenhum script extra copiado para o computador). Ao instalar a versão nova, a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap` é apagada sozinha.
+A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco. Nada aparece na tela ao ligar o computador: com o sistema numa pasta do próprio computador, a tarefa abre o `launcher.vbs` direto; numa pasta de rede, a própria tarefa espera a pasta ficar disponível em segundo plano, sem janela (sem nenhum script extra copiado para o computador). Ao instalar a versão nova, a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap` é apagada sozinha.
 
 </details>
 
@@ -495,6 +495,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 29 testes cobrem 
 | Instalação nova: "Node.js não foi instalado corretamente" na 1ª vez | Corrigido no instalador 1.14.1 (espera o Node terminar e relê o PATH). Se ainda acontecer, rode o instalador de novo |
 | Servidor "reiniciando sozinho" toda hora | Atualize o `iniciar-tray.ps1` (1.7.0+). Depois, veja no `relatorio.log` as linhas `[TRAY]`: "demorou a responder" (máquina sobrecarregada — o servidor só é reiniciado após ~60 s sem resposta) ou "o processo do servidor terminou (código de saída …)" (o servidor caiu — as linhas `[SERVIDOR]`/`[UNCAUGHT EXCEPTION]` logo antes mostram o porquê) |
 | Ao ligar o computador o relatório fica fora do ar (só volta com "Reiniciar servidor") | Atualize o `iniciar-tray.ps1` para a 1.7.1 ou mais nova (a 1.7.0 tinha esse defeito no teste da porta) |
+| Uma janela preta do PowerShell aparece ao ligar o computador | Rode `instalar-na-inicializacao.bat` de novo: a versão 1.15.1+ recria a tarefa sem nenhuma janela |
 | Servidor não inicia no logon | Rode `instalar-na-inicializacao.bat` de novo e veja as linhas `[INSTALL]` e `[TRAY]` no log |
 | Continua iniciando sozinho após remover | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
 | Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |

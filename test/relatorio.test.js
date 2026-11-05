@@ -981,3 +981,61 @@ test("servidor: rajada de vendas sem pausa — a tela continua atualizando (gera
         assert.ok(!/superada por/.test(log), "nenhuma geração deveria ser cancelada/superada pelo fast-poll");
     } finally { req.destroy(); srv.parar(); }
 });
+
+test("servidor: aparelho com o relógio atrasado não recarrega sem parar (changeTs no relógio do servidor)", { timeout: 60000 }, async () => {
+    // v2.24.2: changeTs (relógio do servidor) era comparado com o Date.now() do
+    // aparelho. Um celular 15 s atrasado recarregava dezenas de vezes depois de
+    // cada geração ("tela piscando"). Roda o script de recarga da página num
+    // ambiente simulado, com o relógio do aparelho 15 s atrás, e conta as recargas.
+    const dir = montarPasta({}, { nfce: [{ numero: "700", hora: horaHaMin(5), modelo: 65, total: 10 }] });
+    const srv = await iniciarServidor(dir);
+    try {
+        let html = "";
+        for (let t = 0; t < 150; t++) {
+            html = await fetch(srv.base + "/").then(r => r.text());
+            if (html.includes("auto-reload ativo")) break;
+            await esperar(200);
+        }
+        const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+        const codigo = scripts.find(s => s.includes("auto-reload ativo"));
+        assert.ok(codigo, "script de recarga automática não encontrado na página");
+        const st = await fetch(srv.base + "/api/status").then(r => r.json());
+
+        // Ambiente mínimo do navegador, com o relógio 15 s ATRASADO.
+        const vm = require("node:vm");
+        let recargas = 0, poll = null;
+        const elem = () => ({ style: {}, setAttribute() {}, appendChild() {}, removeChild() {}, addEventListener() {}, classList: { add() {}, remove() {} } });
+        const RealDate = Date;
+        class DataAtrasada extends RealDate { static now() { return RealDate.now() - 15000; } }
+        const sandbox = {
+            Date: DataAtrasada, Math, JSON, Promise, Number, String, isFinite, console: { log() {} },
+            localStorage: { getItem() { return null; }, setItem() {} },
+            document: { cookie: "", body: elem(), documentElement: elem(), createElement: elem, getElementById: () => null, querySelector: () => null, addEventListener() {} },
+            location: { href: "/", hash: "", pathname: "/", search: "", replace() { recargas++; }, assign() { recargas++; } },
+            history: { replaceState() {} },
+            EventSource: function () { return { close() {} }; },
+            setTimeout: () => 0, setInterval: (fn) => { if (!poll) poll = fn; return 0; },
+            fetch: (u, o) => fetch(srv.base + u, o),
+            addEventListener() {}, removeEventListener() {}, matchMedia: () => ({ matches: false })
+        };
+        sandbox.window = sandbox;
+        vm.createContext(sandbox);
+        vm.runInContext(codigo, sandbox);
+        assert.ok(typeof poll === "function", "poll HTTP não foi agendado");
+        // Página recém-carregada: uma venda nova faz o servidor regerar (changeTs novo).
+        const est = JSON.parse(fs.readFileSync(path.join(dir, "estado.json"), "utf8"));
+        est.nfce.push({ numero: "701", hora: horaHaMin(0), modelo: 65, total: 20 });
+        gravarEstado(dir, est);
+        let mudou = false;
+        for (let t = 0; t < 100 && !mudou; t++) {
+            const s2 = await fetch(srv.base + "/api/status").then(r => r.json());
+            mudou = s2.changeTs > st.changeTs; if (!mudou) await esperar(200);
+        }
+        assert.ok(mudou, "o servidor deveria registrar a mudança (changeTs)");
+        // Várias consultas seguidas: deve recarregar UMA vez, não a cada consulta.
+        for (let i = 0; i < 12; i++) { poll(); await esperar(150); }
+        assert.strictEqual(recargas, 1, "deveria recarregar uma única vez (antes: a cada consulta, por ~15 s)");
+        const stFim = await fetch(srv.base + "/api/status").then(r => r.json());
+        assert.ok(typeof stFim.agora === "number" && Math.abs(stFim.agora - Date.now()) < 5000, "/api/status deveria trazer o horário do servidor (agora)");
+    } finally { srv.parar(); }
+});

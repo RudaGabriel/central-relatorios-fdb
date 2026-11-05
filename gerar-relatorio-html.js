@@ -1,11 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.29.1
+ * @version 3.30.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.29.1 - 2026-11-05 - Textos mais formais (avisos, dicas, ajuda de coringas, QR code).
+ *   3.30.0 - 2026-11-05 - Avisos (toasts) com barra de tempo restante em todos os modos.
  */
 
 (function() {
@@ -13,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.29.1";
+    const SCRIPT_VERSION = "3.30.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -2866,7 +2866,6 @@ html[data-perf="leve"] *, html[data-perf="leve"] *::before, html[data-perf="leve
   text-shadow: none !important; scroll-behavior: auto !important; will-change: auto !important;
 }
 html[data-perf="leve"], html[data-perf="leve"] body { background-attachment: scroll !important; }
-html[data-perf="leve"] .__nc_toast_bar { display: none !important; }
 html[data-perf="leve"] .badge:hover, html[data-perf="leve"] .btn:hover, html[data-perf="leve"] .btn:active { transform: none !important; }
 html[data-perf="leve"] .ov { background: rgba(0, 0, 0, 0.72); }
 /* PERFORMANCE FIX (ajuste solicitado — foco em computadores mais fracos):
@@ -4776,7 +4775,7 @@ const showToast=msg=>{
     if(!document.getElementById("__nc_toast_css")){
         const st=document.createElement("style");
         st.id="__nc_toast_css";
-        st.textContent=".__nc_toast_box{position:fixed;top:16px;left:16px;z-index:2147483647!important;display:flex;flex-direction:column;gap:10px;pointer-events:none} .__nc_toast{pointer-events:auto;background:var(--bg-panel);border:1px solid var(--border-focus);box-shadow:var(--shadow-lg);color:var(--text-main);border-radius:var(--radius-md);padding:12px 34px 12px 14px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;opacity:0;transform:translateY(-10px);transition:opacity .22s ease,transform .22s ease;overflow:hidden;position:relative} .__nc_toast.__on{opacity:1;transform:translateY(0)} .__nc_toast_x{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-weight:bold} .__nc_toast_x:hover{color:var(--text-main);background:var(--border)} .__nc_toast_bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,var(--accent),#0ea5e9);transform-origin:left} @keyframes __nc_toast_bar_anim{to{transform:scaleX(0)}}";
+        st.textContent=".__nc_toast_box{position:fixed;top:16px;left:16px;z-index:2147483647!important;display:flex;flex-direction:column;gap:10px;pointer-events:none} .__nc_toast{pointer-events:auto;background:var(--bg-panel);border:1px solid var(--border-focus);box-shadow:var(--shadow-lg);color:var(--text-main);border-radius:var(--radius-md);padding:12px 34px 12px 14px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;opacity:0;transform:translateY(-10px);transition:opacity .22s ease,transform .22s ease;overflow:hidden;position:relative} .__nc_toast.__on{opacity:1;transform:translateY(0)} .__nc_toast_x{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-weight:bold} .__nc_toast_x:hover{color:var(--text-main);background:var(--border)} .__nc_toast_track{position:absolute;left:0;bottom:0;height:4px;width:100%;background:var(--border)} .__nc_toast_bar{position:absolute;left:0;bottom:0;height:4px;width:100%;background:linear-gradient(90deg,var(--accent),#0ea5e9);transform-origin:left;transform:scaleX(1)} @keyframes __nc_toast_bar_anim{to{transform:scaleX(0)}}";
         document.head.appendChild(st);
     }
     let box=qs(".__nc_toast_box");
@@ -4784,9 +4783,8 @@ const showToast=msg=>{
     const el=document.createElement("div");
     el.className="__nc_toast";
     const durMs=Math.max(500,Number(window.__TOAST_MS)||5000);
-    const barStyle="animation:__nc_toast_bar_anim "+durMs+"ms linear forwards";
     const _escT=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    el.innerHTML='<div>'+_escT(msg)+'</div><button class="__nc_toast_x"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class="__nc_toast_bar" style="'+barStyle+'"></div>';
+    el.innerHTML='<div>'+_escT(msg)+'</div><button class="__nc_toast_x"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class="__nc_toast_track"></div><div class="__nc_toast_bar"></div>';
     // SUAVIZAÇÃO (ajuste solicitado): "rm" chamava el.remove() imediatamente
     // — o toast tinha transition de opacity/transform declarada no CSS, mas
     // nunca chegava a tocar, porque o elemento saía da árvore de renderização
@@ -4806,6 +4804,15 @@ const showToast=msg=>{
     el.querySelector("button").addEventListener("click",rm);
     box.appendChild(el);
     requestAnimationFrame(()=>el.classList.add("__on"));
+    // v3.30.0: barra de tempo restante em TODOS os modos. Pela Web Animations
+    // API, que as regras "animation-duration: 0.001ms !important" do modo Leve
+    // e do "reduzir movimento" não alcançam (antes a barra sumia nesses modos).
+    // Navegador sem element.animate: cai na animação CSS de antes.
+    const bar=el.querySelector(".__nc_toast_bar");
+    if(bar){
+        try{ bar.animate([{transform:"scaleX(1)"},{transform:"scaleX(0)"}],{duration:durMs,easing:"linear",fill:"forwards"}); }
+        catch(_){ bar.style.animation="__nc_toast_bar_anim "+durMs+"ms linear forwards"; }
+    }
     setTimeout(rm,durMs);
 };
 const toast=(titulo,desc)=>{ showToast(titulo&&desc?(titulo+" — "+desc):(titulo||desc)); };

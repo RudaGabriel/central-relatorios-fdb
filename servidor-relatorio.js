@@ -5,15 +5,17 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.24.1
+ * @version 2.24.2
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.24.1 - 2026-11-05 - Textos mais formais e com acentuação correta.
- *     - Página /config, seletor de período, páginas de carregamento/erro e avisos de queda
- *       do servidor revisados (antes, a /config estava toda sem acentos).
+ *   2.24.2 - 2026-11-05 - Fim do "pisca-pisca" com relógio do aparelho atrasado + barras nos avisos.
+ *     - changeTs (relógio do servidor) era comparado com o Date.now() do aparelho: um
+ *       celular 15 s atrasado recarregava dezenas de vezes após cada geração. Agora a
+ *       página mede o desvio pelo /api/status ("agora") e compara tudo no relógio do servidor.
+ *     - Aviso às telas e avisos de correção de horário com barra de tempo restante.
  */
 
 
@@ -21,7 +23,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.24.1";
+const SERVER_VERSION = "2.24.2";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -2286,8 +2288,14 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "setTimeout(function(){_badge.style.opacity='0.18';},3000);" +
             "}catch(_){}" +
             // Estado interno — _loadTs marca quando esta página foi carregada
-            "var _q="+qt+",_t="+(Math.round(tot*100)/100)+",_loadTs=Date.now();" +
-            "console.log('[srv] auto-reload ativo | qt='+_q+' tot='+_t+' loadTs='+_loadTs);" +
+            // RELÓGIO (v2.24.2): changeTs vem do relógio do SERVIDOR; comparar com o
+            // Date.now() do aparelho fazia um celular com o relógio alguns segundos
+            // atrasado recarregar sem parar depois de cada geração (loop visto após
+            // "Servidor reiniciando..."). Agora _loadTs fica no relógio do servidor:
+            // a diferença (_desvio) é medida a cada /api/status ("agora").
+            "var _q="+qt+",_t="+(Math.round(tot*100)/100)+",_loadCli=Date.now(),_desvio=null,_loadTs=0;" +
+            "var _agoraSrv=function(){return Date.now()+(_desvio||0);};" +
+            "console.log('[srv] auto-reload ativo | qt='+_q+' tot='+_t);" +
             // Aviso de servidor encerrado/sem conexão (v2.11.0) — faixa fixa no
             // topo. Aparece quando o servidor avisa que vai encerrar (SSE
             // "encerrando") ou quando a conexão fica perdida por mais de 4 s
@@ -2338,7 +2346,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             // dados no lugar (window.__atualizarSemRecarregar, gerador 3.26.0+). O aviso
             // "Há vendas novas" fica só para quando isso falhar (ou gerador antigo).
             "if(!forcar&&_recDesl()){" +
-            "if(typeof window.__atualizarSemRecarregar==='function'){_loadTs=Date.now();" +
+            "if(typeof window.__atualizarSemRecarregar==='function'){_loadTs=Math.max(_loadTs,_agoraSrv());" +
             "Promise.resolve(window.__atualizarSemRecarregar()).then(function(ok){" +
             "if(ok){_recPend=false;var na=document.getElementById('__srv_novas');if(na)na.style.display='none';}else{_recAviso();}" +
             "}).catch(function(){_recAviso();});return;}" +
@@ -2378,7 +2386,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "_aw=document.createElement('div');_aw.id='__srv_aviso';_aw.setAttribute('role','alert');" +
             "_aw.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2147483647;max-width:min(560px,92vw);" +
             "padding:14px 44px 14px 18px;border-radius:12px;background:#0f172a;color:#f1f5f9;border:1px solid rgba(56,189,248,.55);" +
-            "box-shadow:0 10px 40px rgba(0,0,0,.6);font:600 14px Inter,Arial,sans-serif;line-height:1.45;word-break:break-word;opacity:1;transition:opacity .4s';" +
+            "box-shadow:0 10px 40px rgba(0,0,0,.6);font:600 14px Inter,Arial,sans-serif;line-height:1.45;word-break:break-word;opacity:1;transition:opacity .4s;overflow:hidden';" +
             "var _at=document.createElement('div');_at.style.cssText='font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#38bdf8;margin-bottom:4px';_at.textContent='Aviso';_aw.appendChild(_at);" +
             "var _am=document.createElement('div');_am.textContent=String(d.msg);_aw.appendChild(_am);" +
             "var _ax=document.createElement('button');_ax.type='button';_ax.textContent='\u00d7';_ax.setAttribute('aria-label','Fechar');" +
@@ -2386,6 +2394,10 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "_ax.onclick=function(){try{_aw.parentNode.removeChild(_aw);}catch(_){}};_aw.appendChild(_ax);" +
             "document.body.appendChild(_aw);" +
             "var _as=Math.max(3,Math.min(120,Number(d.segundos)||12));" +
+            // v2.24.2: barra de tempo restante (Web Animations: funciona também no modo Leve).
+            "var _ak=document.createElement('div');_ak.style.cssText='position:absolute;left:0;bottom:0;height:4px;width:100%;background:rgba(148,163,184,.25)';_aw.appendChild(_ak);" +
+            "var _ab=document.createElement('div');_ab.style.cssText='position:absolute;left:0;bottom:0;height:4px;width:100%;background:#38bdf8;transform-origin:left';_aw.appendChild(_ab);" +
+            "try{_ab.animate([{transform:'scaleX(1)'},{transform:'scaleX(0)'}],{duration:_as*1000,easing:'linear',fill:'forwards'});}catch(_){}" +
             "setTimeout(function(){_aw.style.opacity='0';setTimeout(function(){try{_aw.parentNode&&_aw.parentNode.removeChild(_aw);}catch(_){}},450);},_as*1000);" +
             "}catch(_){}}" +
             "if(d.type==='navigate-hash'&&d.hash){" +
@@ -2425,6 +2437,11 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             ".then(function(r){return r.ok?r.json():Promise.reject(r.status);})" +
             ".then(function(d){" +
             "_pollErros=0;_srvErroDesde=0;" +
+            // Desvio entre os relógios (servidor - aparelho). Na 1ª resposta, converte o
+            // instante em que esta página carregou para o relógio do servidor.
+            "if(typeof d.agora==='number'&&isFinite(d.agora)){var _nd=d.agora-Date.now();" +
+            "if(_desvio===null){_desvio=_nd;_loadTs=_loadCli+_nd;}else{_desvio=_nd;}}" +
+            "else if(_desvio===null){_desvio=0;_loadTs=_loadCli;}" +
             // Servidor voltou depois de ter caído/encerrado: recarrega para
             // mostrar os dados atuais (e tirar o aviso).
             "if(_srvFora){_recarregar(true);return;}" +
@@ -2444,9 +2461,13 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "+';border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.5;" +
             "color:#e2e8f0;font-family:Inter,Arial,sans-serif;" +
             "box-shadow:0 4px 24px rgba(0,0,0,.65);opacity:1;transition:opacity .5s ease;" +
-            "pointer-events:none;word-break:break-word';" +
+            "pointer-events:none;word-break:break-word;position:relative;overflow:hidden';" +
             "_t.textContent=c.msg;" +
             "_tw.appendChild(_t);" +
+            // v2.24.2: barra de tempo restante também neste aviso.
+            "var _tms=(window.__TOAST_MS>=500?window.__TOAST_MS:" + TOAST_DURATION + ");" +
+            "var _tb=document.createElement('div');_tb.style.cssText='position:absolute;left:0;bottom:0;height:3px;width:100%;background:'+(c.cor||'#0ea5e9')+';transform-origin:left';_t.appendChild(_tb);" +
+            "try{_tb.animate([{transform:'scaleX(1)'},{transform:'scaleX(0)'}],{duration:_tms,easing:'linear',fill:'forwards'});}catch(_){}" +
             "setTimeout(function(){_t.style.opacity='0';" +
             "setTimeout(function(){try{_t.parentNode&&_t.parentNode.removeChild(_t);}catch(_){}},550);}," +
             "(window.__TOAST_MS>=500?window.__TOAST_MS:" + TOAST_DURATION + "));" +
@@ -2461,7 +2482,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             // Mecanismo 2 (backup): comparação direta — captura divergências de qt/tot
             "d.qt!==_q||Math.abs(d.total-_t)>0.01)){" +
             "console.log('[srv] reload: changeTs='+d.changeTs+' loadTs='+_loadTs+' qt='+d.qt+'/'+_q);" +
-            "_q=d.qt;_t=d.total;_loadTs=Date.now();" + // atualiza para evitar loops
+            "_q=d.qt;_t=d.total;_loadTs=Math.max(_agoraSrv(),d.changeTs||0);" + // atualiza para evitar loops
             "_recarregar();}}" +
             ")" +
             ".catch(function(err){_pollErros++;" +
@@ -5210,7 +5231,7 @@ var server=http.createServer(function(req,res){
         var _agoraStatus = Date.now();
         var _corr = _correcoesPendentes.filter(function(c) { return (_agoraStatus - c.ts) < _CORRECOES_JANELA_MS; });
         var _statusPayload = Object.assign({}, statusAtual,
-            {changeTs: _statusChangeTs},
+            {changeTs: _statusChangeTs, agora: _agoraStatus},
             _corr.length ? {correcoes: _corr} : {});
         res.writeHead(200,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-cache,no-store"});
         res.end(JSON.stringify(_statusPayload));return;

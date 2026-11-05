@@ -5,17 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.24.0
+ * @version 2.24.1
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.24.0 - 2026-11-04 12:00 - Melhorias trazidas do Relatorios-FDB-FBK.
- *     - Gerador acha o node.exe de novo e tenta outra vez sozinho quando o Node é atualizado
- *       com o servidor ligado (antes: "spawn ...node.exe ENOENT" em todo relatório).
- *     - Comandos da bandeja chegam às telas sem o modal; /config volta para a tela de origem.
- *     - Mais threads de E/S (UV_THREADPOOL_SIZE=16).
+ *   2.24.1 - 2026-11-05 - Textos mais formais e com acentuação correta.
+ *     - Página /config, seletor de período, páginas de carregamento/erro e avisos de queda
+ *       do servidor revisados (antes, a /config estava toda sem acentos).
  */
 
 
@@ -23,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.24.0";
+const SERVER_VERSION = "2.24.1";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -1037,7 +1035,7 @@ var _versaoGerador = function() {
         var _cab = fs.readFileSync(path.join(__dirname, "gerar-relatorio-html.js"), "utf8").slice(0, 600);
         var _m = _cab.match(/@version\s+([0-9]+\.[0-9]+\.[0-9]+)/);
         // Prefixo "v" só quando há versão real, para não sair "vausente".
-        return _m ? "v" + _m[1] : "(versao nao identificada)";
+        return _m ? "v" + _m[1] : "(versão não identificada)";
     } catch (e) {
         return "(arquivo ausente)";
     }
@@ -1658,7 +1656,7 @@ var descobrirIPFirebird=function(onPronto){
         logTs("Banco nao respondeu em "+FDB_HOST+" ("+erro+"). Scan de rede...");
         var subnet=detectSubnet();
         if(!subnet){
-            dbStatus={ok:false,ip:null,erro:"Nao foi possivel detectar a rede local.",scanCompleto:true,scanning:false};
+            dbStatus={ok:false,ip:null,erro:"Não foi possível detectar a rede local.",scanCompleto:true,scanning:false};
             onPronto(false);return;
         }
         scanFirebird(subnet,function(found){
@@ -1677,7 +1675,7 @@ var descobrirIPFirebird=function(onPronto){
                 } else {
                     var ip1=found[0];
                     FDB_HOST=ip1; FDB=ip1+":"+FDB_PATH;
-                    dbStatus={ok:false,ip:ip1,erro:"Porta "+FIREBIRD_PORT+" em "+ip1+" mas FDB nao respondeu.",scanCompleto:true,scanning:false};
+                    dbStatus={ok:false,ip:ip1,erro:"Porta "+FIREBIRD_PORT+" em "+ip1+", mas o banco de dados não respondeu.",scanCompleto:true,scanning:false};
                     onPronto(false);
                 }
             });
@@ -2175,7 +2173,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             return;
         }
         cache[chave]={html:null,gerando:false,erro:(e && e.code === "ENOENT")
-            ? "O Node.js não foi encontrado (foi atualizado ou removido com o servidor ligado?). Reinicie o servidor pela bandeja (Reiniciar servidor) ou rode o instalador de novo. Detalhe: " + e.message
+            ? "O Node.js não foi encontrado (ele pode ter sido atualizado ou removido com o servidor em execução). Reinicie o servidor pela bandeja (Reiniciar servidor) ou execute o instalador novamente. Detalhe: " + e.message
             : "Falha ao iniciar node: "+e.message};
         _gerarTentativas[chave] = 0;
     });
@@ -2225,7 +2223,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             logTs("ERRO: "+msg);cache[chave]={html:null,gerando:false,erro:msg};return;
         }
         if(!fs.existsSync(_tmpFile)){
-            cache[chave]={html:null,gerando:false,erro:"Arquivo de saida nao criado."};return;
+            cache[chave]={html:null,gerando:false,erro:"O arquivo do relatório não foi criado."};return;
         }
         var html;
         try{html=fs.readFileSync(_tmpFile,"utf8");}
@@ -2309,8 +2307,8 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "_srvFora=true;}catch(_){}};" +
             "var _srvAvisoEncerrado=function(reiniciando){_srvAviso(" +
             "reiniciando?'Servidor reiniciando...':'Servidor de relatórios encerrado'," +
-            "reiniciando?'O relatório volta sozinho em alguns segundos.':" +
-            "'Os dados desta tela pararam de ser atualizados. A página recarrega sozinha quando o servidor for iniciado de novo.'," +
+            "reiniciando?'O relatório será restabelecido automaticamente em alguns segundos.':" +
+            "'Os dados desta tela deixaram de ser atualizados. A página será recarregada automaticamente quando o servidor for iniciado novamente.'," +
             "reiniciando?'#b45309':'#b91c1c');};" +
             // Recarregamento automático (v2.17.0): antes, a página guarda rolagem e
             // filtros (window.__antesRecarga, do gerador 3.19.0+) — a nova volta ao mesmo
@@ -2470,7 +2468,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "if(_pollErros<=3)console.log('[srv] poll erro #'+_pollErros+': '+err);" +
             "if(!_srvErroDesde)_srvErroDesde=Date.now();" +
             "if(!_srvFora&&Date.now()-_srvErroDesde>4000)_srvAviso('Sem conexão com o servidor de relatórios'," +
-            "'O servidor pode ter sido encerrado ou a rede caiu. Os dados desta tela pararam de ser atualizados; a página recarrega sozinha quando a conexão voltar.','#b91c1c');" +
+            "'O servidor pode ter sido encerrado ou a conexão de rede foi interrompida. Os dados desta tela deixaram de ser atualizados; a página será recarregada automaticamente quando a conexão for restabelecida.','#b91c1c');" +
             "});};" +
             "setInterval(_poll,"+pollMs+");"
             ) : "") +
@@ -3955,7 +3953,7 @@ var paginaLoading=function(titulo,sub,chavePoll,urlDest){
         "var _svgOk='<svg xmlns=\"http:\\/\\/www.w3.org\\/2000\\/svg\" width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"display:inline;vertical-align:-2px;margin-right:4px\"><path d=\"M20 6 9 17l-5-5\"\\/><\\/svg>';" +
         "if(_sp)_sp.className='spin pronto';" +
         "if(_ht)_ht.className='pronto';" +
-        "if(_sb){_sb.className='pronto';_sb.innerHTML=_sbHtml(_svgOk,'Relatório pronto!','Redirecionando...');_sb.style.display='block';}" +
+        "if(_sb){_sb.className='pronto';_sb.innerHTML=_sbHtml(_svgOk,'Relatório pronto.','Redirecionando...');_sb.style.display='block';}" +
         "setTimeout(function(){window.location.replace(_dest);},100);return;}" +
         // Atualiza contador de segundos
         "if(_el)_el.textContent='Consultando banco... '+seg+'s';" +
@@ -4013,19 +4011,19 @@ var paginaErro=function(titulo,msg,href){
 
 var paginaFormPeriodo=function(dHoje){
     return "<!doctype html><html lang=\"pt-br\"><head><meta charset=\"utf-8\">"+htmlFavicon+
-        "<title>Gerar por periodo</title>"+
+        "<title>Gerar por período</title>"+
         "<style>*{box-sizing:border-box}body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Inter,Arial,sans-serif;color:#ededed}.box{background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:36px 40px;width:90%;max-width:380px}h2{margin:0 0 24px;font-size:20px;font-weight:700}label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#a1a1aa;margin-bottom:6px}input[type=date]{display:block;width:100%;background:#000;color:#ededed;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:20px;color-scheme:dark;outline:none}input[type=date]:focus{border-color:#0ea5e9}button{width:100%;padding:14px;background:#0ea5e9;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}button:hover{background:#0284c7}button:disabled{opacity:.5;cursor:not-allowed}.back{display:block;text-align:center;margin-top:14px;color:#a1a1aa;font-size:13px;text-decoration:none}.back:hover{color:#ededed}#err{display:none;color:#f87171;font-size:13px;margin-bottom:12px;padding:10px;background:rgba(248,113,113,.1);border-radius:6px}"+
-        "</style></head><body><div class=\"box\"><h2>Gerar por periodo</h2>"+
+        "</style></head><body><div class=\"box\"><h2>Gerar por período</h2>"+
         "<div id=\"err\"></div><label>Data inicial</label>"+
         "<input type=\"date\" id=\"ini\" value=\""+dHoje+"\">"+
         "<label>Data final</label><input type=\"date\" id=\"fim\" value=\""+dHoje+"\">"+
-        "<button id=\"bg\" onclick=\"gerar()\">Gerar Relatorio</button>"+
+        "<button id=\"bg\" onclick=\"gerar()\">Gerar relatório</button>"+
         "<a href=\"/\" class=\"back\">Voltar para hoje</a></div>"+
         "<script>function gerar(){var i=document.getElementById('ini').value,"+
         "f=document.getElementById('fim').value,"+
         "e=document.getElementById('err'),b=document.getElementById('bg');"+
         "if(!i||!f){e.textContent='Informe as duas datas.';e.style.display='block';return;}"+
-        "if(i>f){e.textContent='Data inicial deve ser anterior ou igual a final.';e.style.display='block';return;}"+
+        "if(i>f){e.textContent='A data inicial deve ser anterior ou igual à data final.';e.style.display='block';return;}"+
         "e.style.display='none';b.disabled=true;b.textContent='Gerando...';"+
         "window.location.href='/periodo?i='+encodeURIComponent(i)+'&f='+encodeURIComponent(f);}"+
         "['ini','fim'].forEach(function(id){document.getElementById(id).addEventListener('keydown',function(e){if(e.key==='Enter')gerar();});});"+
@@ -4045,7 +4043,7 @@ var paginaEscolherFdb = function() {
     var msgErro = "<div id=\"err\" style=\"display:none\"></div>";
 
     return "<!doctype html><html lang=\"pt-br\"><head><meta charset=\"utf-8\">" + htmlFavicon +
-        "<title>Selecionar Banco de Dados</title>" +
+        "<title>Selecionar banco de dados</title>" +
         "<script>(function(){try{var t=localStorage.getItem('fdb_theme')||(document.cookie.match(/fdb_theme=([^;]+)/)||[])[1]||'ultra-dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();" + SC4 +
         "<style>" +
         "*{box-sizing:border-box}" +
@@ -4082,7 +4080,7 @@ var paginaEscolherFdb = function() {
         "<button class=\"btn btn-sec\" id=\"btnPicker\" title=\"Abrir seletor de arquivos do Windows\">" + SVG_FOLDER + "Procurar</button>" +
         "</div>" +
         "<p class=\"hint\">Cole o caminho completo ou use o botão <strong>Procurar</strong> para abrir o explorador de arquivos do Windows.</p>" +
-        "<button class=\"btn btn-full\" id=\"btnSalvar\" onclick=\"salvar()\">Conectar ao Banco</button>" +
+        "<button class=\"btn btn-full\" id=\"btnSalvar\" onclick=\"salvar()\">Conectar ao banco de dados</button>" +
         "<div id=\"spin\" style=\"margin-top:16px\"></div>" +
         "<hr class=\"sep\">" +
         "<p style=\"font-size:12px;color:#52525b;margin:0 0 8px\">Locais comuns:</p>" +
@@ -4154,7 +4152,7 @@ var paginaEscolherFdb = function() {
         ".catch(function(e){" +
         "btn.disabled=false;btn.textContent='Conectar ao Banco';" +
         "document.getElementById('spin').style.display='none';" +
-        "mostrarErro('Erro de rede: '+e.message);" +
+        "mostrarErro('Erro de conexão: '+e.message);" +
         "});" +
         "}" +
         "function mostrarErro(t){" +
@@ -5762,7 +5760,7 @@ var server=http.createServer(function(req,res){
             // XSS FIX (v2.9.0): JSON.stringify não escapa "</script>" — um termo
             // proibido com esse texto executava código nesta página.
             var _pr=_jsonParaScript(Array.isArray(cc.proibidos)?cc.proibidos:[]);
-            return "<!doctype html><html lang=\"pt-br\"><head><meta charset=\"utf-8\">"+htmlFavicon+"<title>Configuracoes</title>"+
+            return "<!doctype html><html lang=\"pt-br\"><head><meta charset=\"utf-8\">"+htmlFavicon+"<title>Configurações</title>"+
             "<script>(function(){try{var t=localStorage.getItem('fdb_theme')||(document.cookie.match(/fdb_theme=([^;]+)/)||[])[1]||'ultra-dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();"+SC3+
             "<style>"+
             "*{box-sizing:border-box}"+
@@ -5786,30 +5784,30 @@ var server=http.createServer(function(req,res){
             ".er{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25)}"+
             ".sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:12px 0}"+
             "</style></head><body><div class=\"box\">"+
-            "<h2>Configuracoes</h2><p class=\"sub\">Apenas campos editaveis pelo painel. Outras opcoes: edite config.json diretamente.</p>"+
+            "<h2>Configurações</h2><p class=\"sub\">Somente os campos editáveis pelo painel. As demais opções devem ser alteradas diretamente no arquivo config.json.</p>"+
             "<div id=\"msg\"></div>"+
-            "<div class=\"field\"><label>Nome do sistema (appName)</label><input type=\"text\" id=\"appName\" value=\""+_pn+"\"><p class=\"hint\">Exibido no titulo da pagina e no icone da bandeja.</p></div>"+
+            "<div class=\"field\"><label>Nome do sistema (appName)</label><input type=\"text\" id=\"appName\" value=\""+_pn+"\"><p class=\"hint\">Exibido no título da página e no ícone da bandeja.</p></div>"+
             "<div class=\"row\">"+
-            "<div class=\"field\"><label>Intervalo de polling (ms)</label><input type=\"number\" id=\"pollInterval\" value=\""+_pi+"\" min=\"100\" max=\"60000\" step=\"50\"><p class=\"hint\">De 100 ms a 60000 ms</p></div>"+
-            "<div class=\"field\"><label>Maximo de linhas de log</label><input type=\"number\" id=\"maxLogLines\" value=\""+_ml+"\" min=\"100\" max=\"100000\" step=\"100\"><p class=\"hint\">De 100 a 100000 linhas</p></div>"+
+            "<div class=\"field\"><label>Intervalo de verificação (ms)</label><input type=\"number\" id=\"pollInterval\" value=\""+_pi+"\" min=\"100\" max=\"60000\" step=\"50\"><p class=\"hint\">De 100 ms a 60.000 ms.</p></div>"+
+            "<div class=\"field\"><label>Máximo de linhas do log</label><input type=\"number\" id=\"maxLogLines\" value=\""+_ml+"\" min=\"100\" max=\"100000\" step=\"100\"><p class=\"hint\">De 100 a 100.000 linhas.</p></div>"+
             "</div>"+
-            "<div class=\"field\"><label>Janela de correcao de horario (min)</label><input type=\"number\" id=\"janelaHora\" value=\""+_jh+"\" min=\""+JANELA_HORA_MIN_MIN+"\" max=\""+JANELA_HORA_MAX_MIN+"\" step=\"5\"><p class=\"hint\">Vendas gerenciais com hora no futuro ou entre 3 min e este tempo atras passam a usar a hora atual; mais antigas sao ignoradas. Padrao: 180 (3 horas). Minimo "+JANELA_HORA_MIN_MIN+", maximo "+JANELA_HORA_MAX_MIN+".</p></div>"+
-            "<div class=\"field\"><label>Duracao do toast (ms)</label><input type=\"number\" id=\"toastDuration\" value=\""+_td+"\" min=\"500\" max=\"60000\" step=\"500\"><p class=\"hint\">Tempo que a notificacao de mudanca fica visivel. Minimo: 500 ms, maximo: 60 000 ms.</p></div>"+
+            "<div class=\"field\"><label>Janela de correção de horário (min)</label><input type=\"number\" id=\"janelaHora\" value=\""+_jh+"\" min=\""+JANELA_HORA_MIN_MIN+"\" max=\""+JANELA_HORA_MAX_MIN+"\" step=\"5\"><p class=\"hint\">Vendas gerenciais com horário no futuro, ou registradas entre 3 minutos e este tempo atrás, passam a usar o horário atual; as mais antigas não são alteradas. Padrão: 180 (3 horas). Mínimo: "+JANELA_HORA_MIN_MIN+"; máximo: "+JANELA_HORA_MAX_MIN+".</p></div>"+
+            "<div class=\"field\"><label>Duração dos avisos (ms)</label><input type=\"number\" id=\"toastDuration\" value=\""+_td+"\" min=\"500\" max=\"60000\" step=\"500\"><p class=\"hint\">Tempo em que o aviso de alteração permanece visível. Mínimo: 500 ms; máximo: 60.000 ms.</p></div>"+
             "<div class=\"field\">"+
               "<label>Ícone (favicon)</label>"+
               "<div style=\"display:flex;gap:2px;align-items:center;flex-wrap:wrap\">"+
-                "<input type=\"text\" id=\"favicon\" placeholder=\"Caminho do arquivo ou vazio para usar favicon na mesma pasta\" value=\""+_fv+"\" style=\"flex:1;min-width:0\">"+
+                "<input type=\"text\" id=\"favicon\" placeholder=\"Caminho do arquivo (deixe em branco para usar o favicon da pasta do sistema)\" value=\""+_fv+"\" style=\"flex:1;min-width:0\">"+
                 "<button class=\"btn btn-sec\" type=\"button\" id=\"favPick\" style=\"white-space:nowrap;height:38px;padding:0 14px\" title=\"Selecionar arquivo do computador\">" + SVG_FOLDER + "Procurar</button>"+
                 "<input type=\"file\" id=\"favFile\" accept=\".png,.ico,.jpg,.jpeg\" style=\"display:none\">"+
               "</div>"+
-              "<p class=\"hint\" id=\"favHint\">"+(_fv?"Atual: "+_fv:"Usando favicon.png padrao na mesma pasta dos arquivos")+"</p>"+
+              "<p class=\"hint\" id=\"favHint\">"+(_fv?"Atual: "+_fv:"Utilizando o favicon.png padrão da pasta do sistema.")+"</p>"+
             "</div>"+
             "<hr class=\"sep\">"+
             "<div class=\"field\"><label>Proibidos (um por linha)</label>"+
             "<textarea id=\"proibidos\" placeholder=\"Nome1\nNome2\nProduto A\"></textarea>"+
-            "<p class=\"hint\">Vendas com esses termos serao ocultadas do relatorio.</p></div>"+
-            "<button class=\"btn\" id=\"salvarBtn\" onclick=\"salvar()\">Salvar configuracoes</button>"+
-            "<button class=\"btn btn-sec\" style=\"margin-top:10px\" id=\"voltarBtn\" data-voltar=\""+escH(_voltarCfg)+"\" onclick=\"window.location.href=this.getAttribute('data-voltar')||'/'\">"+(_voltarCfg === "/" ? "Voltar para o relatorio" : "Voltar para a tela anterior")+"</button>"+
+            "<p class=\"hint\">As vendas que contiverem esses termos serão ocultadas do relatório.</p></div>"+
+            "<button class=\"btn\" id=\"salvarBtn\" onclick=\"salvar()\">Salvar configurações</button>"+
+            "<button class=\"btn btn-sec\" style=\"margin-top:10px\" id=\"voltarBtn\" data-voltar=\""+escH(_voltarCfg)+"\" onclick=\"window.location.href=this.getAttribute('data-voltar')||'/'\">"+(_voltarCfg === "/" ? "Voltar para o relatório" : "Voltar para a tela anterior")+"</button>"+
             "</div>"+
             "<script>"+
             "(function(){"+
@@ -5821,7 +5819,7 @@ var server=http.createServer(function(req,res){
             "var f=_fi.files&&_fi.files[0];"+
             "if(!f)return;"+
             "var h=document.getElementById('favHint');"+
-            "if(h)h.textContent='Arquivo selecionado: '+f.name+' ('+Math.round(f.size/1024)+' KB) — sera enviado ao salvar.';"+
+            "if(h)h.textContent='Arquivo selecionado: '+f.name+' ('+Math.round(f.size/1024)+' KB) — será enviado ao salvar.';"+
             "document.getElementById('favicon').value='';"+
             "});"+
             "})();"+
@@ -5837,24 +5835,24 @@ var server=http.createServer(function(req,res){
             "var praw=document.getElementById('proibidos').value;"+
             "var pr=praw.split('\\n').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});"+
             "var favFile=document.getElementById('favFile').files&&document.getElementById('favFile').files[0];"+
-            "if(!an){showMsg('O nome do sistema nao pode estar vazio.','er');btn.disabled=false;btn.textContent='Salvar configuracoes';return;}"+
+            "if(!an){showMsg('O nome do sistema não pode ficar em branco.','er');btn.disabled=false;btn.textContent='Salvar configurações';return;}"+
             // BUG FIX (v2.20.0): exigia 200 ms, mas o servidor aceita a partir de POLL_INTERVAL_MIN
             // (100) e a própria página diz "De 100 ms" — salvar 100 dava "Intervalo mínimo é 200 ms".
-            "if(!(pi>="+POLL_INTERVAL_MIN+"&&pi<="+POLL_INTERVAL_MAX+")){showMsg('Intervalo deve ficar entre "+POLL_INTERVAL_MIN+" e "+POLL_INTERVAL_MAX+" ms.','er');btn.disabled=false;btn.textContent='Salvar configuracoes';return;}"+
-            "if(ml<100){showMsg('Maximo de linhas minimo e 100.','er');btn.disabled=false;btn.textContent='Salvar configuracoes';return;}"+
-            "if(td<500||td>60000){showMsg('Duracao do toast deve estar entre 500 e 60 000 ms.','er');btn.disabled=false;btn.textContent='Salvar configuracoes';return;}"+
-            "if(!(jh>="+JANELA_HORA_MIN_MIN+"&&jh<="+JANELA_HORA_MAX_MIN+")){showMsg('Janela de correcao de horario deve ficar entre "+JANELA_HORA_MIN_MIN+" e "+JANELA_HORA_MAX_MIN+" minutos.','er');btn.disabled=false;btn.textContent='Salvar configuracoes';return;}"+
+            "if(!(pi>="+POLL_INTERVAL_MIN+"&&pi<="+POLL_INTERVAL_MAX+")){showMsg('O intervalo deve estar entre "+POLL_INTERVAL_MIN+" e "+POLL_INTERVAL_MAX+" ms.','er');btn.disabled=false;btn.textContent='Salvar configurações';return;}"+
+            "if(ml<100){showMsg('O máximo de linhas do log deve ser de, no mínimo, 100.','er');btn.disabled=false;btn.textContent='Salvar configurações';return;}"+
+            "if(td<500||td>60000){showMsg('A duração dos avisos deve estar entre 500 e 60.000 ms.','er');btn.disabled=false;btn.textContent='Salvar configurações';return;}"+
+            "if(!(jh>="+JANELA_HORA_MIN_MIN+"&&jh<="+JANELA_HORA_MAX_MIN+")){showMsg('A janela de correção de horário deve estar entre "+JANELA_HORA_MIN_MIN+" e "+JANELA_HORA_MAX_MIN+" minutos.','er');btn.disabled=false;btn.textContent='Salvar configurações';return;}"+
             "var doSave=function(){"+
             "fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},"+
             "body:JSON.stringify({appName:an,pollInterval:pi,maxLogLines:ml,toastDuration:td,janelaCorrecaoHoraMin:jh,favicon:fv,proibidos:pr})})"+
             ".then(function(r){return r.json();})"+
             ".then(function(d){"+
-            "if(d.ok&&d.escopo==='aparelho'){showMsg('Salvo so para este aparelho (duracao dos avisos e proibidos).'+(d.ignorados&&d.ignorados.length?' Nome, intervalo, log, janela e icone so podem ser alterados no computador do servidor.':''),'ok');}"+
-            "else if(d.ok){showMsg('Configuracoes salvas com sucesso! O relatorio sera atualizado.','ok');}"+
+            "if(d.ok&&d.escopo==='aparelho'){showMsg('Salvo somente para este aparelho (duração dos avisos e termos proibidos).'+(d.ignorados&&d.ignorados.length?' O nome, o intervalo, o log, a janela de correção e o ícone somente podem ser alterados no computador do servidor.':''),'ok');}"+
+            "else if(d.ok){showMsg('Configurações salvas com sucesso. O relatório será atualizado.','ok');}"+
             "else{showMsg('Erro: '+(d.erro||'Falha desconhecida'),'er');}"+
-            "btn.disabled=false;btn.textContent='Salvar configuracoes';"+
+            "btn.disabled=false;btn.textContent='Salvar configurações';"+
             "})"+
-            ".catch(function(e){showMsg('Erro de rede: '+e.message,'er');btn.disabled=false;btn.textContent='Salvar configuracoes';});"+
+            ".catch(function(e){showMsg('Erro de conexão: '+e.message,'er');btn.disabled=false;btn.textContent='Salvar configurações';});"+
             "};"+
             "if(favFile){"+
             "var reader=new FileReader();"+
@@ -5862,10 +5860,10 @@ var server=http.createServer(function(req,res){
             "fetch('/api/upload-favicon',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:ev.target.result})"+
             ".then(function(r){return r.json();})"+
             ".then(function(d){"+
-            "if(d.ok){fv='';var h=document.getElementById('favHint');if(h)h.textContent='Favicon atualizado com sucesso!';}"+
-            "else{showMsg('Aviso favicon: '+(d.erro||'Falha no upload'),'er');}"+
+            "if(d.ok){fv='';var h=document.getElementById('favHint');if(h)h.textContent='Ícone atualizado com sucesso.';}"+
+            "else{showMsg('Aviso sobre o ícone: '+(d.erro||'Falha no upload'),'er');}"+
             "doSave();"+
-            "}).catch(function(){showMsg('Aviso: falha no upload do favicon — salvando demais configuracoes.','er');doSave();});"+
+            "}).catch(function(){showMsg('Aviso: não foi possível enviar o ícone; as demais configurações serão salvas.','er');doSave();});"+
             "};"+
             "reader.readAsArrayBuffer(favFile);"+
             "}else{doSave();}"+
@@ -6409,10 +6407,10 @@ var server=http.createServer(function(req,res){
         // ser agendado, então ent deveria sempre existir aqui — mas se algum erro
         // inesperado escapou sem popular o cache, exibir undefined.html quebrava
         // a página sem nenhuma mensagem. Trata como erro recuperável.
-        if(!ent){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando relatorio de hoje...",isoParaBR(dh),dh,"/"));return;}
-        if(ent.gerando||ent.matando){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando relatorio de hoje...",isoParaBR(dh),dh,"/"));return;}
-        if(ent.erro){var em=ent.erro;delete cache[dh];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar relatorio de "+isoParaBR(dh),em,"/"));return;}
-        if(!ent.html){delete cache[dh];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar relatorio de "+isoParaBR(dh),"Conteúdo não disponível — tente novamente.","/"));return;}
+        if(!ent){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando o relatório de hoje...",isoParaBR(dh),dh,"/"));return;}
+        if(ent.gerando||ent.matando){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando o relatório de hoje...",isoParaBR(dh),dh,"/"));return;}
+        if(ent.erro){var em=ent.erro;delete cache[dh];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar o relatório de "+isoParaBR(dh),em,"/"));return;}
+        if(!ent.html){delete cache[dh];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar o relatório de "+isoParaBR(dh),"Conteúdo não disponível — tente novamente.","/"));return;}
         res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(_htmlComAparelho(ent.html, req));return;
     }
 
@@ -6463,19 +6461,19 @@ var server=http.createServer(function(req,res){
             var _gerandoPeriodos=Object.keys(cache).filter(function(k){return k.indexOf("|")>0&&cache[k]&&cache[k].gerando;}).length;
             if(_gerandoPeriodos>=_MAX_PERIODOS_SIMULTANEOS){
                 res.writeHead(503,{"Content-Type":"text/html; charset=utf-8","Retry-After":"5"});
-                res.end(paginaErro("Muitos relatórios de período sendo gerados agora","Aguarde alguns segundos e tente de novo.",urlDest));
+                res.end(paginaErro("Muitos relatórios de período sendo gerados agora","Aguarde alguns segundos e tente novamente.",urlDest));
                 return;
             }
             gerarEmBackground(inicio,fim,chave);ep=cache[chave];
         }
-        if(!ep){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando relatorio...",label,chave,urlDest));return;}
-        if(ep.gerando||ep.matando){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando relatorio...",label,chave,urlDest));return;}
-        if(ep.erro){var em2=ep.erro;delete cache[chave];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar relatorio de "+label,em2,"/"));return;}
-        if(!ep.html){delete cache[chave];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar relatorio de "+label,"Conteúdo não disponível — tente novamente.","/"));return;}
+        if(!ep){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando o relatório...",label,chave,urlDest));return;}
+        if(ep.gerando||ep.matando){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaLoading("Gerando o relatório...",label,chave,urlDest));return;}
+        if(ep.erro){var em2=ep.erro;delete cache[chave];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar o relatório de "+label,em2,"/"));return;}
+        if(!ep.html){delete cache[chave];res.writeHead(500,{"Content-Type":"text/html; charset=utf-8"});res.end(paginaErro("Erro ao gerar o relatório de "+label,"Conteúdo não disponível — tente novamente.","/"));return;}
         res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});res.end(_htmlComAparelho(ep.html, req));return;
     }
 
-    res.writeHead(404,{"Content-Type":"text/plain; charset=utf-8"});res.end("Rota nao encontrada.");
+    res.writeHead(404,{"Content-Type":"text/plain; charset=utf-8"});res.end("Rota não encontrada.");
 });
 
 // ---------------------------------------------------------------------------

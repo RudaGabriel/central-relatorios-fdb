@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.1 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.29.1 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.2 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
@@ -28,6 +28,17 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.2 — 2026-11-05
+
+**Tela piscando (recarregando sem parar) em aparelho com o relógio atrasado.**
+
+Para saber se havia dados novos, a página comparava o horário da última mudança (relógio do **servidor**) com o horário em que foi carregada (relógio do **aparelho**). Num celular com o relógio alguns segundos atrasado, toda mudança recente parecia "mais nova" que a página. Ela recarregava a cada consulta até a diferença passar: depois de "Servidor reiniciando..." ou de cada venda, a tela piscava por ~15 s. Reproduzido com o relógio 15 s atrasado: **uma venda nova causava 64 recargas; agora causa 1**.
+
+O `/api/status` passou a informar o horário do servidor (`agora`), e a página mede a diferença entre os relógios e compara tudo no relógio do servidor. Teste novo cobre o caso (30 testes).
+
+Também: o aviso enviado às telas (bandeja/`api.ps1`) e os avisos de correção de horário ganharam a barra de tempo restante.
+
 
 ### 2.24.1 — 2026-11-05
 
@@ -293,6 +304,13 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.30.0 — 2026-11-05
+
+**Avisos (toasts) com barra de tempo restante em todos os modos.**
+
+A barrinha que mostra quando o aviso vai sumir ficava escondida no modo Leve (ativado sozinho em aparelhos mais fracos e com "reduzir movimento"). Agora ela é animada pela Web Animations API, que as regras do modo Leve não desligam, e ficou um pouco mais visível (4 px, com trilho de fundo). Em navegador sem essa API, cai na animação CSS de antes.
+
 
 ### 3.29.1 — 2026-11-05
 

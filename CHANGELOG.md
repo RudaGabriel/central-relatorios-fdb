@@ -8,7 +8,7 @@ Versões em uso hoje:
 | Arquivo | Versão |
 |---|---|
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.2 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
@@ -304,6 +304,12 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.30.1 — 2026-11-09
+
+**X de limpar a busca alinhado.**
+
+No modo Leve, ao passar o mouse sobre o X de limpar a busca, ele descia 12 px e ficava sobre a borda do campo. A causa era o botão ser centralizado com `transform: translateY(-50%)`, que a regra do modo Leve (`.btn:hover { transform: none !important }`) anulava. Agora ele é centralizado sem `transform` (`top: 0; bottom: 0; margin: auto`). Conferido no Playwright, no computador e no celular, nos modos Leve e Completo.
 
 ### 3.30.0 — 2026-11-05
 

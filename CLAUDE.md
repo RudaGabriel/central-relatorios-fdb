@@ -21,6 +21,13 @@
   sistema de origem é chamado de "PDV" (só o arquivo `SMALL.FDB` e as pastas de
   instalação ficam no código, porque são necessários para achar o banco). Os únicos
   créditos são do autor, Ruda Gabriel (README, `LICENSE`, `package.json`, cabeçalhos).
+- **Informações sempre atuais:** a cada mudança, procurar e corrigir no projeto
+  inteiro o que ficou desatualizado — README (badges, versões, contagem de testes,
+  lista de arquivos, rotas da API, opções do `config.json`, solução de problemas),
+  tabela e seções do `CHANGELOG.md` (todo arquivo versionado tem linha e seção),
+  cabeçalhos de versão, `SCRIPT_VERSION`/`SERVER_VERSION`, comentários que citem
+  arquivos, funções ou comportamentos que não existem mais, mensagens na tela e no
+  log. Nada pode descrever o sistema como ele era antes.
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII
   (acentos no tray como `\uXXXX`, convertidos por `L()`); preservar BOM/CRLF onde existir.
 - **Antes de entregar:** `npm test` verde; validar no navegador (Playwright) o que

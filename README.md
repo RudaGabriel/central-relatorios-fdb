@@ -365,7 +365,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/config` · `/selecionar-fdb` | GET | Páginas de configurações e de seleção do banco |
 | `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
 | `/pronto?k=CHAVE` | GET | Estado de uma geração em andamento |
-| `/api/status` | GET | Quantidade e total do dia, por tipo, e avisos de correção |
+| `/api/status` | GET | Quantidade e total do dia, por tipo, avisos de correção, momento da última mudança (`changeTs`) e horário do servidor (`agora`) |
 | `/api/db-status` | GET | Estado da conexão com o banco |
 | `/api/events` | GET | Fluxo SSE (tempo real) |
 | `/api/config` · `/api/proibidos` | GET/POST | Lê e salva configurações / lista de proibidos. De outro aparelho: só as preferências dele. Do computador do servidor: o padrão (`aplicarTodos`), ou um aparelho com `?aparelho=CHAVE` (`restaurar`, `apelido`) |
@@ -442,7 +442,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos) a proteção contra **túnel/proxy** o botão "Voltar" da página de configurações (só dentro deste servidor) e a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor) e a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 

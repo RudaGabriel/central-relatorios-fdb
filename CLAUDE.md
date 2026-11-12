@@ -28,6 +28,13 @@
   cabeçalhos de versão, `SCRIPT_VERSION`/`SERVER_VERSION`, comentários que citem
   arquivos, funções ou comportamentos que não existem mais, mensagens na tela e no
   log. Nada pode descrever o sistema como ele era antes.
+- **Ortografia e tom formal:** em toda mudança, revisar a ortografia, a acentuação,
+  a pontuação e a concordância de todos os textos tocados (tela, avisos, mensagens de
+  erro, log, bandeja, README, CHANGELOG, comentários, commits e PRs). O tom deve ser
+  formal, em português do Brasil: sem gírias nem expressões coloquiais ("pra", "tá",
+  "dá pra", "de novo", "sozinho" no sentido de "automaticamente"). O que não estiver
+  formal é reescrito formalmente no mesmo PR. Nos arquivos ASCII do Windows, os acentos
+  vão como `\uXXXX` (tray) — nunca texto sem acento na tela.
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII
   (acentos no tray como `\uXXXX`, convertidos por `L()`); preservar BOM/CRLF onde existir.
 - **Antes de entregar:** `npm test` verde; validar no navegador (Playwright) o que

@@ -7,7 +7,7 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.4 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.5 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.31.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
@@ -29,6 +29,10 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.5 — 2026-11-12
+
+**Mensagens do log em linguagem formal.** "procurando de novo e tentando outra vez" passou a ser "nova busca e nova tentativa", e "até alguém salvar de novo" passou a ser "até que as preferências sejam salvas novamente". Nenhuma mudança de comportamento.
 
 ### 2.24.4 — 2026-11-12
 

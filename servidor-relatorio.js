@@ -5,13 +5,13 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.24.4
+ * @version 2.24.5
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.24.4 - 2026-11-12 - /qr.svg?externo=ip: QR code do IP do Tailscale (além do nome).
+ *   2.24.5 - 2026-11-12 - Duas mensagens do log reescritas em linguagem formal.
  */
 
 
@@ -19,7 +19,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.24.4";
+const SERVER_VERSION = "2.24.5";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -2162,7 +2162,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
         // servidor rodando): procura de novo e tenta outra vez sozinho, sem página de erro.
         if (e && e.code === "ENOENT" && _tentativa < MAX_TENTATIVAS) {
             _nodeExeCache.ts = 0; _descartarReserva();
-            logTs("Node.js não encontrado ao gerar o relatório (" + label + ") — procurando de novo e tentando outra vez em 3 s (" + _tentativa + "/" + MAX_TENTATIVAS + ").");
+            logTs("Node.js não encontrado ao gerar o relatório (" + label + ") — nova busca e nova tentativa em 3 s (" + _tentativa + "/" + MAX_TENTATIVAS + ").");
             cache[chave] = {html:null, gerando:false, erro:null, qt:0, tot:0, matando:true, tentativa:_tentativa};
             setTimeout(function() {
                 if (_ehSupersedida()) return;
@@ -4963,7 +4963,7 @@ var _prefsAparelhos = Object.create(null);
                                    apelido: _prefsApelido(a.apelido), atualizado: Number(a.atualizado) || 0, prefs: _prefsSanitizar(a.prefs) };
         });
     } catch (e) {
-        logTs("AVISO: preferencias-aparelhos.json inválido (" + e.message + ") — os aparelhos usam o padrão do servidor até alguém salvar de novo.", "CONFIG");
+        logTs("AVISO: preferencias-aparelhos.json inválido (" + e.message + ") — os aparelhos utilizarão o padrão do servidor até que as preferências sejam salvas novamente.", "CONFIG");
     }
 })();
 var _prefsGravar = function() {

@@ -1,34 +1,24 @@
 ' =============================================================================
-' launcher.vbs                                                       v1.0.1
+' launcher.vbs                                                       v1.0.2
 ' Autor: Ruda Gabriel
 ' -----------------------------------------------------------------------------
-' ARQUIVO RECONSTRUIDO NA AUDITORIA - nao existia em nenhum lugar do projeto
-' entregue, apesar de ser referenciado por TODOS os pontos de entrada:
+' Ponto de entrada de TODOS os fluxos que abrem o sistema:
 '   - gerar_relatorio_do_dia.bat       (wscript.exe "%~dp0launcher.vbs")
 '   - gerar_relatorio_por_data.bat     (wscript.exe "%~dp0launcher.vbs")
 '   - gerar_relatorio_intervalo.bat    (wscript.exe "%~dp0launcher.vbs")
-'   - instalar-na-inicializacao.bat    (gera bootstrap.vbs que aguarda por
-'                                        este arquivo aparecer na rede e o
-'                                        executa)
-' Sem ele, NENHUM desses fluxos consegue iniciar o servidor - era o elo
-' faltante de toda a cadeia de inicializacao (ver comentario da propria
-' instalar-na-inicializacao.bat: "3. launcher.vbs lanca iniciar-tray.ps1").
+'   - tarefa agendada criada por instalar-na-inicializacao.bat /
+'     _criar-tarefa.ps1 (abre este arquivo no logon; em pasta de rede, a
+'     propria tarefa espera ate 30 min ele aparecer)
 '
 ' Unica responsabilidade: lancar iniciar-tray.ps1 em segundo plano, TOTALMENTE
 ' oculto (sem flash de janela de console - o que "powershell -WindowStyle
 ' Hidden" sozinho, quando chamado diretamente de um .bat, nem sempre evita).
 ' Um .vbs executado via wscript.exe e' a forma padrao no Windows de garantir
-' isso, e' por isso que o proprio bootstrap.vbs (gerado dinamicamente) usa
-' exatamente esse mesmo truque para se auto-invocar.
+' isso. Arquivo 100% ASCII (o wscript le .vbs sem BOM na code page do sistema).
 '
 ' (Historico completo das versoes: CHANGELOG.md no repositorio.)
-' CHANGELOG 1.0.1 - 2026-08-07 20:35 - Etapa 4/6 (eixo precisao):
-'   Removidos todos os caracteres nao-ASCII (travessao e seta, que estavam
-'   apenas em comentarios). Mesma classe de risco ja corrigida nos .ps1 e
-'   .bat do projeto: wscript.exe le arquivos .vbs sem BOM usando a code page
-'   do sistema, e bytes multi-byte de UTF-8 podem ser reinterpretados de
-'   forma incorreta, corrompendo o parsing do script a partir dali. Arquivo
-'   agora 100% ASCII, como todo o resto do projeto.
+' CHANGELOG 1.0.2 - 2026-11-12 - Comentarios atualizados: sem bootstrap.vbs (a
+'   tarefa agendada abre este arquivo direto). Nenhuma mudanca de codigo.
 '
 
 Option Explicit

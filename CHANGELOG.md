@@ -14,14 +14,15 @@ Versões em uso hoje:
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
-| [`launcher.vbs`](#launchervbs) | 1.0.1 |
-| [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.0 |
+| [`launcher.vbs`](#launchervbs) | 1.0.2 |
+| [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.1 |
 | [`_remover-inicializacao.ps1`](#_remover-inicializacaops1) | 1.2.0 |
 | [`_instalar-node.ps1`](#_instalar-nodeps1) | 1.3.0 |
 | [`node-firebird.bat`](#node-firebirdbat) | 1.1.1 |
 | [`gerar_relatorio_do_dia.bat`](#gerar_relatorio_do_diabat) | 1.4.2 |
 | [`gerar_relatorio_por_data.bat`](#gerar_relatorio_por_databat) | 1.5.0 |
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
+| [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 
 ---
 
@@ -1057,6 +1058,11 @@ O instalador roda com "chcp 65001" e grava o arquivo em UTF-8; aqui ele era lido
 
 Launcher.
 
+### 1.0.2 — 2026-11-12
+
+**Comentários atualizados.** O cabeçalho ainda citava o `bootstrap.vbs`, que saiu do projeto na 1.15.0 do instalador. Agora descreve a cadeia atual: a tarefa agendada abre o `launcher.vbs` direto e, em pasta de rede, espera até 30 min por ele. Nenhuma mudança de código.
+
+
 ### 1.0.1 — 2026-08-07 20:35
 
 **Etapa 4/6 (eixo precisao).**
@@ -1068,6 +1074,11 @@ Removidos todos os caracteres nao-ASCII (travessao e seta, que estavam apenas em
 ## `remover-inicializacao.bat`
 
 Removedor da inicialização automática.
+
+### 1.0.1 — 2026-11-12
+
+**Texto atualizado.** A lista do que é removido dizia "bootstrap local" como se ainda existisse. Agora diz "pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap`, se existir" (só existe em instalações anteriores à 1.15.0 do instalador). Nenhuma mudança de comportamento.
+
 
 ### 1.0.0 — 2026-10-06 10:00
 
@@ -1190,3 +1201,13 @@ Atalho: relatório por intervalo.
 **Quebras de linha convertidas para CRLF, a convencao correta do Windows.**
 
 Estes arquivos estavam com LF puro; funcionavam porque so' usam "goto", mas "call :label" quebra nesse formato (ver instalar-na-inicializacao.bat v1.8.1). Padronizado em todo o projeto para evitar a armadilha em edicoes futuras. Se for editar, use um editor que preserve CRLF.
+
+---
+
+## `test/executar-testes.bat`
+
+Atalho do Windows para rodar os testes automáticos (`npm test`) com o Firebird simulado.
+
+### 1.0.0 — 2026-10-05 22:15
+
+**Primeira versão.** Substitui o antigo `bateria-de-testes.bat`, que só funcionava de dentro da pasta `test`, não conferia o Node.js e não mostrava o resumo de aprovados e reprovados nem devolvia código de saída. Agora usa o executor de testes do Node (`node --test`). Mantém CRLF.

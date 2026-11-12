@@ -1,12 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 :: =========================================================
-::  remover-inicializacao.bat                          v1.0.0
+::  remover-inicializacao.bat                          v1.0.1
 ::  Autor: Ruda Gabriel
 ::  Desfaz o instalar-na-inicializacao.bat: remove TUDO o que
 ::  faz o relatorio iniciar sozinho no logon (tarefa agendada,
-::  atalho na pasta Inicializar, chave Run do registro e o
-::  bootstrap local em %LOCALAPPDATA%\RelatoriosBootstrap) e
+::  atalho na pasta Inicializar, chave Run do registro e a
+::  pasta antiga %LOCALAPPDATA%\RelatoriosBootstrap, das versoes
+::  anteriores do instalador) e
 ::  pergunta se tambem deve encerrar os processos do relatorio
 ::  (servidor, icone da bandeja e geracoes em andamento).
 ::
@@ -18,7 +19,8 @@ setlocal enabledelayedexpansion
 ::  Codigo de saida: 0 = tudo removido, 1 = sobrou pendencia.
 ::
 ::  (Historico completo das versoes: CHANGELOG.md no repositorio.)
-::  CHANGELOG 1.0.0 - 2026-10-06 10:00 - Primeira versao.
+::  CHANGELOG 1.0.1 - 2026-11-12 - Texto atualizado: a pasta
+::   RelatoriosBootstrap so' existe em instalacoes antigas.
 ::   Mantem CRLF e somente ASCII - edite com editor que
 ::   preserve CRLF.
 :: =========================================================
@@ -56,7 +58,7 @@ echo Sera removido tudo o que inicia o relatorio sozinho
 echo ao ligar/entrar no Windows:
 echo   - tarefa agendada
 echo   - atalho na pasta Inicializar e chave Run do registro
-echo   - bootstrap local ^(%%LOCALAPPDATA%%\RelatoriosBootstrap^)
+echo   - pasta antiga ^(%%LOCALAPPDATA%%\RelatoriosBootstrap^), se existir
 echo.
 echo Configuracoes ^(config.json^), log e regra de firewall
 echo NAO sao apagados.

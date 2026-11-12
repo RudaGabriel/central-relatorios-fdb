@@ -1,11 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.30.2
+ * @version 3.31.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.30.2 - 2026-11-12 - Projeto autônomo: sem menções a terceiros; crédito do autor nas Configurações.
+ *   3.31.0 - 2026-11-12 - "Nesta tela" abre recolhida; QR "Fora da loja" com cartões de nome e IP.
  */
 
 (function() {
@@ -13,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.30.2";
+    const SCRIPT_VERSION = "3.31.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -3350,9 +3350,30 @@ tbody tr:hover .tdItemDesc { color: var(--danger, #e55); border-color: var(--dan
 #cfgTela > .k { margin-bottom: 2px; }
 #cfgTela .tmZoom { display: block; }
 #cfgTela > .k + .tmPerf { margin-top: 8px; border-top: 0; padding-top: 0; }
+/* v3.31.0: "Nesta tela" começa recolhida; o título vira botão de expandir/recolher. */
+#cfgTela > .cfgTelaTgl { display: flex; align-items: center; gap: 8px; width: 100%; margin: 0; padding: 2px 0; background: none; border: 0; color: inherit; font-family: inherit; text-align: left; cursor: pointer; border-radius: 6px; }
+#cfgTela > .cfgTelaTgl:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+#cfgTela > .cfgTelaTgl .cfgTelaSeta { flex: none; transition: transform .18s ease; }
+#cfgTela > .cfgTelaTgl[aria-expanded="true"] .cfgTelaSeta { transform: rotate(90deg); }
+#cfgTela > .cfgTelaTgl .cfgTelaTxt { flex: 1 1 auto; min-width: 0; }
+#cfgTelaCorpo[hidden] { display: none !important; }
+#cfgTelaCorpo > .tmPerf:first-child { margin-top: 8px; border-top: 0; padding-top: 0; }
 .tmRecLbl { display: flex; align-items: flex-start; gap: 10px; padding: 8px 2px 2px; font-size: 13px; font-weight: 600; line-height: 1.35; cursor: pointer; color: var(--text-main); }
 .tmRecLbl input { width: 18px; height: 18px; margin: 0; flex: none; accent-color: var(--accent); cursor: pointer; }
 .qrAbas { display: flex; gap: 6px; } .qrAbas .qrAba { flex: 1 1 0; }
+/* v3.31.0: "Fora da loja" com dois campos — domínio do Tailscale e IP — cada um com copiar. */
+.qrCampos { display: flex; flex-direction: column; gap: 8px; }
+/* Cartão de endereço: rótulo + endereço à esquerda, copiar à direita. O selecionado
+   (destacado) é o endereço do QR code; clicar no cartão troca o QR. */
+.qrCampo { display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-app); cursor: pointer; text-align: left; width: 100%; color: inherit; font: inherit; transition: border-color .15s, box-shadow .15s; }
+.qrCampo:hover { border-color: var(--text-muted); }
+.qrCampo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.qrCampo[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.qrCampoTxt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.qrRot { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.qrCampo[aria-pressed="true"] .qrRot { color: var(--accent); }
+.qrEnd { font: 600 14px 'JetBrains Mono', Consolas, monospace; color: var(--text-main); word-break: break-all; line-height: 1.35; }
+.qrCampo .qrCop { flex: none; width: 38px; height: 38px; padding: 0; justify-content: center; }
 .tmZoomOps .tmZoomOp[disabled] { opacity: 0.4; cursor: default; }
 .tmPerfDica { margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 /* Menu auto-ajustável (v3.14.0): se não couber na altura da janela, o JS (_tmAjustar) aplica
@@ -7233,6 +7254,14 @@ var __abrirModalQr = function() {
             '</div>' +
             '<div class="qrCaixa"><img id="qrImg" alt="QR code do endereço do relatório" src="/qr.svg?t=' + Date.now() + '"></div>' +
             '<div class="qrUrl" id="qrUrl">…</div>' +
+            '<div class="qrCampos" id="qrCampos" style="display:none">' +
+              '<div class="qrCampo" id="qrCampoDom" role="button" tabindex="0" aria-pressed="true" data-qr="1">' +
+                '<div class="qrCampoTxt"><div class="qrRot">Nome do Tailscale (fixo)</div><div class="qrEnd" id="qrDom"></div></div>' +
+                '<button class="btn qrCop" id="qrCopDom" type="button" aria-label="Copiar o nome" data-tip="Copiar o nome"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>' +
+              '<div class="qrCampo" id="qrCampoIp" role="button" tabindex="0" aria-pressed="false" data-qr="ip">' +
+                '<div class="qrCampoTxt"><div class="qrRot">IP do Tailscale</div><div class="qrEnd" id="qrIp"></div></div>' +
+                '<button class="btn qrCop" id="qrCopIp" type="button" aria-label="Copiar o IP" data-tip="Copiar o IP"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>' +
+            '</div>' +
             '<button class="btn" id="qrCopiar" type="button" style="width:100%;justify-content:center;min-height:42px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar endereço</button>' +
             '<div class="qrDica" id="qrDica">O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também é possível digitar o endereço no navegador do celular.</div>' +
           '</div>' +
@@ -7246,27 +7275,52 @@ var __abrirModalQr = function() {
     _bg.addEventListener("click", function(e) { if (e.target === _bg) _fechar(); });
     document.addEventListener("keydown", _escQr);
     var _img = document.getElementById("qrImg");
+    // v3.31.0: a falha esconde só a imagem (antes trocava o conteúdo da caixa e o QR da
+    // outra aba não voltava mais).
     _img.addEventListener("error", function() {
-        var cx = _img.parentNode; if (cx) cx.innerHTML = '<div class="qrDica" style="padding:90px 10px">Não foi possível gerar o QR code. Verifique se o servidor está em execução.</div>';
+        var cx = _img.parentNode; if (!cx) return;
+        _img.style.display = "none";
+        var m = cx.querySelector(".qrErro");
+        if (!m) { m = document.createElement("div"); m.className = "qrDica qrErro"; m.style.padding = "90px 10px"; m.textContent = "Não foi possível gerar o QR code. Verifique se o servidor está em execução."; cx.appendChild(m); }
+        m.style.display = "";
+    });
+    _img.addEventListener("load", function() {
+        _img.style.display = "";
+        var m = _img.parentNode && _img.parentNode.querySelector(".qrErro"); if (m) m.style.display = "none";
     });
     var _qrDados = { url: location.origin + "/", externo: null, externoNome: null, externoIP: null };
     var _DICA_LOJA = 'O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também é possível digitar o endereço no navegador do celular.';
     var _DICA_FORA = 'Funciona em qualquer lugar (4G, outro Wi-Fi) com o app <b>Tailscale</b> ligado no celular, na <b>mesma conta</b> desta máquina. Rede privada e criptografada — somente os seus aparelhos têm acesso.';
     var _DICA_SEM_TS = '<b>Para acessar fora da loja:</b><br>1. Instale o <b>Tailscale</b> nesta máquina (tailscale.com/download) e entre com uma conta.<br>2. Instale o app <b>Tailscale</b> no celular e entre com a <b>mesma conta</b>.<br>3. Abra esta janela novamente: será exibido o QR code para acesso de qualquer lugar.<br>Gratuito, criptografado e sem necessidade de abrir portas no roteador.';
-    var _abaQr = "loja";
+    var _abaQr = "loja", _qrSel = "1";
     var _mostrarAba = function(aba) {
         _abaQr = aba;
         _bg.querySelectorAll(".qrAba").forEach(function(b) { b.setAttribute("aria-checked", b.getAttribute("data-aba") === aba ? "true" : "false"); });
         var u = document.getElementById("qrUrl"), d = document.getElementById("qrDica"), cx = _img.parentNode, cp = document.getElementById("qrCopiar");
         var fora = aba === "fora", end = fora ? _qrDados.externo : _qrDados.url;
         if (cx) cx.style.display = end ? "" : "none";
-        if (u) { u.style.display = end ? "" : "none"; u.textContent = end || ""; }
-        if (cp) cp.style.display = end ? "" : "none";
-        if (end) _img.src = "/qr.svg?" + (fora ? "externo=1&" : "") + "t=" + Date.now();
+        // v3.31.0: fora da loja, dois campos (domínio e IP), cada um com o seu "copiar".
+        var dom = fora && _qrDados.externoNome ? _qrDados.externo : "";
+        var ip = fora ? (_qrDados.externoIP || (_qrDados.externoNome ? "" : _qrDados.externo) || "") : "";
+        var campos = document.getElementById("qrCampos");
+        var usaCampos = fora && !!(dom || ip);
+        if (campos) campos.style.display = usaCampos ? "" : "none";
+        var cDom = document.getElementById("qrCampoDom"), cIp = document.getElementById("qrCampoIp");
+        if (cDom) cDom.style.display = dom ? "" : "none";
+        if (cIp) cIp.style.display = ip ? "" : "none";
+        var tDom = document.getElementById("qrDom"), tIp = document.getElementById("qrIp");
+        if (tDom) tDom.textContent = dom; if (tIp) tIp.textContent = ip;
+        if (u) { u.style.display = (end && !usaCampos) ? "" : "none"; u.textContent = end || ""; }
+        if (cp) cp.style.display = (end && !usaCampos) ? "" : "none";
+        // Fora da loja: o QR é do cartão selecionado (nome, por padrão; sem nome, o IP).
+        if (fora && usaCampos) { if (!dom) _qrSel = "ip"; else if (!ip) _qrSel = "1"; }
+        if (cDom) cDom.setAttribute("aria-pressed", fora && _qrSel === "1" ? "true" : "false");
+        if (cIp) cIp.setAttribute("aria-pressed", fora && _qrSel === "ip" ? "true" : "false");
+        if (end) _img.src = "/qr.svg?" + (fora ? "externo=" + (usaCampos ? _qrSel : "1") + "&" : "") + "t=" + Date.now();
         if (d) d.innerHTML = fora
             ? (end ? _DICA_FORA + (_qrDados.externoNome
-                ? '<br><br>Endereço <b>fixo</b> (nome do Tailscale — não é alterado automaticamente). Também funciona pelo IP: <b>' + esc(String(_qrDados.externoIP || "")) + '</b>'
-                : '<br><br>Dica: ative o <b>MagicDNS</b> no painel do Tailscale para usar um nome fixo no lugar do IP.') : _DICA_SEM_TS)
+                ? '<br><br>Toque num dos endereços para trocar o QR code. O <b>nome</b> é fixo (não muda); o <b>IP</b> também funciona.'
+                : '<br><br>Dica: ative o <b>MagicDNS</b> no painel do Tailscale para ter um nome fixo no lugar do IP.') : _DICA_SEM_TS)
             : _DICA_LOJA;
     };
     _bg.querySelectorAll(".qrAba").forEach(function(b) { b.addEventListener("click", function() { _mostrarAba(b.getAttribute("data-aba")); }); });
@@ -7280,6 +7334,20 @@ var __abrirModalQr = function() {
     document.getElementById("qrCopiar").addEventListener("click", function() {
         var u = document.getElementById("qrUrl"); if (!u || !u.textContent) return;
         copiarTexto(u.textContent); toast("Copiado", "Endereço do relatório: " + u.textContent);
+    });
+    [["qrCopDom", "qrDom", "Nome do Tailscale"], ["qrCopIp", "qrIp", "IP do Tailscale"]].forEach(function(c) {
+        var b = document.getElementById(c[0]); if (!b) return;
+        b.addEventListener("click", function(ev) {
+            ev.stopPropagation(); // copiar não troca o QR
+            var t = document.getElementById(c[1]); if (!t || !t.textContent) return;
+            copiarTexto(t.textContent); toast("Copiado", c[2] + ": " + t.textContent);
+        });
+    });
+    // Clicar (ou Enter/Espaço) no cartão troca o QR code para aquele endereço.
+    _bg.querySelectorAll(".qrCampo").forEach(function(c) {
+        var escolher = function() { _qrSel = c.getAttribute("data-qr") === "ip" ? "ip" : "1"; _mostrarAba("fora"); };
+        c.addEventListener("click", escolher);
+        c.addEventListener("keydown", function(ev) { if (ev.target === c && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); escolher(); } });
     });
 };
 
@@ -7360,8 +7428,11 @@ var __abrirModalConfig = function(opcoes) {
                 : '') +
               (_alvo ? '' :
               '<div class="kv" id="cfgTela" style="flex-direction:column;align-items:stretch;gap:0">' +
-                '<div class="k">Nesta tela <span style="font-weight:400;text-transform:none;letter-spacing:0">(somente neste aparelho — aplicado imediatamente, sem necessidade de salvar)</span></div>' +
-                _htmlPrefsTela() +
+                '<button type="button" class="k cfgTelaTgl" id="cfgTelaTgl" aria-expanded="false" aria-controls="cfgTelaCorpo">' +
+                  '<svg class="cfgTelaSeta" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>' +
+                  '<span class="cfgTelaTxt">Nesta tela <span style="font-weight:400;text-transform:none;letter-spacing:0">(somente neste aparelho — aplicado imediatamente, sem necessidade de salvar; clique para abrir)</span></span>' +
+                '</button>' +
+                '<div id="cfgTelaCorpo" hidden>' + _htmlPrefsTela() + '</div>' +
               '</div>') +
               '<div class="kv"' + _escondeSrv + '>' +
                 '<div class="k">Nome do sistema</div>' +
@@ -7430,6 +7501,16 @@ var __abrirModalConfig = function(opcoes) {
 
         // Opções da tela (visualização, desempenho, atualização, texto) — v3.24.0
         _ligarPrefsTela(document.getElementById("cfgTela"));
+        // v3.31.0: "Nesta tela" abre recolhida; o título expande/recolhe.
+        (function(){
+            var tgl = document.getElementById("cfgTelaTgl"), corpo = document.getElementById("cfgTelaCorpo");
+            if (!tgl || !corpo) return;
+            tgl.addEventListener("click", function() {
+                var abrir = tgl.getAttribute("aria-expanded") !== "true";
+                tgl.setAttribute("aria-expanded", abrir ? "true" : "false");
+                corpo.hidden = !abrir;
+            });
+        })();
 
         // Popula textarea de proibidos
         document.getElementById("cfgProibidos").value = _prArr.join("\n");

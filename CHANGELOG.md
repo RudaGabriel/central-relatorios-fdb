@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.2 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.1 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.3 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.2 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.2 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -28,6 +28,13 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.3 — 2026-11-12
+
+**Projeto autônomo e neutro; créditos do autor explícitos.**
+
+Saíram as menções a outros projetos e ao fabricante do PDV (o sistema de origem passa a ser chamado de "PDV"). Ficaram só o nome do arquivo `SMALL.FDB` e as pastas de instalação, necessários para achar o banco sozinho. A página `/config` mostra no rodapé "Relatórios FDB — criado e mantido por Ruda Gabriel". Nenhuma mudança de comportamento.
+
 
 ### 2.24.2 — 2026-11-05
 
@@ -49,7 +56,7 @@ A página de configurações (`/config`) estava inteira sem acentos ("Configurac
 
 ### 2.24.0 — 2026-11-04 12:00
 
-**Melhorias trazidas do Relatorios-FDB-FBK** (projeto irmão, que lê o banco por uma cópia offline).
+**Estabilidade do gerador e comandos da bandeja.**
 
 - **"Erro ao gerar relatório — Falha ao iniciar node: spawn ...\\node.exe ENOENT".** O gerador era sempre aberto pelo mesmo caminho do `node.exe` que iniciou o servidor. Se o Node.js fosse atualizado ou reinstalado com o servidor ligado, esse caminho deixava de existir e todo relatório falhava até reiniciar.
   - Agora o servidor confere o caminho e, se ele sumiu, procura o Node nas pastas de instalação e no PATH (só no disco do sistema). Depois **tenta de novo sozinho**, e a tela continua em "gerando...".
@@ -305,6 +312,13 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 
 Gerador do relatório.
 
+### 3.30.2 — 2026-11-12
+
+**Projeto autônomo e neutro; créditos do autor explícitos.**
+
+Saíram as menções a outros projetos e ao fabricante do PDV (o sistema de origem passa a ser chamado de "PDV"). Ficaram só o nome do arquivo `SMALL.FDB` e as pastas de instalação, necessários para achar o banco sozinho. A janela de Configurações do relatório mostra no rodapé "Relatórios FDB — criado e mantido por Ruda Gabriel". Nenhuma mudança de comportamento.
+
+
 ### 3.30.1 — 2026-11-09
 
 **X de limpar a busca alinhado.**
@@ -373,7 +387,7 @@ Antes saía `067427	356,50	CREDITO | DEBITO` (só o total). Agora sai `067427	17
   - README e CHANGELOG ("iPhone do Caixa", "Atendente Número 1", VENDEDOR A/B);
   - os testes (vendedores "VENDEDOR A…D", produtos genéricos no lugar de marcas);
   - comentários do servidor e do `bootstrap.vbs`.
-- Mantidos: a autoria (`@author`, "Desenvolvido por", `package.json`) e o nome do sistema de origem (Small Commerce/SmallSoft), usado nos caminhos de instalação para achar o banco.
+- Mantida a autoria (`@author`, "Desenvolvido por", `package.json`).
 
 ### 3.26.0 — 2026-10-28 22:00
 
@@ -593,7 +607,7 @@ Antes saía `067427	356,50	CREDITO | DEBITO` (só o total). Agora sai `067427	17
 
 **Nomes com acento saem certos ("Atendente Número 1").**
 
-- O SmallSoft grava nomes em colunas sem charset (NONE) com bytes Windows-1252; pedidos como texto numa conexão UTF8, o "í" chegava como U+FFFD ("N�mero"). Vendedor, cliente, natureza, status, formas de pagamento e descrição dos itens (NFCE, ALTERACA, PAGAMENT, VENDAS, ITENS001) agora são lidos como bytes (CHARACTER SET OCTETS) e decodificados no Node: UTF-8 válido como está, senão Windows-1252 (latin1 se o Node não tiver ICU completo). Testado no Firebird 3 com node-firebird 1.1.9, 1.1.10, 2.0.0 e 2.18.2 e colunas NONE/UTF8/WIN1252.
+- O PDV grava nomes em colunas sem charset (NONE) com bytes Windows-1252; pedidos como texto numa conexão UTF8, o "í" chegava como U+FFFD ("N�mero"). Vendedor, cliente, natureza, status, formas de pagamento e descrição dos itens (NFCE, ALTERACA, PAGAMENT, VENDAS, ITENS001) agora são lidos como bytes (CHARACTER SET OCTETS) e decodificados no Node: UTF-8 válido como está, senão Windows-1252 (latin1 se o Node não tiver ICU completo). Testado no Firebird 3 com node-firebird 1.1.9, 1.1.10, 2.0.0 e 2.18.2 e colunas NONE/UTF8/WIN1252.
 - Firebird que recusar a conversão: a consulta é refeita do jeito antigo (aviso "AVISO TEXTO" no log) — a geração nunca cai por causa disso.
 
 ### 3.8.4 — 2026-10-16 18:00
@@ -777,6 +791,13 @@ Cliente de linha de comando.
 
 Ícone da bandeja.
 
+### 1.8.3 — 2026-11-12
+
+**Projeto autônomo e neutro; créditos do autor explícitos.**
+
+Saíram as menções a outros projetos e ao fabricante do PDV (o sistema de origem passa a ser chamado de "PDV"). Ficaram só o nome do arquivo `SMALL.FDB` e as pastas de instalação, necessários para achar o banco sozinho. *Ferramentas → Informações do sistema* termina com "Relatórios FDB - criado e mantido por Ruda Gabriel". Nenhuma mudança de comportamento.
+
+
 ### 1.8.2 — 2026-11-05
 
 **"Sair" mostra uma notificação em vez da caixa com OK.**
@@ -792,7 +813,7 @@ Janelas de erro e balões ("Nao foi possivel...", "Atencao", "Duplo clique para 
 
 ### 1.8.0 — 2026-11-04 12:00
 
-**Trazido do Relatorios-FDB-FBK.**
+**Ícone da bandeja com transparência e mais threads de E/S.**
 
 - **Ícone da bandeja sem bordas pretas.** O ícone era convertido com `Bitmap.GetHicon()`, que descarta a transparência suave e fazia o Windows pintar a borda de preto. Agora é montado como um `.ico` de verdade (32 bits com canal alfa) em vários tamanhos (16 a 64 px), e o Windows escolhe o certo para o DPI da tela. Vale para o ícone padrão e para o `favicon.png` personalizado, que também mantém a proporção.
 - O servidor é iniciado com mais threads de E/S (`UV_THREADPOOL_SIZE=16`).

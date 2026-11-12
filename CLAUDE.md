@@ -1,4 +1,4 @@
-# Regras do projeto (para o Claude)
+# Regras do projeto (para o assistente de código)
 
 - **Idioma:** sempre pt-BR — respostas, código, comentários, mensagens de commit e PR.
 - **Somente leitura no banco:** o projeto nunca escreve no Firebird. Só SELECT/WITH,
@@ -17,6 +17,10 @@
   problemas. Tudo explicado de forma clara para quem não é técnico.
 - **Exemplos neutros:** placeholders, exemplos, testes e documentação sem nomes de
   pessoas, clientes, lojas ou marcas (ex.: "Celular do Caixa 1", VENDEDOR A, FULANO).
+- **Projeto autônomo:** sem menções a outros projetos nem citações de terceiros; o
+  sistema de origem é chamado de "PDV" (só o arquivo `SMALL.FDB` e as pastas de
+  instalação ficam no código, porque são necessários para achar o banco). Os únicos
+  créditos são do autor, Ruda Gabriel (README, `LICENSE`, `package.json`, cabeçalhos).
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII
   (acentos no tray como `\uXXXX`, convertidos por `L()`); preservar BOM/CRLF onde existir.
 - **Antes de entregar:** `npm test` verde; validar no navegador (Playwright) o que

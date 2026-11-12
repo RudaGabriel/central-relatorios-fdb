@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.3 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.30.2 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.4 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.31.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
@@ -29,6 +29,10 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.24.4 — 2026-11-12
+
+**QR code do IP do Tailscale.** `/qr.svg?externo=ip` gera o QR do IP do Tailscale (`externo=1` continua gerando o do nome). Usado pelos cartões da aba *Fora da loja* do relatório 3.31.0.
 
 ### 2.24.3 — 2026-11-12
 
@@ -312,6 +316,14 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.31.0 — 2026-11-12
+
+**"Nesta tela" recolhida e QR "Fora da loja" com domínio e IP.**
+
+- **Configurações:** a seção **Nesta tela** (visualização, desempenho, atualização e tamanho do texto) agora começa **recolhida**, para a janela abrir direto nos campos principais. O título vira um botão com seta: um clique expande, outro recolhe (acessível pelo teclado, com `aria-expanded`).
+- **Abrir no celular → Fora da loja:** em vez de um endereço só, com o IP escondido no texto de ajuda, mostra **dois cartões**: **Nome do Tailscale (fixo)** e **IP do Tailscale**, cada um com o seu botão de copiar. O cartão destacado é o do QR code; tocar no outro troca o QR para aquele endereço (copiar não troca). Sem MagicDNS, aparece só o IP, com a dica para ativar o MagicDNS.
+- **QR code:** se a imagem de uma aba falhar, só ela é escondida. Antes, a caixa era substituída e o QR da outra aba não voltava mais.
 
 ### 3.30.2 — 2026-11-12
 

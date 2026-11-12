@@ -6,8 +6,8 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.24.3" src="https://img.shields.io/badge/servidor-v2.24.3-2563EB?style=flat">
-<img alt="gerador: v3.30.2" src="https://img.shields.io/badge/gerador-v3.30.2-2563EB?style=flat">
+<img alt="servidor: v2.24.4" src="https://img.shields.io/badge/servidor-v2.24.4-2563EB?style=flat">
+<img alt="gerador: v3.31.0" src="https://img.shields.io/badge/gerador-v3.31.0-2563EB?style=flat">
 <img alt="bandeja: v1.8.3" src="https://img.shields.io/badge/bandeja-v1.8.3-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
@@ -111,7 +111,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Ver um período | Botão **Por período** · `gerar_relatorio_intervalo.bat` · `http://IP:7734/periodo` |
 | Forçar atualização | Botão **Atualizar** · bandeja → *Atualizar dados de hoje* |
 | Mudar o tema de cores | Botão **Tema** |
-| Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (vale na hora, só neste aparelho) |
+| Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
 | Dar um nome ao aparelho, mudar avisos/proibidos/teclas só dele | **Configurações → Minhas preferências** (veja [Aparelhos](#aparelhos)) |
 | Trocar o banco | Bandeja → *Configurações → Selecionar banco (FDB)* · `http://IP:7734/selecionar-fdb` |
 | Configurar | Botão **Configurações** · `http://IP:7734/config` |
@@ -208,6 +208,7 @@ Para abrir o relatório no 4G ou em outro Wi-Fi, use o **Tailscale** (gratuito).
 1. **No computador do servidor:** instale o Tailscale (<https://tailscale.com/download>) e entre com uma conta (Google, Microsoft ou Apple). No ícone dele, ative **Preferences → Run unattended**. No painel <https://login.tailscale.com/admin/machines>, em **⋯ → Disable key expiry** no computador da loja, para ele não se desconectar sozinho depois de 180 dias.
 2. **No celular:** instale o app **Tailscale**, entre com a **mesma conta**, permita a configuração de VPN e deixe-o ligado (no iPhone dá para ativar "VPN On Demand").
 3. **No relatório:** **Celular → aba "Fora da loja"** (ou bandeja → *Abrir no celular*) e escaneie o QR code. O endereço usa o **nome** da máquina no Tailscale, ex.: `http://pc-loja.tailxxxx.ts.net:7734/` (o IP `http://100.x.y.z:7734/` também funciona).
+   A janela mostra **dois cartões**, cada um com o seu botão de copiar: o **nome do Tailscale** (fixo) e o **IP do Tailscale** (também funciona). O cartão destacado é o do QR code; toque no outro para trocar o QR.
 
 > **O endereço muda?** Não. O nome (MagicDNS) é **fixo**: é o nome da máquina + o nome da sua rede no Tailscale, e só muda se alguém renomear um dos dois no painel, ou se a máquina for removida e adicionada de novo. O IP `100.x` também é fixo nessas mesmas condições. Pode salvar nos favoritos ou na tela de início do celular. Se o nome não aparecer, ative o **MagicDNS** em <https://login.tailscale.com/admin/dns> (vem ligado por padrão nas contas novas).
 
@@ -363,7 +364,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/periodo?i=AAAA-MM-DD&f=AAAA-MM-DD` | GET | Relatório de um período (sem parâmetros: formulário) |
 | `/atualizar` | GET | Descarta o cache de hoje e regenera |
 | `/config` · `/selecionar-fdb` | GET | Páginas de configurações e de seleção do banco |
-| `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
+| `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` (nome) ou `?externo=ip` (IP) e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
 | `/pronto?k=CHAVE` | GET | Estado de uma geração em andamento |
 | `/api/status` | GET | Quantidade e total do dia, por tipo, avisos de correção, momento da última mudança (`changeTs`) e horário do servidor (`agora`) |
 | `/api/db-status` | GET | Estado da conexão com o banco |
@@ -409,7 +410,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.3 | Gerador v3.30.2
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.4 | Gerador v3.31.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```

@@ -1,21 +1,17 @@
 "use strict";
-// v2.24.0 (vindo do FBK): leituras de arquivo/DNS que demoram ocupam threads de E/S do
+// v2.24.0: leituras de arquivo/DNS que demoram ocupam threads de E/S do
 // Node (4 por padrão). Com mais threads, uma leitura lenta não segura o resto.
 if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.24.2
+ * @version 2.24.3
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.24.2 - 2026-11-05 - Fim do "pisca-pisca" com relógio do aparelho atrasado + barras nos avisos.
- *     - changeTs (relógio do servidor) era comparado com o Date.now() do aparelho: um
- *       celular 15 s atrasado recarregava dezenas de vezes após cada geração. Agora a
- *       página mede o desvio pelo /api/status ("agora") e compara tudo no relógio do servidor.
- *     - Aviso às telas e avisos de correção de horário com barra de tempo restante.
+ *   2.24.3 - 2026-11-12 - Projeto autônomo: sem menções a terceiros; crédito do autor na /config.
  */
 
 
@@ -23,7 +19,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.24.2";
+const SERVER_VERSION = "2.24.3";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -186,7 +182,7 @@ var TextDecoder = require("util").TextDecoder;
 
 // Decoder de texto lido como bytes (CHARACTER SET OCTETS) — constante de módulo.
 // UTF-8 válido é usado como está; senão Windows-1252 (colunas sem charset do
-// SmallSoft); Node sem ICU completo cai em latin1 (mesmos acentos).
+// PDV); Node sem ICU completo cai em latin1 (mesmos acentos).
 var _decUtf8Estrito = (function(){ try { return new TextDecoder("utf-8", { fatal: true }); } catch(_) { return null; } })();
 var _decWin1252Base = (function(){ try { return new TextDecoder("windows-1252"); } catch(_) { return null; } })();
 var _win1252Decoder = {
@@ -207,7 +203,7 @@ var _fmtQuantidade = function(v) {
 };
 
 // ===== SOMENTE LEITURA (v2.14.0) ============================================
-// O sistema NUNCA escreve no banco do Small Commerce. Duas travas, em toda
+// O sistema NUNCA escreve no banco do PDV. Duas travas, em toda
 // conexão aberta por este processo (bloco idêntico no servidor e no gerador):
 //  1. Comando: só passa SQL que começa com SELECT ou WITH; qualquer outro
 //     (UPDATE, INSERT, DELETE, EXECUTE, ALTER...) é recusado ANTES de chegar
@@ -1833,7 +1829,7 @@ var _BOOT_GERADOR =
     "process.stdin.removeListener('end',fim);process.stdin.removeAllListeners('data');process.stdin.pause();" +
     "var m=JSON.parse(b.slice(0,i));var e=m.env||{};Object.keys(e).forEach(function(k){process.env[k]=e[k];});" +
     "process.argv=[process.execPath].concat(m.argv);require(m.argv[0]);});";
-// Node.exe para os processos do gerador (v2.24.0, vindo do FBK). Antes era sempre
+// Node.exe para os processos do gerador (v2.24.0). Antes era sempre
 // process.execPath: se o Node fosse atualizado/reinstalado com o servidor rodando, aquele
 // caminho deixava de existir e toda geração falhava com "spawn ...\\node.exe ENOENT" até
 // reiniciar. Agora confere o caminho e, se sumiu, procura o Node nas pastas de instalação
@@ -2162,7 +2158,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
         _limparRecursosProprios();
         _liberarKillProprio();
         if (_ehSupersedida()) return; // não sobrescreve a entrada da geração nova
-        // v2.24.0 (vindo do FBK): Node.exe sumiu (atualização/reinstalação do Node com o
+        // v2.24.0: Node.exe sumiu (atualização/reinstalação do Node com o
         // servidor rodando): procura de novo e tenta outra vez sozinho, sem página de erro.
         if (e && e.code === "ENOENT" && _tentativa < MAX_TENTATIVAS) {
             _nodeExeCache.ts = 0; _descartarReserva();
@@ -2401,7 +2397,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "setTimeout(function(){_aw.style.opacity='0';setTimeout(function(){try{_aw.parentNode&&_aw.parentNode.removeChild(_aw);}catch(_){}},450);},_as*1000);" +
             "}catch(_){}}" +
             "if(d.type==='navigate-hash'&&d.hash){" +
-            // v2.24.0 (vindo do FBK): tela sem o modal (página de período antiga, erro...)
+            // v2.24.0: tela sem o modal (página de período antiga, erro...)
             // vai para onde o comando funciona, em vez de ignorar em silêncio.
             "if(d.hash==='config'){if(typeof __abrirModalConfig==='function')__abrirModalConfig();else window.location.assign('/config?voltar='+encodeURIComponent(window.location.pathname+window.location.search));}" +
             "else if(d.hash==='periodo'){if(typeof __abrirModalPeriodo==='function')__abrirModalPeriodo();else window.location.assign('/#periodo');}" +
@@ -3203,7 +3199,7 @@ var _fpLogIndices = function(alvos, faltam) {
     } else {
         logTs("AVISO índices: sem índice em " + faltam.join(", ") + " — cada leitura percorre a tabela inteira " +
               "(mais lenta e mais pesada para o banco do caixa). O sistema é somente leitura e não cria índices; " +
-              "peça ao suporte do Small Commerce (ou ao responsável pelo banco) para criar índice nessa(s) coluna(s).");
+              "peça ao suporte do PDV (ou ao responsável pelo banco) para criar índice nessa(s) coluna(s).");
     }
 };
 
@@ -5430,7 +5426,7 @@ var server=http.createServer(function(req,res){
                 var _ph = _pedidos.map(function(){ return "?"; }).join(",");
 
                 // ROBUSTEZ: QUANTIDADE e ITEM só entram na SQL se existirem no
-                // catálogo — em bases antigas do Small Commerce a ausência de uma
+                // catálogo — em bases antigas do PDV a ausência de uma
                 // delas fazia a query inteira falhar com "column unknown".
                 // DESCRICAO como BYTES (OCTETS): coluna sem charset com acento chegava
                 // com "\uFFFD". Firebird que recusar a conversão: refeita sem ela.
@@ -5760,7 +5756,7 @@ var server=http.createServer(function(req,res){
     // /config — página HTML
     if(rota==="/config"){
         var SC3="</"+"script>";
-        // "Voltar" (v2.24.0, vindo do FBK): para a tela de onde o comando veio (período,
+        // "Voltar" (v2.24.0): para a tela de onde o comando veio (período,
         // carregamento...). Só caminho deste servidor ("/..."), nunca outro site ("//",
         // "\\", esquema) nem a própria /config.
         var _voltarCfg = (function(){
@@ -5829,6 +5825,7 @@ var server=http.createServer(function(req,res){
             "<p class=\"hint\">As vendas que contiverem esses termos serão ocultadas do relatório.</p></div>"+
             "<button class=\"btn\" id=\"salvarBtn\" onclick=\"salvar()\">Salvar configurações</button>"+
             "<button class=\"btn btn-sec\" style=\"margin-top:10px\" id=\"voltarBtn\" data-voltar=\""+escH(_voltarCfg)+"\" onclick=\"window.location.href=this.getAttribute('data-voltar')||'/'\">"+(_voltarCfg === "/" ? "Voltar para o relatório" : "Voltar para a tela anterior")+"</button>"+
+            "<p style=\"text-align:center;font-size:11px;color:#52525b;margin:18px 0 0\">Relatórios FDB — criado e mantido por Ruda Gabriel</p>"+
             "</div>"+
             "<script>"+
             "(function(){"+

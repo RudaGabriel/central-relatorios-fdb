@@ -2,23 +2,26 @@
 
 # 📊 Relatórios FDB
 
-### Painel de vendas em tempo real para lojas que usam o Small Commerce (Firebird)
+### Painel de vendas em tempo real para lojas com PDV em banco Firebird
 
-<img alt="servidor: v2.24.2" src="https://img.shields.io/badge/servidor-v2.24.2-2563EB?style=flat">
-<img alt="gerador: v3.30.1" src="https://img.shields.io/badge/gerador-v3.30.1-2563EB?style=flat">
-<img alt="bandeja: v1.8.2" src="https://img.shields.io/badge/bandeja-v1.8.2-2563EB?style=flat">
+**Criado e mantido por Ruda Gabriel**
+
+<img alt="servidor: v2.24.3" src="https://img.shields.io/badge/servidor-v2.24.3-2563EB?style=flat">
+<img alt="gerador: v3.30.2" src="https://img.shields.io/badge/gerador-v3.30.2-2563EB?style=flat">
+<img alt="bandeja: v1.8.3" src="https://img.shields.io/badge/bandeja-v1.8.3-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
 <img alt="testes: 30 passando" src="https://img.shields.io/badge/testes-30%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
+<img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
 <img alt="Node.js: 18+" src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat&logo=nodedotjs&logoColor=white">
 <img alt="JavaScript: ES2022" src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=flat&logo=javascript&logoColor=black">
 <img alt="HTML5" src="https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white">
 <img alt="CSS" src="https://img.shields.io/badge/CSS-1572B6?style=flat&logo=css&logoColor=white">
-<img alt="Firebird: Small Commerce" src="https://img.shields.io/badge/Firebird-Small%20Commerce-B71C1C?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPGVsbGlwc2UgY3g9JzEyJyBjeT0nNScgcng9JzknIHJ5PSczJy8%2BPHBhdGggZD0nTTMgNXYxNGE5IDMgMCAwIDAgMTggMFY1Jy8%2BPHBhdGggZD0nTTMgMTJhOSAzIDAgMCAwIDE4IDAnLz48L3N2Zz4%3D&logoColor=white">
+<img alt="Firebird: banco do PDV" src="https://img.shields.io/badge/Firebird-banco%20do%20PDV-B71C1C?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPGVsbGlwc2UgY3g9JzEyJyBjeT0nNScgcng9JzknIHJ5PSczJy8%2BPHBhdGggZD0nTTMgNXYxNGE5IDMgMCAwIDAgMTggMFY1Jy8%2BPHBhdGggZD0nTTMgMTJhOSAzIDAgMCAwIDE4IDAnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="node-firebird" src="https://img.shields.io/badge/node--firebird-driver-CB3837?style=flat&logo=npm&logoColor=white">
 <img alt="PowerShell: 5.1" src="https://img.shields.io/badge/PowerShell-5.1-012456?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBvbHlsaW5lIHBvaW50cz0nNCAxNyAxMCAxMSA0IDUnLz48bGluZSB4MT0nMTInIHkxPScxOScgeDI9JzIwJyB5Mj0nMTknLz48L3N2Zz4%3D&logoColor=white">
 <img alt="SSE: tempo real" src="https://img.shields.io/badge/SSE-tempo%20real-7C3AED?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEzIDIgMyAxNGg5bC0xIDggMTAtMTJoLTlsMS04eicvPjwvc3ZnPg%3D%3D&logoColor=white">
@@ -39,7 +42,7 @@
 
 ## O que é
 
-Um servidor Node.js que **lê** o banco do Small Commerce (`SMALL.FDB`) e publica, na rede da loja, um painel web com as vendas do dia — **Gerencial, NFC-e e NF-e** — por vendedor, forma de pagamento e item. A tela se atualiza sozinha em menos de um segundo a cada venda, cancelamento ou autorização da SEFAZ.
+Um servidor Node.js que **lê** o banco Firebird do PDV da loja (`SMALL.FDB`) e publica, na rede da loja, um painel web com as vendas do dia — **Gerencial, NFC-e e NF-e** — por vendedor, forma de pagamento e item. A tela se atualiza sozinha em menos de um segundo a cada venda, cancelamento ou autorização da SEFAZ.
 
 Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se recupera sozinho de quedas e abre em qualquer computador ou celular da loja pelo navegador.
 
@@ -58,7 +61,7 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 <a id="instalacao"></a>
 ## 🚀 Instalação em 3 passos
 
-> **Requisitos:** Windows 10 ou 11 · acesso ao Firebird do Small Commerce (local ou na rede, porta 3050). O Node.js 18+ e o módulo `node-firebird` são instalados sozinhos.
+> **Requisitos:** Windows 10 ou 11 · acesso ao Firebird do PDV (local ou na rede, porta 3050). O Node.js 18+ e o módulo `node-firebird` são instalados sozinhos.
 
 1. **Copie a pasta do sistema** para a máquina servidora (ou para uma pasta de rede).
 2. **Execute `instalar-na-inicializacao.bat`.** Ele pede permissão de administrador, instala o que faltar, pergunta o nome da loja, libera a porta 7734 no firewall, cria a inicialização automática e já liga o servidor.
@@ -287,7 +290,7 @@ A maior parte pode ser editada pela própria tela (**Configurações**), no comp
 | `favicon` | `""` | Ícone personalizado (arquivo da pasta do sistema) |
 | `proibidos` | `[]` | Termos do filtro de proibidos — padrão; cada aparelho pode ter a sua lista |
 | `teclasPersonalizadas` | `[]` | Atalhos: `{ "tecla": "F2", "comando": "[-proibidos]>150", "acao": "" }` — padrão; cada aparelho pode ter os seus |
-| `programas` | `[]` | Programas que a bandeja e o `api.ps1` podem abrir: `{ "nome": "Small Commerce", "caminho": "C:\\Small\\Small.exe", "args": "" }` (só editável neste arquivo) |
+| `programas` | `[]` | Programas que a bandeja e o `api.ps1` podem abrir: `{ "nome": "Sistema do PDV", "caminho": "C:\\PDV\\PDV.exe", "args": "" }` (só editável neste arquivo) |
 
 > `hora-fixada-cache.json`, `preferencias-aparelhos.json`, `relatorio.log` e `favicon.png` são criados e mantidos pelo próprio sistema (nenhum deles vai para o banco).
 
@@ -296,12 +299,12 @@ A maior parte pode ser editada pela própria tela (**Configurações**), no comp
 <a id="leitura"></a>
 ## 🔒 Somente leitura e segurança
 
-O sistema **nunca escreve no banco do Small Commerce** — nenhum `UPDATE`, `INSERT`, `DELETE` ou alteração de estrutura. Duas travas, no servidor e no gerador:
+O sistema **nunca escreve no banco do PDV** — nenhum `UPDATE`, `INSERT`, `DELETE` ou alteração de estrutura. Duas travas, no servidor e no gerador:
 
 1. **Comando:** só sai para o banco SQL que começa com `SELECT` ou `WITH`; qualquer outro é recusado antes.
 2. **Transação:** toda leitura roda numa transação **somente leitura** do Firebird (READ COMMITTED, sem espera). Mesmo que um comando de escrita escapasse, o próprio Firebird recusaria.
 
-Verificado num Firebird 3 em uso: milhares de transações observadas em `MON$TRANSACTIONS`, **todas somente leitura**. O sistema também **não cria índices**: se faltarem, o log diz o que pedir ao suporte do Small Commerce.
+Verificado num Firebird 3 em uso: milhares de transações observadas em `MON$TRANSACTIONS`, **todas somente leitura**. O sistema também **não cria índices**: se faltarem, o log diz o que pedir ao suporte do PDV.
 
 <details>
 <summary><b>Demais proteções</b></summary>
@@ -406,7 +409,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.2 | Gerador v3.30.1
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.3 | Gerador v3.30.2
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -420,7 +423,7 @@ Uma única biblioteca externa — o resto é do próprio Node.js, do Windows ou 
 | Parte | Tecnologia | Para quê |
 |---|---|---|
 | Servidor e gerador | **Node.js 18+** (módulos nativos `http`, `child_process`, `fs`, `crypto`, `dns`, `dgram`, `net`, `os`) | Servidor HTTP/SSE, geração em subprocesso, cookie dos aparelhos, nome dos aparelhos (mDNS/NetBIOS/DNS), detecção do banco na rede |
-| Banco | **[node-firebird](https://www.npmjs.com/package/node-firebird)** — única dependência externa, instalada sozinha | Leitura do Firebird do Small Commerce, só em transações somente leitura |
+| Banco | **[node-firebird](https://www.npmjs.com/package/node-firebird)** — única dependência externa, instalada sozinha | Leitura do Firebird do PDV, só em transações somente leitura |
 | Tela do relatório | **HTML5, CSS e JavaScript** puros (sem framework) | Interface, temas, busca, painel detalhado, atualização sem recarregar |
 | Tempo real | **SSE** (Server-Sent Events) + polling HTTP de reserva | Aviso de venda nova em menos de um segundo |
 | Gráficos e ícones | **SVG** gerado pelo próprio sistema; ícones no estilo **Lucide** embutidos | Painel detalhado, botões e menu da bandeja |
@@ -473,6 +476,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem 
 | `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado sozinho, não versionado) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |
+| `LICENSE` | Licença: software proprietário de Ruda Gabriel, todos os direitos reservados |
 | `CLAUDE.md` | Regras do projeto para o assistente de código (idioma, somente leitura, changelog, README sempre atualizado) |
 
 </details>
@@ -508,8 +512,12 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem 
 
 <div align="center">
 
-**Desenvolvido por Ruda Gabriel** — concepção, regras de negócio e manutenção.
+## 👤 Autoria e créditos
 
-© 2026 Ruda Gabriel. Todos os direitos reservados.
+**Relatórios FDB foi criado, desenvolvido e é mantido por Ruda Gabriel** — concepção, regras de negócio, código, testes e manutenção.
+
+É um projeto **próprio e independente**: não é derivado de outros projetos nem afiliado ao fabricante do PDV cujo banco ele lê. Bibliotecas e serviços citados em *Tecnologias e bibliotecas* (Node.js, `node-firebird`, Tailscale etc.) são apenas ferramentas usadas, sem vínculo com a autoria.
+
+© 2026 Ruda Gabriel. Todos os direitos reservados — veja [`LICENSE`](LICENSE).
 
 </div>

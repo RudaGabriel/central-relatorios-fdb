@@ -3,12 +3,12 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.8.2
+# @version 1.8.3
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.8.2 - 2026-11-05 - "Sair" mostra uma notificacao (balao perto do relogio) no lugar
-#     da caixa com "OK"; o icone some 6 s depois.
+#   1.8.3 - 2026-11-12 - Projeto autonomo: sem mencoes a terceiros; credito do autor em
+#     Ferramentas > Informacoes do sistema.
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -229,7 +229,7 @@ $psi.Arguments       = "`"$serverScript`" --no-browser"
 # linha de comando). Requer UseShellExecute = $false (definido abaixo).
 $psi.EnvironmentVariables["RELATORIO_FB_USER"] = $FB_USER
 $psi.EnvironmentVariables["RELATORIO_FB_PASS"] = $FB_PASS
-# v1.8.0 (vindo do FBK): mais threads de E/S no Node - uma leitura lenta nao segura o servidor.
+# v1.8.0: mais threads de E/S no Node - uma leitura lenta nao segura o servidor.
 if (-not $psi.EnvironmentVariables["UV_THREADPOOL_SIZE"]) { $psi.EnvironmentVariables["UV_THREADPOOL_SIZE"] = "16" }
 $psi.WindowStyle     = [System.Diagnostics.ProcessWindowStyle]::Hidden
 $psi.CreateNoWindow  = $true
@@ -1206,7 +1206,7 @@ $tray.Visible = $true
 
 $faviconPath = Join-Path $DIR "favicon.png"
 if (Test-Path $faviconPath) {
-    # v1.8.0 (vindo do FBK): icone montado com transparencia de verdade ([RelTray.Icones]::DeArquivo);
+    # v1.8.0: icone montado com transparencia de verdade ([RelTray.Icones]::DeArquivo);
     # o caminho antigo (GetHicon) deixava as bordas pretas. Fica so de reserva.
     $iconeOk = $false
     if ($script:visualOk) {
@@ -1479,7 +1479,8 @@ $subFer.DropDownItems.Add((New-ItemMenu "Informa\u00e7\u00f5es do sistema..." "i
            (L "`n`nComputador: ") + $i.computador + (L "`nSistema: ") + $i.sistema +
            (L "`nEndere\u00e7o de acesso: http://") + $i.ip + ":" + $i.porta +
            (L "`n`nLigado h\u00e1: ") + $i.ligadoHa + (L "`nMem\u00f3ria: ") + $i.memoriaMB + " MB" + (L "`nTelas abertas: ") + $i.abasConectadas +
-           (L "`n`nPasta: ") + $i.pasta
+           (L "`n`nPasta: ") + $i.pasta +
+           (L "`n`nRelat\u00f3rios FDB - criado e mantido por Ruda Gabriel")
     Show-Mensagem $txt ("$APP_NAME - " + (L "Informa\u00e7\u00f5es"))
 })) | Out-Null
 $subFer.DropDownItems.Add((New-ItemMenu "Copiar endere\u00e7o de acesso" "link" "#EA580C" {

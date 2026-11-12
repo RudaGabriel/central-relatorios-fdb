@@ -1,11 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.30.1
+ * @version 3.30.2
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.30.1 - 2026-11-09 - X de limpar a busca não "cai" mais sobre a borda ao passar o mouse.
+ *   3.30.2 - 2026-11-12 - Projeto autônomo: sem menções a terceiros; crédito do autor nas Configurações.
  */
 
 (function() {
@@ -13,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.30.1";
+    const SCRIPT_VERSION = "3.30.2";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -31,7 +31,7 @@
     ];
     const TEMAS_LEGADOS_CLAROS = ["solarized-light", "paper", "mint", "lavender", "sky"];
     // ===== SOMENTE LEITURA (v2.14.0) ============================================
-    // O sistema NUNCA escreve no banco do Small Commerce. Duas travas, em toda
+    // O sistema NUNCA escreve no banco do PDV. Duas travas, em toda
     // conexão aberta por este processo (bloco idêntico no servidor e no gerador):
     //  1. Comando: só passa SQL que começa com SELECT ou WITH; qualquer outro
     //     (UPDATE, INSERT, DELETE, EXECUTE, ALTER...) é recusado ANTES de chegar
@@ -261,7 +261,7 @@
         .replace(/\u2029/g, "\\u2029");
 
     // Texto vindo do banco como bytes crus (CHARACTER SET OCTETS — ver _txt): o
-    // SmallSoft grava nomes em colunas sem charset (NONE) com bytes Windows-1252;
+    // PDV grava nomes em colunas sem charset (NONE) com bytes Windows-1252;
     // pedidos como texto, o "í" chegava trocado pelo caractere de substituição U+FFFD. UTF-8
     // válido é usado como está (coluna declarada UTF8); senão, Windows-1252.
     // Node sem ICU completo não tem windows-1252: cai em latin1 (mesmos acentos).
@@ -910,7 +910,7 @@
 			`;
 			// pagSql UNIFICADO — retorna linhas brutas sem GROUP BY nem list().
 			// Uma única varredura da tabela substitui dois queries separados:
-			//   (a) forma='00' + valor<0  → _tot00Map (total real do SmallSoft)
+			//   (a) forma='00' + valor<0  → _tot00Map (total real gravado pelo PDV)
 			//   (b) demais formas + valor>0 → mapVendas extension (pagamentos reais)
 			// Elimina totalSql como conexão paralela separada: menos attach overhead,
 			// sem GROUP BY nem list() no Firebird → query mais rápida (~60-75ms vs 112ms).
@@ -957,8 +957,8 @@
 			const idIndex   = new Map();
 
 			// VELOCIDADE FIX (v2.7.2): antes de descartar as linhas convertidas
-			// (CANC='T'), guarda os dados de identificação delas. Quando o Small
-			// Commerce converte uma gerencial em NFC-e, a linha nova (modelo 65)
+			// (CANC='T'), guarda os dados de identificação delas. Quando o PDV
+			// converte uma gerencial em NFC-e, a linha nova (modelo 65)
 			// nasce com VENDEDOR, HORA e NATUREZA VAZIOS e só é preenchida quando
 			// a autorização volta da SEFAZ — o que pode demorar. Como a v2.7.1
 			// passou a exibir essas vendas imediatamente (o dinheiro já entrou no
@@ -983,7 +983,7 @@
 			}
 
 			// BUG REAL (v2.7.8) — caso 061449 → NFC-e 124242, confirmado na tela nativa
-			// do SmallSoft: a coluna GERENCIAL da linha 124242 (modelo 65) aponta
+			// do PDV: a coluna GERENCIAL da linha 124242 (modelo 65) aponta
 			// explicitamente para 061449, mas a gerencial de origem NÃO estava com
 			// CANC='T' (só o loop acima, que exige CANC='T', preenche
 			// _origemConvertida — e só serve pra HERDAR vendedor/hora, nunca pra
@@ -1300,7 +1300,7 @@
 							// logo após este bloco try/catch) — NF-e AUTORIZADA (já filtramos
 							// rejeitada acima) que não achou par direto na tabela nfce. Pode ser
 							// o destino de uma Gerencial convertida sem nenhum vínculo gravado
-							// no banco (schema desta versão do SmallSoft não grava referência
+							// no banco (schema desta versão do PDV não grava referência
 							// cupom↔NF-e em nenhuma coluna nem no XML — confirmado em diagnóstico).
 							_novasNfeParaReconciliar.push({ key: _keyV, dt: _dtV, total: _vTotal, horaMin: _horaParaMinutos(vr.HORA_V) });
 						}
@@ -1313,7 +1313,7 @@
 			// AUTORITATIVO — a coluna GERENCIAL (ver _gerenciaisAbsorvidasPorDocFiscal
 			// acima, v2.7.8) — que resolve o caso sem qualquer chute.
 			// Para conversão Gerencial→NF-e (modelo 55, tabela VENDAS externa) o schema
-			// deste SmallSoft não grava vínculo nenhum — nem coluna, nem referência no XML.
+			// deste PDV não grava vínculo nenhum — nem coluna, nem referência no XML.
 			// REGRA DE NEGÓCIO (definida pelo usuário, v2.7.9): essas gerenciais são as
 			// mesmas usadas pela automação do filtro [proibidos] (marcas da lista em
 			// proibidosPadrao) — convertidas manualmente por fora do fluxo integrado, por
@@ -1433,7 +1433,7 @@
 				const key0      = ped0 ? (dt + "|" + ped0) : (dt + "||v:" + String(p.VENDEDOR || "").trim());
 
 				if (formaPref === "00" && valor < 0) {
-					// Entrada de total real (balanceador negativo do SmallSoft)
+					// Entrada de total real (balanceador negativo do PDV)
 					_tot00Sums.set(key0, (_tot00Sums.get(key0) || 0) + Math.abs(valor));
 					continue;
 				}
@@ -1970,7 +1970,7 @@
 			// gerencial vem da soma dos itens do ALTERACA (ou do PAGAMENT) e a hora
 			// pode vir do ALTERACA: o auto-teste (que olha o resultado final) via o
 			// par e a reconciliação não — caso real: gerencial 062418 × NF-e 000306,
-			// R$ 1215,51, mesmo vendedor, convertida no SmallSoft e ainda listada aqui.
+			// R$ 1215,51, mesmo vendedor, convertida no PDV e ainda listada aqui.
 			// Esta passada aplica o MESMO critério do auto-teste às LINHAS FINAIS:
 			// mesma data, mesmo valor (±0,01), documento fiscal emitido 0–20 min
 			// DEPOIS, vendedores não diferentes. Travas mantidas: cada documento
@@ -7422,6 +7422,7 @@ var __abrirModalConfig = function(opcoes) {
                   '</div>') +
               '<div id="cfgStatus" style="display:none;text-align:center;padding:8px 0;font-size:13px;color:var(--text-muted)">Salvando...</div>' +
               '<button class="btn" id="cfgSalvar" type="button" style="width:100%;min-height:48px;height:auto;padding:12px 18px;font-size:15px;font-weight:700;white-space:normal;line-height:1.3;gap:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>' + (_soPrefs ? 'Salvar preferências' : 'Salvar configurações') + '</button>' +
+              '<div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px;opacity:.85">Relatórios FDB — criado e mantido por Ruda Gabriel</div>' +
             '</div>' +
           '</div>';
 

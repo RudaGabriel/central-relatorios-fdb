@@ -111,7 +111,7 @@ function query(sql, params, cb) {
                 }));
             if (/from nfce n where n.data between/i.test(s)) {
                 registrar("GERACAO");
-                // Coluna sem charset (NONE) com bytes Windows-1252, como no SmallSoft:
+                // Coluna sem charset (NONE) com bytes Windows-1252, como no PDV:
                 // pedida como OCTETS chega como Buffer (bytes crus); pedida como texto,
                 // o acento vira U+FFFD. estado.semOctets simula um Firebird que recusa
                 // a conversão para OCTETS.

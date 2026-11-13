@@ -1,6 +1,6 @@
 {
  "_sobre": "Catálogo da categoria \"Painéis de tela única\" (fonte única: servidor e gerador leem este arquivo). Cada id tem o arquivo <id>.html nesta pasta. previasClassicos = cores dos temas clássicos para as miniaturas do menu (conferidas por teste com o CSS do gerador).",
- "versao": "1.0.0",
+ "versao": "1.1.0",
  "padrao": "relevo",
  "paineis": [
   {
@@ -61,6 +61,18 @@
     "ac": "#2563eb",
     "tx": "#0f172a",
     "ln": "#e5e7eb"
+   }
+  },
+  {
+   "id": "administrativo",
+   "nome": "Administrativo",
+   "descricao": "Neutro e moderno: menu lateral, cartões discretos com ícones e modo claro ou escuro.",
+   "prev": {
+    "bg": "#fafafa",
+    "pn": "#ffffff",
+    "ac": "#18181b",
+    "tx": "#09090b",
+    "ln": "#e4e4e7"
    }
   }
  ],

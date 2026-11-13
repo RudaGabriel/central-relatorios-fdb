@@ -23,17 +23,18 @@ Versões em uso hoje:
 | [`gerar_relatorio_por_data.bat`](#gerar_relatorio_por_databat) | 1.5.0 |
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
-| [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
 
 ---
 
@@ -1306,6 +1307,26 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.1.0 — 2026-11-13
+
+**Novo painel "Administrativo" e o desempenho dentro de Configurações.**
+
+- **Administrativo** (`administrativo.html` 1.0.0; `temas.json` 1.1.0):
+  - **Visual:** neutro e moderno, com cartões de borda fina e ícone no canto, vendedores com avatar e cores em tons de cinza;
+  - **Menu lateral:**
+    - filtros por tipo, com a contagem de cada um;
+    - consulta por período, relatório clássico, modo claro ou escuro e configurações do sistema;
+    - no computador, recolhe em ícones (a escolha fica salva); em tablet e celular, abre por cima;
+  - **Modo claro ou escuro:** botão ☀/☾ no cabeçalho e no menu lateral; sem escolha, segue o modo do aparelho;
+  - tudo cabe na tela e só a lista de vendas rola, com as mesmas abas no celular.
+- **Desempenho fora do cabeçalho** (todos os painéis, 1.0.2):
+  - o controle Automático, Completo ou Leve sai do cabeçalho e vai para o novo botão **⚙ Configurações → Nesta tela → Desempenho**, como no relatório clássico;
+  - o mesmo botão leva às **configurações do sistema** (que voltam para o painel) e ao **relatório clássico**;
+  - o link "Clássico" do cabeçalho foi incorporado a ele.
+- **Cabeçalho no celular:** nome, Tema e Configurações cabem na mesma linha, também em aparelhos de 360 px. No Central de comando, o relógio do cabeçalho se esconde até 420 px de largura; a hora da atualização continua no rodapé da lista.
+- **Filtro por tipo:** escolher um tipo (no cabeçalho, no menu lateral ou no painel "Por tipo") marca todos os botões desse tipo (`motor.js` 1.0.2).
+- `corpo.html` e `comum.css` não mudaram (continuam 1.0.1).
 
 ### 1.0.1 — 2026-11-13
 

@@ -1,6 +1,7 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.0.1
- *   1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+ * @version 1.0.2
+ *   1.0.2 - 2026-11-13 - ENG.perfCtl(): desenha o controle de desempenho criado depois (Configurações do painel);
+ *                        escolher um tipo marca todos os botões desse tipo (cabeçalho, menu lateral e painel "Por tipo").
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -241,7 +242,7 @@
     if (p) { try { if (p.dataset.perfOp === "auto") localStorage.removeItem("fdb_perf"); else localStorage.setItem("fdb_perf", p.dataset.perfOp); } catch (er) {}
       LEVE = perfDecidir(); controlePerf(); if (window.PAINEL && PAINEL.perfMudou) PAINEL.perfMudou(LEVE);
       toast("<b>Desempenho</b> · " + (LEVE ? "Leve (sem animações pesadas)" : "Completo")); return; }
-    const tp = e.target.closest("[data-tipo]"); if (tp) { st.tipo = tp.dataset.tipo; $$("[data-tipo]").forEach(b => b.classList.toggle("on", b === tp)); renderLista(); return; }
+    const tp = e.target.closest("[data-tipo]"); if (tp) { st.tipo = tp.dataset.tipo; $$("[data-tipo]").forEach(b => b.classList.toggle("on", b.dataset.tipo === st.tipo)); renderLista(); return; }
     const vd = e.target.closest("[data-vend]"); if (vd) { st.vend = vd.dataset.vend || null; renderLista(); return; }
     const cd = e.target.closest("#feed [data-id]"); if (cd) abrir(cd.dataset.id, cd);
   });
@@ -254,6 +255,6 @@
     carregar(); aoVivo();
   }
   window.ENG = {fmt, esc, pl, st, numero, resumo, toast, T, itensCurtos, leve: () => LEVE, anima, get vendas(){ return vendas; }, get dados(){ return DADOS; }, dataBR, norm, FONTE,
-    filtradas, render: () => renderLista(), abrir};
+    filtradas, render: () => renderLista(), abrir, perfCtl: () => controlePerf(), perfPref};
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ligar); else ligar();
 })();

@@ -112,7 +112,8 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Forçar atualização | Botão **Atualizar** · bandeja → *Atualizar dados de hoje* |
 | Mudar o tema de cores | Botão **Tema** |
 | Usar um painel de tela única (tudo em uma tela) | Botão **Tema** → **Painéis de tela única** (veja [Painéis](#paineis)); para voltar, **Tema** → **Temas clássicos** |
-| Abrir o relatório clássico sem trocar o painel escolhido | Botão **Clássico** do painel · `http://IP:7734/?classico=1` |
+| Abrir o relatório clássico sem trocar o painel escolhido | No painel, **⚙ Configurações → Abrir o relatório clássico** · `http://IP:7734/?classico=1` |
+| Desempenho (Automático, Completo ou Leve) num painel | **⚙ Configurações → Nesta tela → Desempenho** (o mesmo ajuste do relatório clássico) |
 | Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
 | Dar um nome ao aparelho, mudar avisos/proibidos/teclas só dele | **Configurações → Minhas preferências** (veja [Aparelhos](#aparelhos)) |
 | Trocar o banco | Bandeja → *Configurações → Selecionar banco (FDB)* · `http://IP:7734/selecionar-fdb` |
@@ -147,7 +148,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 ### 🎨 Interface
 - **Duas categorias de tema**, separadas no menu **Tema**:
   - **Temas clássicos (7):** Escuro e Claro, mais 5 de estilo (HUD Ciano, Índigo Neon, Executivo, Âmbar Vidro e Brasa Noturna), que mudam também cantos, bordas, brilho e fundo do relatório de sempre.
-  - **Painéis de tela única (5):** Relevo, Relevo escuro, Central de comando, Vidro e Nítido. São layouts próprios em que tudo cabe na tela e só a lista de vendas rola (veja [Painéis de tela única](#paineis)).
+  - **Painéis de tela única (6):** Relevo, Relevo escuro, Central de comando, Vidro, Nítido e Administrativo. São layouts próprios em que tudo cabe na tela e só a lista de vendas rola (veja [Painéis de tela única](#paineis)).
 - **Visualização detalhada:** indicadores e gráficos — faturamento e vendas por hora, participação por tipo, ranking de vendedores, pagamentos e produtos — acima da tabela, seguindo os filtros.
 - **Menu Tema** só com os temas, nas duas categorias; as demais opções da tela ficam em **Configurações → Nesta tela**:
   - **Visualização:** *Simplificada* (só a tabela) ou *Detalhada* (com o painel de gráficos).
@@ -358,6 +359,7 @@ Uma categoria de temas própria, **separada dos temas clássicos**. Em vez de mu
 | **Central de comando** | Escuro e técnico: linhas finas, cantos de mira e números em destaque |
 | **Vidro** | Painéis de vidro fosco sobre um fundo de luzes suaves |
 | **Nítido** | Claro e plano: linhas finas e tipografia precisa, com o máximo de linhas na tela |
+| **Administrativo** | Neutro e moderno: menu lateral (que recolhe), cartões discretos com ícones, vendedores com avatar e modo **claro ou escuro** (botão ☀/☾; sem escolha, segue o modo do aparelho) |
 
 Em todos os painéis você encontra:
 
@@ -370,12 +372,15 @@ Em todos os painéis você encontra:
 - **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
 - **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, cada item com o valor e cada forma de pagamento.
 - **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
-- **Desempenho:** o mesmo controle do relatório (Automático, Completo ou Leve). No **Leve**, saem o desfoque e as animações contínuas.
+- **⚙ Configurações** (no cabeçalho de cada painel):
+  - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve). No **Leve**, saem o desfoque e as animações contínuas.
+  - **Configurações do sistema:** abre a página de configurações e volta para o painel.
+  - **Abrir o relatório clássico.**
 
 **Atalhos úteis:**
 
-- O botão **Clássico** de cada painel (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para **Configurações**, **QR code** e as demais opções do relatório clássico.
-- Endereço direto de cada painel: `http://localhost:7734/painel/relevo/` (troque `relevo` por `relevo-escuro`, `comando`, `vidro` ou `nitido`). Para um período, acrescente `?i=2026-11-01&f=2026-11-13`.
+- **⚙ Configurações → Abrir o relatório clássico** (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para o **QR code** e as demais opções do relatório clássico.
+- Endereço direto de cada painel: `http://localhost:7734/painel/relevo/` (troque `relevo` por `relevo-escuro`, `comando`, `vidro`, `nitido` ou `administrativo`). Para um período, acrescente `?i=2026-11-01&f=2026-11-13`.
 - O controle remoto também troca para um painel, por exemplo `.\api.ps1 -Endpoint tema -Payload vidro` (veja [API](#api)).
 
 > Os painéis abrem pelo servidor do relatório. O arquivo de relatório aberto direto do disco (gerado pelos `.bat`) continua sempre no layout clássico.
@@ -403,7 +408,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/` | GET | Relatório de hoje |
 | `/periodo?i=AAAA-MM-DD&f=AAAA-MM-DD` | GET | Relatório de um período (sem parâmetros: formulário) |
 | `/atualizar` | GET | Descarta o cache de hoje e regenera |
-| `/painel/ID/` | GET | Painel de tela única `ID` (`relevo`, `relevo-escuro`, `comando`, `vidro`, `nitido`), com os dados de hoje; `?i=AAAA-MM-DD&f=AAAA-MM-DD` para um período. `/painel/` abre o painel escolhido no navegador. As rotas antigas `/demos/...` levam para `/painel/` |
+| `/painel/ID/` | GET | Painel de tela única `ID` (`relevo`, `relevo-escuro`, `comando`, `vidro`, `nitido`, `administrativo`), com os dados de hoje; `?i=AAAA-MM-DD&f=AAAA-MM-DD` para um período. `/painel/` abre o painel escolhido no navegador. As rotas antigas `/demos/...` levam para `/painel/` |
 | `/config` · `/selecionar-fdb` | GET | Páginas de configurações e de seleção do banco |
 | `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` (nome) ou `?externo=ip` (IP) e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
 | `/pronto?k=CHAVE` | GET | Estado de uma geração em andamento |

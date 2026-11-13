@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- paineis/nitido.html — Central de Relatórios FDB · painel de tela única "Nítido (claro, plano e preciso)".
-     @version 1.0.1
-       1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+     @version 1.0.2
+       1.0.2 - 2026-11-13 - Desempenho sai do cabeçalho e vai para o botão Configurações (com o relatório clássico e as configurações do sistema).
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/nitido/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
@@ -55,7 +55,7 @@ body{background:var(--bg)}
 @media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}.marca{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:0}.marca .logo{grid-row:1/3}.marca .sep{display:none}.marca small{grid-column:2}}
 @media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
 @media (max-width:1180px){.grade{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.cx-tab{grid-row:1/3;border-right:1px solid var(--ln)}.esq{grid-column:2;grid-row:1;border-right:0;border-bottom:1px solid var(--ln)}.dir{grid-column:2;grid-row:2;border-left:0}.cx-prod,.cx-conv{display:none}.busca{width:200px}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}}
-@media (max-width:980px){.lk .lk-cl{display:none}.sep{display:none}}
+@media (max-width:980px){.lk .lkTxt{display:none}.sep{display:none}}
 @media (max-width:820px){
  .top{height:auto;flex-wrap:wrap;gap:8px;padding:10px}.marca{width:100%}.busca{flex:1;width:auto}.seg{order:5;width:100%}.seg button{flex:1;padding:7px 4px}[data-perf-ctl]{display:none}
  .grade{display:flex;flex-direction:column;overflow:auto}.col{display:contents}
@@ -69,8 +69,7 @@ body{background:var(--bg)}
  <div class="marca"><span class="logo">FDB</span><b>Central de Relatórios FDB</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
  <label class="busca">⌕<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
- <div data-perf-ctl></div>
- <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><a class="lk-cl" href="/?classico=1" title="Abrir o relatório clássico (configurações e demais opções)">Clássico</a></nav>
+ <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>
 </header>
 <!--CORPO-->
 <script>window.PAINEL_CFG={cores:{"Gerencial":"#d97706","NFC-e":"#2563eb","NF-e":"#7c3aed","Recebimento":"#0d9488"},paleta:["#16a34a","#2563eb","#d97706","#db2777","#7c3aed","#0891b2","#dc2626","#65a30d"],corCaixa:"#475569"};</script>

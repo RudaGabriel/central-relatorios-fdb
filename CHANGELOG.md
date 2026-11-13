@@ -1327,7 +1327,7 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 
 ### 1.2.0 — 2026-11-13
 
-**Painéis completos, no padrão do relatório clássico.**
+**Painéis completos, no padrão do relatório clássico.** (1.2.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
 
 - **Busca e proibidos iguais aos do clássico** (`motor.js` 1.1.0): a mesma sintaxe (`-termo`, `a+b`, `a|b`, `>300`, `10-100`, `=500`, `"frase exata"`, `caixa 4`, `vendedor b`, `[proibidos]`, `[-proibidos]`), com os mesmos resultados do relatório clássico.
 - **Botões no topo da lista de vendas** (`corpo.html` 1.1.0, `painel.js` 1.1.0):
@@ -1340,7 +1340,7 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - **Caixas do maior para o menor**, como os demais blocos.
 - **Avisos no padrão do clássico** (`base.css` 1.1.0, `comum.css` 1.1.0 e todos os temas 1.1.0): sem repetição, com botão fechar e barra de tempo, nas cores de cada tema.
 - **Barras de rolagem nas cores do tema**, e a lista de vendas nunca rola para o lado (`base.css` 1.1.0).
-- **Logo e nome da loja** (todos os temas 1.1.0): a logo usa o `favicon.png` da pasta do sistema (sem o arquivo, aparece "FDB") e o nome declarado em `appName` aparece no cabeçalho e no título.
+- **Logo e nome da loja** (todos os temas 1.1.0): a logo usa o `favicon.png` da pasta do sistema (sem o arquivo, aparece "FDB") e o nome declarado em `appName` aparece no cabeçalho e no título. No Administrativo, com o menu lateral recolhido, o nome passa para o cabeçalho.
 - **Correção:** os cliques nos chips de filtro (×) não tinham efeito, porque o atributo `data-aba` do `<body>` capturava o clique (`painel.js` 1.1.0).
 
 ### 1.1.0 — 2026-11-13

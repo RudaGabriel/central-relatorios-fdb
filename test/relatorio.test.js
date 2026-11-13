@@ -1138,16 +1138,22 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         nfce: [
             { numero: "700", hora: "10:00:00", modelo: 99, total: 40, vendedor: "VENDEDOR A" },
             { numero: "701", hora: "10:10:00", modelo: 65, total: 120, vendedor: "VENDEDOR B" },
-            { numero: "702", hora: "10:20:00", modelo: 99, total: 15, vendedor: "VENDEDOR A" }
+            { numero: "702", hora: "10:20:00", modelo: 99, total: 15, vendedor: "VENDEDOR A" },
+            // Aguardando documento fiscal (TOTAL 0 com pagamento e itens): gerencial, não recebimento
+            { numero: "703", hora: "10:30:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" },
+            { numero: "704", hora: "10:40:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" }
         ],
         pagGer: [
             { numero: "700", forma: "03 PIX", valor: 40 },
             { numero: "701", forma: "01 DINHEIRO", valor: 120 },
-            { numero: "702", forma: "03 PIX", valor: 15 }
+            { numero: "702", forma: "03 PIX", valor: 15 },
+            { numero: "703", forma: "04 Cartao CREDITO", valor: 99 },
+            { numero: "704", forma: "03 PIX", valor: 30 }
         ],
         alt: [
             { pedido: "700", desc: "RACAO PREMIUM 10KG", qtd: 1, total: 40 },
-            { pedido: "702", desc: "AREIA SANITARIA 4KG", qtd: 1, total: 15 }
+            { pedido: "702", desc: "AREIA SANITARIA 4KG", qtd: 1, total: 15 },
+            { pedido: "703", desc: "PRODUTO DE TESTE 75MG", qtd: 1, total: 99 }
         ]
     });
     const dados = JSON.parse(gerar(dir).match(/<script id="dados" type="application\/json">([\s\S]*?)<\/script>/)[1]);
@@ -1166,12 +1172,17 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         B.indexar(dados); B.proibidos(["AREIA"]);
         assert.deepStrictEqual([...B.lista()], ["AREIA"]);
         const conta = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, i) => B.passa(v, i, c)).length; };
-        assert.strictEqual(conta(""), 3, "sem busca: todas");
+        const nums = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, k) => B.passa(v, k, c)).map(v => String(v.numero).replace(/^0+/, "")).sort(); };
+        assert.strictEqual(conta(""), 5, "sem busca: todas");
         assert.strictEqual(conta("racao"), 1, "termo do item");
-        assert.strictEqual(conta("-racao"), 2, "exclusão");
+        assert.strictEqual(conta("-racao"), 4, "exclusão");
         assert.strictEqual(conta(">100"), 1, "valor maior que");
-        assert.strictEqual(conta("[proibidos]"), 2, "[proibidos] oculta a venda com item proibido");
-        assert.strictEqual(conta("", "Gerencial"), 2, "filtro de tipo");
+        assert.deepStrictEqual(nums("[proibidos]"), ["700", "701", "703", "704"], "[proibidos] oculta só a venda com item proibido");
+        assert.deepStrictEqual(nums("[-proibidos]"), ["702"], "[-proibidos] isola a venda com item proibido");
+        // Aguardando documento fiscal (703): aparece como Gerencial de R$ 99,00, não como recebimento.
+        const v703 = dados.vendas.find(v => /^0*703$/.test(String(v.numero)));
+        assert.ok(v703 && v703.tipo === "gerencial" && v703.total === 99, "703 é venda gerencial");
+        assert.deepStrictEqual(nums("[proibidos]", "Gerencial"), ["700", "703", "704"], "[proibidos] + Gerencial (o recebimento 704 continua no filtro Gerencial, como no clássico)");
     } finally { srv.parar(); }
 });
 

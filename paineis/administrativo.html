@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- paineis/administrativo.html — Central de Relatórios FDB · painel de tela única "Administrativo (neutro, com menu lateral e modo claro ou escuro)".
      @version 1.1.0
-       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no menu lateral e no título e avisos no padrão do relatório clássico.
+       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no menu lateral (no cabeçalho, com o menu recolhido) e no título e avisos no padrão do relatório clássico.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/administrativo/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
@@ -118,6 +118,9 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
  html:not([data-menu="aberto"]) .sbTop,html:not([data-menu="aberto"]) .sbPe{justify-content:center;padding:8px 0}
  .grade{grid-template-columns:minmax(0,1fr) 280px 280px;grid-template-rows:212px minmax(0,1fr)}
  [data-perf-ctl] .perfRot{display:none}}
+/* Menu lateral recolhido no computador: o nome da loja passa para o cabeçalho (a logo continua no menu). */
+@media (min-width:1181px) and (max-width:1599px){html:not([data-menu="aberto"]) .top .marca{display:flex}html:not([data-menu="aberto"]) .top .marca .logo{display:none}}
+@media (min-width:1600px){html[data-menu="recolhido"] .top .marca{display:flex}html[data-menu="recolhido"] .top .marca .logo{display:none}}
 @media (max-height:800px) and (min-width:821px){.tt{padding:10px 20px 8px}.tt h1{font-size:19px}.tt p{font-size:12.5px}.kp{padding:9px 12px}.kp b{margin-top:3px}.grade{grid-template-rows:190px minmax(0,1fr);padding-top:10px}}
 @media (max-width:1180px){
  .sb{position:fixed;left:0;top:0;bottom:0;z-index:70;width:270px!important;transform:translateX(-105%);transition:transform .22s;box-shadow:0 0 40px rgba(0,0,0,.3)}

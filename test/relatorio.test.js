@@ -29,6 +29,7 @@ const portaLivre = () => new Promise((resolve, reject) => {
 function montarPasta(config, estado) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "relatorio-teste-"));
     for (const f of ["servidor-relatorio.js", "gerar-relatorio-html.js"]) fs.copyFileSync(path.join(RAIZ_PROJETO, f), path.join(dir, f));
+    fs.cpSync(path.join(RAIZ_PROJETO, "paineis"), path.join(dir, "paineis"), { recursive: true });
     const mock = path.join(dir, "node_modules", "node-firebird");
     fs.mkdirSync(mock, { recursive: true });
     fs.copyFileSync(path.join(__dirname, "mock-firebird", "index.js"), path.join(mock, "index.js"));
@@ -1040,39 +1041,87 @@ test("servidor: aparelho com o relógio atrasado não recarrega sem parar (chang
     } finally { srv.parar(); }
 });
 
-test("servidor: /demos/ entrega só arquivos da pasta demos (sem sair dela)", { timeout: 60000 }, async () => {
+test("servidor: painéis de tela única — /painel/<id>/ só da lista; /demos leva para /painel/; temas nas duas categorias", { timeout: 60000 }, async () => {
     const dir = montarPasta();
-    fs.mkdirSync(path.join(dir, "demos", "01-teste"), { recursive: true });
-    fs.writeFileSync(path.join(dir, "demos", "index.html"), "<!doctype html><title>galeria</title>GALERIA-OK");
-    fs.writeFileSync(path.join(dir, "demos", "01-teste", "index.html"), "<!doctype html><title>demo</title>DEMO-OK");
-    fs.writeFileSync(path.join(dir, "demos", "01-teste", "x.exe"), "MZ");
     const srv = await iniciarServidor(dir);
     try {
         const get = (u) => fetch(srv.base + u, { redirect: "manual" });
-        let r = await get("/demos");
-        assert.strictEqual(r.status, 302, "/demos redireciona para /demos/");
-        assert.match(r.headers.get("location") || "", /\/demos\/$/);
-        r = await get("/demos/");
-        assert.strictEqual(r.status, 200); assert.match(await r.text(), /GALERIA-OK/);
-        assert.match(r.headers.get("content-type") || "", /text\/html/);
-        r = await get("/demos/01-teste");
-        assert.strictEqual(r.status, 302, "pasta sem barra no fim redireciona");
-        r = await get("/demos/01-teste/");
-        assert.strictEqual(r.status, 200); assert.match(await r.text(), /DEMO-OK/);
-        // Pedido "cru" (sem o fetch normalizar ".."), como um atacante enviaria.
-        const cru = (caminho) => new Promise((ok, falha) => {
-            const u = new URL(srv.base);
-            const rq = require("node:http").request({ host: u.hostname, port: u.port, path: caminho, method: "GET" }, rs => { rs.resume(); ok(rs.statusCode); });
-            rq.on("error", falha); rq.end();
-        });
-        for (const ruim of ["/demos/..%2Fconfig.json", "/demos/..%2F..%2Fconfig.json", "/demos/%2e%2e/config.json", "/demos/../config.json", "/demos/01-teste/..%5C..%5Cconfig.json", "/demos/%00x.html"]) {
-            // 400 (recusado pela rota) ou 404 (o servidor normaliza ".." antes e a rota nem é alcançada).
-            assert.ok([400, 404].includes(await cru(ruim)), "caminho recusado: " + ruim);
+        const cat = JSON.parse(fs.readFileSync(path.join(RAIZ_PROJETO, "paineis", "temas.json"), "utf8"));
+        for (const p of cat.paineis) {
+            const r = await get("/painel/" + p.id + "/");
+            assert.strictEqual(r.status, 200, "painel " + p.id);
+            const html = await r.text();
+            assert.doesNotMatch(html, /<!--(COMUM|CORPO|MOTOR)-->/, "marcadores substituídos em " + p.id);
+            assert.match(html, /window\.FDB_TEMAS=\{"atual":"/, "lista de temas embutida em " + p.id);
+            const info = JSON.parse(html.match(/window\.FDB_TEMAS=(\{[\s\S]*?\});<\/script>/)[1]);
+            assert.strictEqual(info.atual, p.id);
+            assert.deepStrictEqual(info.classicos.map(t => t.id), ["ultra-dark", "light", "hud", "indigo", "executivo", "ambar", "brasa"], "temas clássicos intactos");
+            assert.strictEqual(info.paineis.length, cat.paineis.length);
+            assert.match(html, /id="btnTema"/); assert.match(html, /class="lk-cl"/);
+            assert.strictEqual(r.headers.get("cache-control"), "no-store");
         }
-        assert.strictEqual(await cru("/demos/..%2Fconfig.json"), 400, "barra codificada não sai da pasta");
-        r = await get("/demos/01-teste/x.exe");
-        assert.strictEqual(r.status, 404, "extensão não permitida não é entregue");
-        r = await get("/demos/nao-existe/");
-        assert.strictEqual(r.status, 404);
+        let r = await get("/painel/relevo");
+        assert.strictEqual(r.status, 302, "sem barra no fim redireciona"); assert.match(r.headers.get("location") || "", /\/painel\/relevo\/$/);
+        r = await get("/painel/relevo?i=2026-01-01&f=2026-01-02");
+        assert.match(r.headers.get("location") || "", /\/painel\/relevo\/\?i=2026-01-01&f=2026-01-02$/, "o período é mantido");
+        r = await get("/painel/nao-existe/"); assert.strictEqual(r.status, 404);
+        r = await get("/painel/..%2Fconfig.json"); assert.strictEqual(r.status, 404, "nada fora da lista é entregue");
+        r = await get("/painel/"); assert.strictEqual(r.status, 200); assert.match(await r.text(), /fdb_painel/, "sem id: abre o painel salvo");
+        r = await get("/demos/"); assert.strictEqual(r.status, 301); assert.match(r.headers.get("location") || "", /\/painel\/$/);
+        r = await get("/demos/01-aurora/"); assert.strictEqual(r.status, 301);
+        // /api/temas: os 7 clássicos (como antes) + os painéis, cada um com a categoria.
+        const t = await (await fetch(srv.base + "/api/temas")).json();
+        assert.deepStrictEqual(t.temas.filter(x => x.categoria === "classico").map(x => x.id), ["ultra-dark", "light", "hud", "indigo", "executivo", "ambar", "brasa"]);
+        assert.deepStrictEqual(t.temas.filter(x => x.categoria === "painel").map(x => x.id), cat.paineis.map(p => p.id));
+        const rt = await (await fetch(srv.base + "/api/navigate/tema/vidro")).json();
+        assert.strictEqual(rt.ok, true, "tema remoto aceita um painel");
     } finally { srv.parar(); }
+    // Sem a pasta "paineis": explica em vez de quebrar.
+    const dir2 = montarPasta();
+    fs.rmSync(path.join(dir2, "paineis"), { recursive: true, force: true });
+    const srv2 = await iniciarServidor(dir2);
+    try {
+        const r = await fetch(srv2.base + "/painel/relevo/", { redirect: "manual" });
+        assert.strictEqual(r.status, 404); assert.match(await r.text(), /Painéis indisponíveis/);
+        const t = await (await fetch(srv2.base + "/api/temas")).json();
+        assert.ok(t.temas.length === 7 && t.temas.every(x => x.categoria === "classico"), "só os temas clássicos");
+    } finally { srv2.parar(); }
+});
+
+test("gerador: menu Tema com duas categorias — temas clássicos intactos e painéis de tela única", () => {
+    const html = gerar(montarPasta({}, { nfce: [{ numero: "500", hora: "10:00:00", modelo: 65, total: 30 }], pagGer: [{ numero: "500", forma: "03 PIX", valor: 30 }] }));
+    const cat = JSON.parse(fs.readFileSync(path.join(RAIZ_PROJETO, "paineis", "temas.json"), "utf8"));
+    assert.match(html, /var TEMAS_VALIDOS = \["ultra-dark","light","hud","indigo","executivo","ambar","brasa"\]/, "lista dos temas clássicos sem mudança");
+    assert.ok(html.includes("var PAINEIS = " + JSON.stringify(cat.paineis.map(p => p.id))), "ids dos painéis no <head>");
+    assert.match(html, /classico=1/, "?classico=1 abre o clássico sem trocar a escolha");
+    assert.match(html, /location\.protocol/, "só redireciona quando aberto pelo servidor");
+    assert.match(html, /Temas clássicos/); assert.match(html, /Painéis de tela única/);
+    // Sem a pasta "paineis" (relatório gerado fora do sistema), a categoria some e nada redireciona.
+    const dir = montarPasta({}, { nfce: [{ numero: "501", hora: "10:00:00", modelo: 65, total: 30 }], pagGer: [{ numero: "501", forma: "03 PIX", valor: 30 }] });
+    fs.rmSync(path.join(dir, "paineis"), { recursive: true, force: true });
+    assert.ok(gerar(dir).includes("var PAINEIS = [];"), "sem painéis, lista vazia");
+});
+
+test("paineis: catálogo completo e prévias dos temas clássicos iguais às cores do gerador", () => {
+    const pasta = path.join(RAIZ_PROJETO, "paineis");
+    const cat = JSON.parse(fs.readFileSync(path.join(pasta, "temas.json"), "utf8"));
+    assert.ok(cat.paineis.some(p => p.id === cat.padrao), "padrão está na lista");
+    for (const p of cat.paineis) {
+        assert.match(p.id, /^[a-z0-9-]{1,40}$/);
+        const pg = fs.readFileSync(path.join(pasta, p.id + ".html"), "utf8");
+        for (const m of ["<!--COMUM-->", "<!--CORPO-->", "<!--MOTOR-->"]) assert.strictEqual(pg.split(m).length - 1, 1, m + " uma vez em " + p.id);
+    }
+    for (const a of ["motor.js", "painel.js"]) assert.doesNotMatch(fs.readFileSync(path.join(pasta, a), "utf8"), /<\/script/i, a + " não fecha a tag");
+    for (const a of ["comum.css", "base.css"]) assert.doesNotMatch(fs.readFileSync(path.join(pasta, a), "utf8"), /<\/style/i, a + " não fecha a tag");
+    const ger = fs.readFileSync(path.join(RAIZ_PROJETO, "gerar-relatorio-html.js"), "utf8");
+    const mapa = { bg: "--bg-app", pn: "--bg-panel", ac: "--accent", tx: "--text-main" };
+    for (const id of ["ultra-dark", "light", "hud", "indigo", "executivo", "ambar", "brasa"]) {
+        const prev = cat.previasClassicos[id];
+        assert.ok(prev, "prévia do tema " + id);
+        const blocos = [...ger.matchAll(new RegExp('\\[data-theme="' + id + '"\\][^{]*\\{([^}]*)\\}', "g"))].map(m => m[1]);
+        for (const [k, v] of Object.entries(mapa)) {
+            const achado = blocos.map(b => (b.match(new RegExp(v + "\\s*:\\s*([^;]+);")) || [])[1]).find(Boolean);
+            assert.strictEqual(String(prev[k]).toLowerCase(), String(achado || "").trim().toLowerCase(), id + " " + v);
+        }
+    }
 });

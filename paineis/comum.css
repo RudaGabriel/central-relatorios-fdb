@@ -1,0 +1,36 @@
+/* paineis/comum.css — Relatórios FDB · comum aos painéis: controle de desempenho, avisos e modo Leve.
+   @version 1.0.0
+     1.0.0 - 2026-11-13 - Primeira versão.
+   Histórico completo das versões: CHANGELOG.md no repositório. */
+/* A página nunca rola para o lado (nem durante as animações); os cabeçalhos fixos continuam funcionando. */
+html{overflow-x:hidden}
+[data-perf-ctl]{display:inline-flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:rgba(127,127,127,.14);border:1px solid rgba(127,127,127,.22);font:600 12px Inter,"Segoe UI",system-ui,Arial,sans-serif}
+[data-perf-ctl] .perfRot{padding:0 8px 0 10px;opacity:.7}
+[data-perf-ctl] button{border:0;background:none;color:inherit;font:inherit;padding:6px 11px;border-radius:999px;cursor:pointer;opacity:.75;transition:background .2s,opacity .2s}
+[data-perf-ctl] button:hover{opacity:1}
+[data-perf-ctl] button[aria-pressed="true"]{background:rgba(127,127,127,.32);opacity:1}
+.lnk{color:inherit;text-decoration:none}
+#estado{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:80;padding:10px 18px;border-radius:999px;background:rgba(20,20,26,.88);color:#fff;font:600 13px Inter,"Segoe UI",system-ui,Arial,sans-serif;box-shadow:0 10px 30px -10px rgba(0,0,0,.6)}
+#mais{text-align:center;opacity:.7;font-size:13px;padding:18px 10px}
+#ov .det{max-height:calc(100vh - 40px);overflow:auto}
+/* MODO LEVE: sem desfoque, sem animações contínuas, transições curtas. */
+html[data-perf="leve"] *,html[data-perf="leve"] *:before,html[data-perf="leve"] *:after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.08s!important;text-shadow:none!important;filter:none!important}
+html[data-perf="leve"] .so-completo{display:none!important}
+@media (max-width:700px){[data-perf-ctl] .perfRot{display:none}[data-perf-ctl] button{padding:6px 9px}}
+@media (prefers-reduced-motion:reduce){html:not([data-perf-pref="completo"]) *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+/* Padrões (especificidade zero com :where — cada tema sobrescreve à vontade).
+   Variáveis: --d-bg (fundo do detalhe), --d-tx (texto), --d-mu (secundário), --d-ac (destaque), --d-ln (linhas). */
+:where(#ov){position:fixed;inset:0;z-index:50;display:none;place-items:center;background:rgba(0,0,0,.45);padding:20px}
+:where(#ov.on){display:grid}
+:where(#ov) :where(.det){width:min(540px,100%);background:var(--d-bg,#fff);color:var(--d-tx,#111);border-radius:24px;padding:28px;position:relative;box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
+:where(#ov .det) :where(.k){font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--d-ac,#555);font-weight:700}
+:where(#ov .det) :where(h2){font-size:42px;font-weight:800;line-height:1.05;margin:8px 0 4px}
+:where(#ov .det) :where(.m){color:var(--d-mu,#777);margin-bottom:14px}
+:where(#ov .det) :where(.row){display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--d-ln,rgba(127,127,127,.25))}
+:where(#ov .det .row) :where(b){white-space:nowrap}
+:where(#ov) :where(.fechar){position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:12px;border:1px solid var(--d-ln,rgba(127,127,127,.3));background:transparent;color:inherit;font-size:20px;cursor:pointer}
+:where(#toasts){position:fixed;top:18px;right:18px;z-index:60;display:flex;flex-direction:column;gap:8px}
+:where(.toast){max-width:calc(100vw - 32px);position:relative;overflow:hidden;background:var(--t-bg,#111);color:var(--t-tx,#fff);padding:12px 18px 14px;border-radius:14px;font-size:13.5px;box-shadow:0 16px 34px -14px rgba(0,0,0,.5)}
+:where(.toast) :where(b){color:var(--t-ac,#4ade80)}
+:where(.toast) :where(i){position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--t-ac,#4ade80);transform-origin:left}
+:where(#vazio,#mais){padding:24px;text-align:center;opacity:.7}

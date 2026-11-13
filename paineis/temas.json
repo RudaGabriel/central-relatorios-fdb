@@ -1,0 +1,111 @@
+{
+ "_sobre": "Catálogo da categoria \"Painéis de tela única\" (fonte única: servidor e gerador leem este arquivo). Cada id tem o arquivo <id>.html nesta pasta. previasClassicos = cores dos temas clássicos para as miniaturas do menu (conferidas por teste com o CSS do gerador).",
+ "versao": "1.0.0",
+ "padrao": "relevo",
+ "paineis": [
+  {
+   "id": "relevo",
+   "nome": "Relevo",
+   "descricao": "Claro e macio, em relevo: painéis que saltam da tela e tabela afundada.",
+   "prev": {
+    "bg": "#e4e8ef",
+    "pn": "#eef1f6",
+    "ac": "#5b6cff",
+    "tx": "#2f3a4c",
+    "ln": "#d3d9e2"
+   }
+  },
+  {
+   "id": "relevo-escuro",
+   "nome": "Relevo escuro",
+   "descricao": "O mesmo relevo macio em tons de grafite, confortável para a noite.",
+   "prev": {
+    "bg": "#22262e",
+    "pn": "#2a2f38",
+    "ac": "#8b9bff",
+    "tx": "#e6eaf2",
+    "ln": "#30363f"
+   }
+  },
+  {
+   "id": "comando",
+   "nome": "Central de comando",
+   "descricao": "Escuro e técnico: leituras em tempo real, linhas finas e números em destaque.",
+   "prev": {
+    "bg": "#020a10",
+    "pn": "#061a26",
+    "ac": "#22d3ee",
+    "tx": "#dff9ff",
+    "ln": "#0e3a4a"
+   }
+  },
+  {
+   "id": "vidro",
+   "nome": "Vidro",
+   "descricao": "Painéis de vidro fosco sobre um fundo de luzes suaves, com brilho nos indicadores.",
+   "prev": {
+    "bg": "#141a35",
+    "pn": "#262c49",
+    "ac": "#7dd3fc",
+    "tx": "#f1f3fb",
+    "ln": "#3a4166"
+   }
+  },
+  {
+   "id": "nitido",
+   "nome": "Nítido",
+   "descricao": "Claro e plano: linhas finas, tipografia precisa e máxima leitura.",
+   "prev": {
+    "bg": "#f6f7f9",
+    "pn": "#ffffff",
+    "ac": "#2563eb",
+    "tx": "#0f172a",
+    "ln": "#e5e7eb"
+   }
+  }
+ ],
+ "previasClassicos": {
+  "ultra-dark": {
+   "bg": "#000000",
+   "pn": "#0a0a0a",
+   "ac": "#0ea5e9",
+   "tx": "#ededed"
+  },
+  "light": {
+   "bg": "#f8fafc",
+   "pn": "#ffffff",
+   "ac": "#2563eb",
+   "tx": "#0f172a"
+  },
+  "hud": {
+   "bg": "#050b15",
+   "pn": "#0a1626",
+   "ac": "#22d3ee",
+   "tx": "#dcefff"
+  },
+  "indigo": {
+   "bg": "#1d1b57",
+   "pn": "#27257a",
+   "ac": "#22d3ee",
+   "tx": "#f1f2ff"
+  },
+  "executivo": {
+   "bg": "#0a0f19",
+   "pn": "#101826",
+   "ac": "#f97316",
+   "tx": "#eef2f7"
+  },
+  "ambar": {
+   "bg": "#0b0907",
+   "pn": "#1a1410",
+   "ac": "#f29462",
+   "tx": "#f7efe8"
+  },
+  "brasa": {
+   "bg": "#070a16",
+   "pn": "#18171b",
+   "ac": "#f0844a",
+   "tx": "#f4f1ee"
+  }
+ }
+}

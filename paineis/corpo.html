@@ -1,0 +1,22 @@
+<!-- paineis/corpo.html — Relatórios FDB · corpo comum dos painéis (indicadores, painéis, tabela e abas).
+     @version 1.0.0
+       1.0.0 - 2026-11-13 - Primeira versão.
+     Histórico completo das versões: CHANGELOG.md no repositório. -->
+<section id="kpis" class="kpis" data-de="resumo" data-pulso></section>
+<main class="grade">
+ <div class="col esq">
+  <section class="pn cx-tipos" data-de="resumo"><h3>Por tipo</h3><div id="tipos"></div></section>
+  <section class="pn cx-pag" data-de="pagtos"><h3>Formas de pagamento <em>toque para filtrar</em></h3><div class="lst" id="pagtos"></div></section>
+  <section class="pn cx-cx" data-de="pagtos"><h3>Caixas</h3><div class="lst" id="caixas"></div></section>
+  <section class="pn cx-conv" data-de="pagtos"><h3>Conversões em nota fiscal <em id="conv-n"></em></h3><div class="lst" id="conv"></div></section>
+ </div>
+ <section class="pn cx-tab" data-de="vendas"><h3>Vendas <span id="filtros" class="vazio"></span><em>↑ ↓ navegar · Enter detalhes · / buscar</em></h3>
+  <div class="tabela"><div class="tb-sc"><div id="cab"></div><div id="feed"></div><div id="vazio" style="display:none"></div><div id="mais" style="display:none"></div></div><div id="rod"></div></div></section>
+ <div class="col dir">
+  <section class="pn cx-vend" data-de="equipe"><h3>Vendedores <em>clique para filtrar</em></h3><div class="vd-cab"><span>#</span><span>Nome · vendas · ticket</span><span>Total</span><span>%</span></div><div class="lst" id="vends"></div></section>
+  <section class="pn cx-hr" data-de="resumo"><h3>Vendas por hora</h3><div id="horas"></div></section>
+  <section class="pn cx-prod" data-de="equipe"><h3>Produtos mais vendidos</h3><div class="lst" id="produtos"></div></section>
+ </div>
+</main>
+<nav class="abas"><button type="button" data-aba="resumo"><span>◎</span>Resumo</button><button type="button" data-aba="vendas"><span>☰</span>Vendas</button><button type="button" data-aba="pagtos"><span>◈</span>Pagamentos</button><button type="button" data-aba="equipe"><span>◉</span>Equipe</button></nav>
+<div id="estado" style="display:none"></div>

@@ -6,14 +6,14 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.25.0" src="https://img.shields.io/badge/servidor-v2.25.0-2563EB?style=flat">
-<img alt="gerador: v3.31.0" src="https://img.shields.io/badge/gerador-v3.31.0-2563EB?style=flat">
+<img alt="servidor: v2.26.0" src="https://img.shields.io/badge/servidor-v2.26.0-2563EB?style=flat">
+<img alt="gerador: v3.32.0" src="https://img.shields.io/badge/gerador-v3.32.0-2563EB?style=flat">
 <img alt="bandeja: v1.8.3" src="https://img.shields.io/badge/bandeja-v1.8.3-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 31 passando" src="https://img.shields.io/badge/testes-31%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 33 passando" src="https://img.shields.io/badge/testes-33%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -34,7 +34,7 @@
 
 **As vendas do dia na tela, atualizadas a cada venda · No computador e no celular · Na loja ou de qualquer lugar · Nunca escreve no banco · Funciona sem internet**
 
-[Instalar](#instalacao) · [Usar](#uso) · [Recursos](#recursos) · [Celular](#celular) · [Fora da loja](#fora) · [Liberar para outra pessoa](#compartilhar) · [Aparelhos](#aparelhos) · [Configurar](#configuracao) · [Demos](#demos) · [API](#api) · [Problemas](#problemas)
+[Instalar](#instalacao) · [Usar](#uso) · [Recursos](#recursos) · [Celular](#celular) · [Fora da loja](#fora) · [Liberar para outra pessoa](#compartilhar) · [Aparelhos](#aparelhos) · [Configurar](#configuracao) · [Painéis](#paineis) · [API](#api) · [Problemas](#problemas)
 
 </div>
 
@@ -111,6 +111,8 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Ver um período | Botão **Por período** · `gerar_relatorio_intervalo.bat` · `http://IP:7734/periodo` |
 | Forçar atualização | Botão **Atualizar** · bandeja → *Atualizar dados de hoje* |
 | Mudar o tema de cores | Botão **Tema** |
+| Usar um painel de tela única (tudo em uma tela) | Botão **Tema** → **Painéis de tela única** (veja [Painéis](#paineis)); para voltar, **Tema** → **Temas clássicos** |
+| Abrir o relatório clássico sem trocar o painel escolhido | Botão **Clássico** do painel · `http://IP:7734/?classico=1` |
 | Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
 | Dar um nome ao aparelho, mudar avisos/proibidos/teclas só dele | **Configurações → Minhas preferências** (veja [Aparelhos](#aparelhos)) |
 | Trocar o banco | Bandeja → *Configurações → Selecionar banco (FDB)* · `http://IP:7734/selecionar-fdb` |
@@ -143,11 +145,13 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 - **Painel "Duplicatas"** para as gerenciais suprimidas, com *Manter todas*, *Perguntar depois* ou *Não perguntar mais*.
 
 ### 🎨 Interface
-- **7 temas:** Escuro e Claro + 5 de estilo (HUD Ciano, Índigo Neon, Executivo, Âmbar Vidro e Brasa Noturna), que mudam também cantos, bordas, brilho e fundo.
+- **Duas categorias de tema**, separadas no menu **Tema**:
+  - **Temas clássicos (7):** Escuro e Claro, mais 5 de estilo (HUD Ciano, Índigo Neon, Executivo, Âmbar Vidro e Brasa Noturna), que mudam também cantos, bordas, brilho e fundo do relatório de sempre.
+  - **Painéis de tela única (5):** Relevo, Relevo escuro, Central de comando, Vidro e Nítido. São layouts próprios em que tudo cabe na tela e só a lista de vendas rola (veja [Painéis de tela única](#paineis)).
 - **Visualização detalhada:** indicadores e gráficos — faturamento e vendas por hora, participação por tipo, ranking de vendedores, pagamentos e produtos — acima da tabela, seguindo os filtros.
-- **Menu Tema** só com os temas; as demais opções da tela ficam em **Configurações → Nesta tela**:
+- **Menu Tema** só com os temas, nas duas categorias; as demais opções da tela ficam em **Configurações → Nesta tela**:
   - **Visualização:** *Simplificada* (só a tabela) ou *Detalhada* (com o painel de gráficos).
-  - **Desempenho:** *Completo* (animações de entrada e saída em tudo) ou *Leve* (sem animações, para máquinas fracas); o *Automático* detecta sozinho.
+  - **Desempenho:** *Completo* (animações de entrada e saída em tudo) ou *Leve* (sem animações, para máquinas de menor desempenho); o *Automático* identifica o aparelho e escolhe o modo adequado.
   - **Atualização:** *Recarregar relatório ao detectar mudanças*. **Ligado:** a cada venda a página recarrega como um F5 — limpa busca, filtros e janelas abertas e volta ao topo. **Desligado:** a venda nova entra **sem recarregar** — filtros, busca, rolagem e janelas abertas ficam como estão.
   - **Tamanho do texto** de 80% a 140%, no computador e no celular (salvos separados).
 - **Busca avançada** com coringas (veja [abaixo](#busca)), **filtro de proibidos**, **chip de desconto** nos itens, **avisos com barra de tempo restante** (mostra quando a mensagem vai sumir), **ferramentas de cópia** (venda com mais de uma forma de pagamento sai com o valor de cada uma, ex.: `175,00 CREDITO | 181,50 DEBITO`) e **teclas de atalho** personalizáveis.
@@ -340,24 +344,43 @@ A janela fica em *Configurações → Janela de correção de horário* ou em `j
 
 ---
 
+<a id="paineis"></a>
+## 🖥️ Painéis de tela única
+
+Uma categoria de temas própria, **separada dos temas clássicos**. Em vez de mudar só as cores, cada painel muda o layout inteiro. Tudo cabe em uma tela e **só a lista de vendas rola**. As informações são as mesmas do relatório, com as vendas reais, atualizadas ao vivo e somente leitura.
+
+**Como escolher:** no relatório, abra **Tema** e escolha um painel em **Painéis de tela única**. A partir daí, o relatório de hoje e o de período abrem nesse painel (a escolha fica salva no navegador). Para voltar ao relatório de sempre, escolha um tema em **Temas clássicos**, no mesmo menu (ele existe também dentro dos painéis).
+
+| Painel | Estilo |
+|---|---|
+| **Relevo** | Claro e macio, em relevo: painéis que saltam da tela e tabela afundada |
+| **Relevo escuro** | O mesmo relevo em tons de grafite, confortável para a noite |
+| **Central de comando** | Escuro e técnico: linhas finas, cantos de mira e números em destaque |
+| **Vidro** | Painéis de vidro fosco sobre um fundo de luzes suaves |
+| **Nítido** | Claro e plano: linhas finas e tipografia precisa, com o máximo de linhas na tela |
+
+Em todos os painéis você encontra:
+
+- **Indicadores:** total vendido, ticket médio, itens vendidos, maior venda (vendedor e hora), média por hora, última venda ("há 3 min") e quanto saiu em documento fiscal.
+- **Tabela compacta de vendas:**
+  - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
+  - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
+  - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
+- **Painéis em volta:** por tipo, formas de pagamento e caixas (um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque), produtos mais vendidos e conversões em nota fiscal.
+- **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
+- **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, cada item com o valor e cada forma de pagamento.
+- **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
+- **Desempenho:** o mesmo controle do relatório (Automático, Completo ou Leve). No **Leve**, saem o desfoque e as animações contínuas.
+
+**Atalhos úteis:**
+
+- O botão **Clássico** de cada painel (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para **Configurações**, **QR code** e as demais opções do relatório clássico.
+- Endereço direto de cada painel: `http://localhost:7734/painel/relevo/` (troque `relevo` por `relevo-escuro`, `comando`, `vidro` ou `nitido`). Para um período, acrescente `?i=2026-11-01&f=2026-11-13`.
+- O controle remoto também troca para um painel, por exemplo `.\api.ps1 -Endpoint tema -Payload vidro` (veja [API](#api)).
+
+> Os painéis abrem pelo servidor do relatório. O arquivo de relatório aberto direto do disco (gerado pelos `.bat`) continua sempre no layout clássico.
+
 <a id="api"></a>
-<a id="demos"></a>
-## 🎨 Demos de layout (prévias)
-
-Propostas de visual novo para o relatório, que usam as **vendas reais de hoje** e se atualizam **ao vivo**. Servem para testar e escolher um layout; o relatório de sempre continua igual.
-
-1. Baixe o arquivo das demos (`demos.zip`) e descompacte: ele tem uma pasta **`demos`**.
-2. Copie a pasta `demos` para dentro da **pasta do sistema**, ao lado do `servidor-relatorio.js`.
-3. Com o servidor ligado, abra **`http://localhost:7734/demos/`**. No celular, use o mesmo endereço do relatório com `/demos/` no final.
-
-Cada demo fica na sua própria pasta (`01-aurora`, `02-seda`…). Em todas você encontra:
-
-- o total contando até o valor e a venda nova chegando com animação;
-- filtros por tipo e por vendedor, busca e detalhe da venda ao clicar;
-- o controle de **Desempenho** (Automático, Completo ou Leve), que é o mesmo do relatório. No **Leve**, saem o desfoque, as partículas, os efeitos 3D e as animações contínuas, para não pesar em computadores e celulares mais simples.
-
-As demos só **leem** o que o relatório já mostra (nada é gravado no banco). Para removê-las, basta apagar a pasta `demos`.
-
 ## 🔌 API e linha de comando
 
 Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell) dá acesso a todas as rotas, com menu interativo — use na própria máquina ou em outro computador da rede:
@@ -367,7 +390,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 .\api.ps1 -Endpoint status                  # vendas e total do dia
 .\api.ps1 -Endpoint dispositivos            # quem está com o relatório aberto
 .\api.ps1 -Endpoint aviso -Payload "Fechamento às 18h"
-.\api.ps1 -Endpoint tema -Payload hud       # troca o tema das telas abertas
+.\api.ps1 -Endpoint tema -Payload hud       # troca o tema das telas abertas (ou um painel, ex.: vidro)
 .\api.ps1 -Endpoint log -Payload @{ linhas = 100; filtro = "ERRO" }
 .\api.ps1 -Endpoint restart -MaquinaIP 192.168.1.50
 ```
@@ -380,7 +403,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/` | GET | Relatório de hoje |
 | `/periodo?i=AAAA-MM-DD&f=AAAA-MM-DD` | GET | Relatório de um período (sem parâmetros: formulário) |
 | `/atualizar` | GET | Descarta o cache de hoje e regenera |
-| `/demos/` | GET | Demos de layout (prévias) com os dados reais: entrega só os arquivos da pasta `demos` do sistema (somente leitura) |
+| `/painel/ID/` | GET | Painel de tela única `ID` (`relevo`, `relevo-escuro`, `comando`, `vidro`, `nitido`), com os dados de hoje; `?i=AAAA-MM-DD&f=AAAA-MM-DD` para um período. `/painel/` abre o painel escolhido no navegador. As rotas antigas `/demos/...` levam para `/painel/` |
 | `/config` · `/selecionar-fdb` | GET | Páginas de configurações e de seleção do banco |
 | `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` (nome) ou `?externo=ip` (IP) e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
 | `/pronto?k=CHAVE` | GET | Estado de uma geração em andamento |
@@ -394,7 +417,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/api/abrir-picker-fdb` | GET | Abre o seletor de arquivos do Windows na máquina servidora |
 | `/api/upload-favicon` | POST | (Só no computador do servidor) envia um ícone PNG/ICO/JPEG (até 2 MB) |
 | `/api/navigate/hoje` · `/config` · `/selecionar-fdb` · `/periodo/INI/FIM` · `/hash/{config\|periodo}` · `/foco` · `/recarregar` | GET | Comandam as telas abertas via SSE |
-| `/api/navigate/tema/ID` · `/api/temas` | GET | Troca o tema das telas abertas / lista os temas |
+| `/api/navigate/tema/ID` · `/api/temas` | GET | Troca o tema das telas abertas (tema clássico ou painel de tela única) / lista os temas das duas categorias, cada um com o campo `categoria` (`classico` ou `painel`) |
 | `/api/navigate/aviso` | POST | Aviso nas telas abertas: `{ "msg": "texto", "segundos": 12 }` |
 | `/api/sse-clients` | GET | Número de telas conectadas |
 | `/api/info` | GET | Versões, máquina, banco, memória e tempo ligado |
@@ -428,7 +451,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.25.0 | Gerador v3.31.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.26.0 | Gerador v3.32.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -461,7 +484,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 31 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor) a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar) e a rota das **demos de layout** (só entrega a pasta `demos`, sem sair dela). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 33 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias e prévias com as cores reais dos temas). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
@@ -495,7 +518,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 31 testes cobrem 
 | `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado sozinho, não versionado) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |
-| `demos/` (opcional) | Demos de layout com os dados reais, abertas em `/demos/` (vêm no `demos.zip`, não ficam no repositório) |
+| `paineis/` | Painéis de tela única (categoria de temas própria): `temas.json` (lista), `motor.js` e `painel.js` (dados e tela), `base.css` e `comum.css`, `corpo.html` e um `.html` por painel. O servidor monta cada um em `/painel/ID/` |
 | `LICENSE` | Licença: software proprietário de Ruda Gabriel, todos os direitos reservados |
 | `CLAUDE.md` | Regras do projeto para o assistente de código (idioma, somente leitura, changelog, README sempre atualizado) |
 
@@ -526,7 +549,8 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 31 testes cobrem 
 | Continua iniciando sozinho após remover | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
 | Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |
 | "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor acha o Node de novo e tenta sozinho; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
-| Ao abrir `/demos/` aparece "Demo não encontrada" | A pasta `demos` não está na pasta do sistema. Descompacte o `demos.zip` e copie a pasta `demos` para o lado do `servidor-relatorio.js` (servidor 2.25.0 ou mais novo) |
+| Ao abrir um painel aparece "Painéis indisponíveis" ou "Painel incompleto" | Falta a pasta `paineis` (ou parte dela) na pasta do sistema. Baixe o projeto novamente e copie a pasta `paineis` inteira para o lado do `servidor-relatorio.js`. Enquanto isso, o relatório clássico continua em `http://localhost:7734/?classico=1` |
+| O relatório sempre abre num painel e eu quero o de sempre | Em **Tema**, escolha um tema em **Temas clássicos** (ou abra `/?classico=1` só desta vez) |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |
 
 ---

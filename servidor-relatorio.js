@@ -5,13 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.24.5
+ * @version 2.25.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.24.5 - 2026-11-12 - Duas mensagens do log reescritas em linguagem formal.
+ *   2.25.0 - 2026-11-13 - Rota /demos/: prévias de layout com os dados reais (somente leitura;
+ *     só arquivos da pasta "demos", com extensões permitidas e sem sair da pasta).
  */
 
 
@@ -19,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.24.5";
+const SERVER_VERSION = "2.25.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -6197,6 +6198,50 @@ var server=http.createServer(function(req,res){
             banco: { host: FDB_HOST, caminho: FDB_PATH },
             abasConectadas: sseClients.length,
             pasta: __dirname
+        });
+        return;
+    }
+    // DEMOS (v2.25.0): prévias de layout que usam os dados reais do dia. Entrega SOMENTE
+    // arquivos da pasta "demos" do sistema (estáticos, somente leitura), com extensões
+    // permitidas e sem sair da pasta (".." e caminhos absolutos são recusados). Sem a
+    // pasta, responde 404 com uma explicação. "/demos" → "/demos/".
+    if ((rota === "/demos" || rota.indexOf("/demos/") === 0) && req.method === "GET") {
+        if (rota === "/demos") { res.writeHead(302, {"Location": "/demos/"}); res.end(); return; }
+        var _dmBase = path.join(__dirname, "demos");
+        var _dmRel;
+        try { _dmRel = decodeURIComponent(rota.slice("/demos/".length)); } catch (_) { _dmRel = null; }
+        if (_dmRel === null || _dmRel.indexOf("\0") >= 0 || /(^|[\\/])\.\.([\\/]|$)/.test(_dmRel) || /^[\\/]|^[a-z]:/i.test(_dmRel)) {
+            res.writeHead(400, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Caminho inválido."); return;
+        }
+        if (_dmRel === "" || /[\\/]$/.test(_dmRel)) _dmRel += "index.html";
+        var _dmArq = path.resolve(_dmBase, _dmRel);
+        if (_dmArq.indexOf(_dmBase + path.sep) !== 0) { res.writeHead(400, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Caminho inválido."); return; }
+        var _dmTipos = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+            ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+            ".webp": "image/webp", ".ico": "image/x-icon", ".woff2": "font/woff2"};
+        var _dmTipo = _dmTipos[path.extname(_dmArq).toLowerCase()];
+        if (!_dmTipo) {
+            // Sem extensão: pode ser a pasta de uma demo sem a barra no fim → redireciona.
+            fs.stat(_dmArq, function(eSd, stSd) {
+                if (!eSd && stSd.isDirectory()) { res.writeHead(302, {"Location": rota + "/"}); res.end(); return; }
+                res.writeHead(404, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Arquivo não permitido.");
+            });
+            return;
+        }
+        fs.stat(_dmArq, function(eSt, stDm) {
+            if (eSt || !stDm.isFile()) {
+                // Pasta da demo sem barra no fim ("/demos/01-aurora") → redireciona para a pasta.
+                if (!eSt && stDm.isDirectory()) { res.writeHead(302, {"Location": rota + "/"}); res.end(); return; }
+                res.writeHead(404, {"Content-Type": "text/html; charset=utf-8"});
+                res.end(paginaErro("Demo não encontrada", "Coloque a pasta \"demos\" (do arquivo das demos) dentro da pasta do sistema, ao lado do servidor-relatorio.js, e abra novamente.", "/"));
+                return;
+            }
+            if (stDm.size > 8 * 1024 * 1024) { res.writeHead(413, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Arquivo grande demais."); return; }
+            fs.readFile(_dmArq, function(eRd, bufDm) {
+                if (eRd) { res.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Não foi possível ler o arquivo da demo."); return; }
+                res.writeHead(200, {"Content-Type": _dmTipo, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"});
+                res.end(bufDm);
+            });
         });
         return;
     }

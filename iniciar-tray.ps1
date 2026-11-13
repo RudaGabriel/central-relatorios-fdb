@@ -3,11 +3,11 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.8.3
+# @version 1.8.4
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.8.3 - 2026-11-12 - Projeto autonomo: sem mencoes a terceiros; credito do autor em
+#   1.8.4 - 2026-11-13 - Novo nome do projeto, "Central de Relatorios FDB", no credito de
 #     Ferramentas > Informacoes do sistema.
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -1480,7 +1480,7 @@ $subFer.DropDownItems.Add((New-ItemMenu "Informa\u00e7\u00f5es do sistema..." "i
            (L "`nEndere\u00e7o de acesso: http://") + $i.ip + ":" + $i.porta +
            (L "`n`nLigado h\u00e1: ") + $i.ligadoHa + (L "`nMem\u00f3ria: ") + $i.memoriaMB + " MB" + (L "`nTelas abertas: ") + $i.abasConectadas +
            (L "`n`nPasta: ") + $i.pasta +
-           (L "`n`nRelat\u00f3rios FDB - criado e mantido por Ruda Gabriel")
+           (L "`n`nCentral de Relat\u00f3rios FDB - criado e mantido por Ruda Gabriel")
     Show-Mensagem $txt ("$APP_NAME - " + (L "Informa\u00e7\u00f5es"))
 })) | Out-Null
 $subFer.DropDownItems.Add((New-ItemMenu "Copiar endere\u00e7o de acesso" "link" "#EA580C" {

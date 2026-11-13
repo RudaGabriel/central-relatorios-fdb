@@ -1,8 +1,6 @@
-/* paineis/motor.js — Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.0.0
- *   1.0.0 - 2026-11-13 - Primeira versão: lê o relatório de hoje (GET /) ou do período
- *                        (GET /periodo?i=&f=), atualiza ao vivo (/api/events) e respeita o modo
- *                        de desempenho do relatório (localStorage "fdb_perf": auto | completo | leve).
+/* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
+ * @version 1.0.1
+ *   1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){

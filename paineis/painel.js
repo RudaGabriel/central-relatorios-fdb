@@ -1,7 +1,6 @@
-/* paineis/painel.js — Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.0.0
- *   1.0.0 - 2026-11-13 - Primeira versão: indicadores, painéis, tabela compacta de vendas,
- *                        detalhe da venda, abas do celular e o menu Tema (painéis e temas clássicos).
+/* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
+ * @version 1.0.1
+ *   1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,

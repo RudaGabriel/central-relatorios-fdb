@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- paineis/vidro.html — Relatórios FDB · painel de tela única "Vidro (vidro fosco sobre luzes suaves)".
-     @version 1.0.0
-       1.0.0 - 2026-11-13 - Primeira versão.
+<!-- paineis/vidro.html — Central de Relatórios FDB · painel de tela única "Vidro (vidro fosco sobre luzes suaves)".
+     @version 1.0.1
+       1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/vidro/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vidro · Relatórios FDB</title>
+<title>Vidro · Central de Relatórios FDB</title>
 <!--COMUM-->
 <style>
 :root{color-scheme:dark;--bg:#0b0d17;--pn:rgba(255,255,255,.055);--cab:rgba(22,25,40,.92);--tx:#f1f3fb;--tx2:#c9cfe2;--mu:#8e96b3;--ln:rgba(255,255,255,.09);--ln2:rgba(255,255,255,.05);--ac:#7dd3fc;--ac2:#c4b5fd;--hv:rgba(255,255,255,.05);--sel:rgba(125,211,252,.13);--trk:rgba(255,255,255,.07);--gap:12px;
@@ -61,7 +61,7 @@ html[data-perf="leve"] .vd2,html[data-perf="leve"] .top,html[data-perf="leve"] .
 </style></head><body>
 <div class="luz"><i class="so-completo"></i><i class="so-completo"></i><i class="so-completo"></i></div>
 <header class="top">
- <div class="marca"><span class="logo">FDB</span><div><b>Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+ <div class="marca"><span class="logo">FDB</span><div><b>Central de Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
  <label class="busca">🔍<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <div data-perf-ctl></div>

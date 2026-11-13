@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- paineis/nitido.html — Relatórios FDB · painel de tela única "Nítido (claro, plano e preciso)".
-     @version 1.0.0
-       1.0.0 - 2026-11-13 - Primeira versão.
+<!-- paineis/nitido.html — Central de Relatórios FDB · painel de tela única "Nítido (claro, plano e preciso)".
+     @version 1.0.1
+       1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/nitido/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Nítido · Relatórios FDB</title>
+<title>Nítido · Central de Relatórios FDB</title>
 <!--COMUM-->
 <style>
 :root{--bg:#f6f7f9;--pn:#ffffff;--cab:#fafbfc;--tx:#0f172a;--tx2:#334155;--mu:#64748b;--ln:#e5e7eb;--ln2:#f1f3f5;--ac:#2563eb;--ac2:#7c3aed;--hv:#f5f8ff;--sel:#eaf1ff;--trk:#eef0f3;--gap:0px;
@@ -52,7 +52,7 @@ body{background:var(--bg)}
 #rod{background:#fafbfc}
 #ov{background:rgba(15,23,42,.35)}#ov .det{border-radius:12px;border:1px solid var(--ln);box-shadow:0 30px 60px -20px rgba(15,23,42,.35)}
 .toast{border-radius:8px}
-@media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}}
+@media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}.marca{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:0}.marca .logo{grid-row:1/3}.marca .sep{display:none}.marca small{grid-column:2}}
 @media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
 @media (max-width:1180px){.grade{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.cx-tab{grid-row:1/3;border-right:1px solid var(--ln)}.esq{grid-column:2;grid-row:1;border-right:0;border-bottom:1px solid var(--ln)}.dir{grid-column:2;grid-row:2;border-left:0}.cx-prod,.cx-conv{display:none}.busca{width:200px}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}}
 @media (max-width:980px){.lk .lk-cl{display:none}.sep{display:none}}
@@ -66,7 +66,7 @@ body{background:var(--bg)}
 }
 </style></head><body>
 <header class="top">
- <div class="marca"><span class="logo">FDB</span><b>Relatórios FDB</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
+ <div class="marca"><span class="logo">FDB</span><b>Central de Relatórios FDB</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
  <label class="busca">⌕<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <div data-perf-ctl></div>

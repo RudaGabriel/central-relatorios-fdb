@@ -1,4 +1,4 @@
-# Changelog
+# Changelog — Central de Relatórios FDB
 
 Histórico completo de versões de cada arquivo do projeto, da mais recente para a mais antiga.
 Cada arquivo traz no cabeçalho só a entrada da **versão atual**; o histórico completo fica aqui.
@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.26.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.32.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.26.1 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.32.1 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.4 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -24,22 +24,26 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
-| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.26.1 — 2026-11-13
+
+**Novo nome do projeto: Central de Relatórios FDB.** O rodapé da página de configurações passa a mostrar "Central de Relatórios FDB — criado e mantido por Ruda Gabriel". Nenhuma outra mudança.
 
 ### 2.26.0 — 2026-11-13
 
@@ -360,6 +364,10 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.32.1 — 2026-11-13
+
+**Novo nome do projeto: Central de Relatórios FDB.** O rodapé de Configurações passa a mostrar "Central de Relatórios FDB — criado e mantido por Ruda Gabriel". Nenhuma outra mudança.
 
 ### 3.32.0 — 2026-11-13
 
@@ -862,6 +870,10 @@ Cliente de linha de comando.
 
 Ícone da bandeja.
 
+### 1.8.4 — 2026-11-13
+
+**Novo nome do projeto: Central de Relatórios FDB.** *Ferramentas → Informações do sistema* termina com "Central de Relatórios FDB - criado e mantido por Ruda Gabriel". O arquivo continua 100% ASCII, com os acentos como `\uXXXX`.
+
 ### 1.8.3 — 2026-11-12
 
 **Projeto autônomo e neutro; créditos do autor explícitos.**
@@ -1294,6 +1306,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.0.1 — 2026-11-13
+
+**Novo nome do projeto: Central de Relatórios FDB.** O nome passa a aparecer no título da aba e no cabeçalho de cada painel, e também no cabeçalho de cada arquivo da pasta. No painel Central de comando, o cabeçalho fica "Central de Relatórios FDB // Comando", para não repetir "Central"; abaixo de 1700 px de largura, o complemento "// Comando" sai para o nome caber inteiro. O cabeçalho foi ajustado para o nome mais longo: no computador, o nome não encolhe nem quebra e a busca cede espaço; os botões de tipo não quebram mais em duas linhas. No Nítido, abaixo de 1440 px, a data fica embaixo do nome, e no Comando o espaçamento das letras diminui no celular. O arquivo `temas.json` não mudou (continua 1.0.0).
 
 ### 1.0.0 — 2026-11-13
 

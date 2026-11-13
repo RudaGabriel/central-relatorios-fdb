@@ -1,6 +1,6 @@
-/* paineis/base.css — Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.0.0
-     1.0.0 - 2026-11-13 - Primeira versão: só a tabela de vendas rola; o resto cabe na tela.
+/* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
+   @version 1.0.1
+     1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -91,6 +91,12 @@ button{font:inherit;color:inherit}
 .dt-t>div{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;padding:6px 0;border-bottom:1px solid var(--ln2,var(--ln))}.dt-t>div span:first-child{color:var(--mu)}
 .dt-t .dt-tot{border-bottom:0;font-size:15px}.dt-t .dt-tot span{font-weight:700}
 
+/* Cabeçalho no computador: o nome nunca encolhe nem quebra; a busca é quem cede espaço. */
+@media (min-width:821px){
+  .top .marca{flex:none;margin-right:0}
+  .top .busca{flex:1 1 240px;min-width:150px;width:auto;max-width:420px;margin-right:auto}
+  .top .seg button{white-space:nowrap}
+}
 /* Abas (só no celular) */
 .abas{display:none}
 @media (max-width:820px){

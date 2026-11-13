@@ -1,11 +1,13 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.31.0
+ * @version 3.32.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.31.0 - 2026-11-12 - "Nesta tela" abre recolhida; QR "Fora da loja" com cartões de nome e IP.
+ *   3.32.0 - 2026-11-13 - Menu Tema com duas categorias: "Temas clássicos" (os 7 de sempre) e
+ *     "Painéis de tela única" (paineis/temas.json); o painel escolhido passa a abrir no lugar do
+ *     relatório de hoje e do período ("?classico=1" abre o clássico sem trocar a escolha).
  */
 
 (function() {
@@ -13,7 +15,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.31.0";
+    const SCRIPT_VERSION = "3.32.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -30,6 +32,18 @@
         { id: "brasa",      nome: "Brasa Noturna", grupo: "estilo" }
     ];
     const TEMAS_LEGADOS_CLAROS = ["solarized-light", "paper", "mint", "lavender", "sky"];
+    // PAINÉIS DE TELA ÚNICA (v3.32.0): categoria de temas própria, separada da lista acima.
+    // Fonte única: paineis/temas.json (o servidor monta cada painel em /painel/<id>/). Sem a
+    // pasta (relatório gerado fora do sistema), a categoria simplesmente não aparece.
+    const PAINEIS_TEMAS = (function () {
+        try {
+            const _fsP = require("fs"), _ptP = require("path");
+            const j = JSON.parse(_fsP.readFileSync(_ptP.join(__dirname, "paineis", "temas.json"), "utf8").replace(/^\uFEFF/, ""));
+            return (Array.isArray(j && j.paineis) ? j.paineis : [])
+                .filter(p => p && /^[a-z0-9-]{1,40}$/.test(String(p.id || "")) && typeof p.nome === "string" && p.nome.trim())
+                .map(p => ({ id: p.id, nome: String(p.nome).slice(0, 60), descricao: String(p.descricao || "").slice(0, 200), prev: (p.prev && typeof p.prev === "object") ? p.prev : {} }));
+        } catch (e) { return []; }
+    })();
     // ===== SOMENTE LEITURA (v2.14.0) ============================================
     // O sistema NUNCA escreve no banco do PDV. Duas travas, em toda
     // conexão aberta por este processo (bloco idêntico no servidor e no gerador):
@@ -2231,8 +2245,30 @@
 			const temasJSON = JSON.stringify(TEMAS_RELATORIO).replace(/</g, "\\u003c");
 			const temasIdsJSON = JSON.stringify(TEMAS_RELATORIO.map(t => t.id)).replace(/</g, "\\u003c");
 			const temasClarosJSON = JSON.stringify(TEMAS_LEGADOS_CLAROS).replace(/</g, "\\u003c");
+			const paineisJSON = JSON.stringify(PAINEIS_TEMAS).replace(/</g, "\\u003c");
+			const paineisIdsJSON = JSON.stringify(PAINEIS_TEMAS.map(p => p.id)).replace(/</g, "\\u003c");
 			const html = String.raw`<!doctype html><!-- gerar-relatorio-html.js v${SCRIPT_VERSION} --><html lang="pt-br" data-report-version="${SCRIPT_VERSION}"><head><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="icon" href="/favicon.png"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório ${escHtml(cfgAppName)} ${escHtml(dataBR)}</title>
 <script>
+      // PAINEL DE TELA ÚNICA (v3.32.0): com um painel escolhido (fdb_painel), o relatório de hoje
+      // e o de período abrem nele. "?classico=1" abre o relatório clássico sem trocar a escolha.
+      // Só no servidor (http/https): o arquivo aberto direto do disco fica sempre no clássico.
+      (function(){
+        try {
+          var PAINEIS = ${paineisIdsJSON};
+          if (!PAINEIS.length || !/^https?:$/.test(location.protocol) || /[?&]classico=1(&|$)/.test(location.search)) return;
+          var p = "";
+          try { p = localStorage.getItem("fdb_painel") || ""; } catch (e1) {}
+          if (!p) { try { p = decodeURIComponent((document.cookie.match(/(?:^|;\s*)fdb_painel=([^;]+)/) || [])[1] || ""); } catch (e2) {} }
+          if (PAINEIS.indexOf(p) < 0) return;
+          var dest = "";
+          if (location.pathname === "/") dest = "/painel/" + p + "/";
+          else if (location.pathname === "/periodo") {
+            var q = new URLSearchParams(location.search), i = q.get("i") || "", f = q.get("f") || "";
+            if (/^\d{4}-\d{2}-\d{2}$/.test(i) && /^\d{4}-\d{2}-\d{2}$/.test(f)) dest = "/painel/" + p + "/?i=" + i + "&f=" + f;
+          }
+          if (dest) location.replace(dest);
+        } catch (e) {}
+      })();
       (function(){
         try {
           var TEMAS_VALIDOS = ${temasIdsJSON};
@@ -3251,6 +3287,24 @@ tbody tr:hover .tdItemDesc { color: var(--danger, #e55); border-color: var(--dan
 .tmAtual { font-size: 11px; font-weight: 600; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 /* Grade única (escuros primeiro, claros depois): 4 colunas = 4×4 com os 16 temas, sem sobra de linha. */
 .tmGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+/* Categorias (v3.32.0): "Temas clássicos" (os de sempre) e "Painéis de tela única" (layout próprio). */
+.tmCat { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 2px 2px 8px; }
+.tmCat b { font-size: 12.5px; font-weight: 700; }
+.tmCat span { font-size: 11px; color: var(--text-muted); }
+.tmCatP { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.tmPrevP { flex-direction: column; gap: 3px; padding: 4px; }
+.tmPPh { display: flex; align-items: center; height: 8px; padding: 0 3px; border: 1px solid; border-radius: 2px; }
+.tmPPh i { width: 18px; height: 3px; border-radius: 2px; }
+.tmPPk { display: flex; gap: 3px; height: 10px; }
+.tmPPk span { flex: 1; display: flex; align-items: center; padding: 0 2px; border: 1px solid; border-radius: 2px; }
+.tmPPk b { width: 60%; height: 3px; border-radius: 2px; }
+.tmPPc { flex: 1; display: flex; gap: 3px; min-height: 0; }
+.tmPPc > span { width: 24%; display: flex; flex-direction: column; gap: 3px; padding: 3px; border: 1px solid; border-radius: 2px; }
+.tmPPc > span.tmPPt { flex: 1; }
+.tmPPc i { display: block; height: 2px; border-radius: 1px; opacity: 0.45; }
+.tmSalvo { display: none; flex-shrink: 0; font-size: 10px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.tmCardP.tmEhSalvo { border-color: var(--accent); }
+.tmCardP.tmEhSalvo .tmSalvo { display: inline; }
 .tmCard { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; padding: 8px; font: inherit; text-align: left; color: var(--text-main); background: var(--bg-app); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: var(--transition-fast); }
 .tmCard:hover { border-color: var(--text-muted); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .tmCard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -3777,6 +3831,30 @@ const TEMAS = (function(){ var t = ${temasJSON}; return Array.isArray(t) ? t : [
 const TEMA_PADRAO = "ultra-dark";
 const TEMAS_LEGADOS_CLAROS = (function(){ var t = ${temasClarosJSON}; return Array.isArray(t) ? t : []; })();
 const _temaPorId = (id) => { for (let i = 0; i < TEMAS.length; i++) { if (TEMAS[i].id === id) return TEMAS[i]; } return null; };
+// Painéis de tela única (v3.32.0): categoria separada. Escolher um painel salva "fdb_painel" e
+// abre /painel/<id>/; escolher um tema clássico apaga essa escolha.
+const PAINEIS = (function(){ var t = ${paineisJSON}; return Array.isArray(t) ? t : []; })();
+const _painelPorId = (id) => { for (let i = 0; i < PAINEIS.length; i++) { if (PAINEIS[i].id === id) return PAINEIS[i]; } return null; };
+const _painelSalvo = () => {
+    let p = "";
+    try { p = localStorage.getItem("fdb_painel") || ""; } catch (e) {}
+    if (!p) { try { p = decodeURIComponent((document.cookie.match(/(?:^|;\s*)fdb_painel=([^;]+)/) || [])[1] || ""); } catch (e) {} }
+    return _painelPorId(p) ? p : "";
+};
+const _limparPainel = () => {
+    try { localStorage.removeItem("fdb_painel"); } catch (e) {}
+    try { document.cookie = "fdb_painel=;path=/;max-age=0;SameSite=Strict"; } catch (e) {}
+};
+const _irPainel = (id) => {
+    const p = _painelPorId(id);
+    if (!p || !/^https?:$/.test(location.protocol)) { try { toast("Painéis", "Os painéis de tela única abrem pelo servidor do relatório (endereço http)."); } catch (e) {} return false; }
+    try { localStorage.setItem("fdb_painel", p.id); } catch (e) {}
+    try { document.cookie = "fdb_painel=" + encodeURIComponent(p.id) + ";path=/;max-age=31536000;SameSite=Strict"; } catch (e) {}
+    let qs = "";
+    try { const q = new URLSearchParams(location.search), i = q.get("i") || "", f = q.get("f") || ""; if (location.pathname === "/periodo" && /^\d{4}-\d{2}-\d{2}$/.test(i) && /^\d{4}-\d{2}-\d{2}$/.test(f)) qs = "?i=" + i + "&f=" + f; } catch (e) {}
+    location.assign("/painel/" + encodeURIComponent(p.id) + "/" + qs);
+    return true;
+};
 // Tema salvo: localStorage primeiro, cookie como reserva (o cookie vale para qualquer porta do mesmo
 // host; o localStorage não). try/catch em cada leitura: com armazenamento bloqueado o acesso LANÇA erro.
 const _lerTemaSalvo = () => {
@@ -3797,9 +3875,11 @@ const _salvarTema = (t) => {
     try { localStorage.setItem("fdb_theme", t); } catch(e) {}
     try { document.cookie = "fdb_theme=" + t + ";path=/;max-age=31536000;SameSite=Strict"; } catch(e) {}
     document.documentElement.setAttribute("data-theme", t);
+    _limparPainel();
 };
 // Troca remota (api.ps1 → servidor → SSE "tema"): aplica, salva e avisa quem está na tela.
 window.__aplicarTema = (id) => {
+    if (_painelPorId(id)) return _irPainel(id);
     const t = _temaPorId(id);
     if (!t) return false;
     _salvarTema(t.id);
@@ -3939,7 +4019,10 @@ const _tmMarcarAtual = () => {
         cards[i].setAttribute("aria-checked", cards[i].getAttribute("data-tema") === atual ? "true" : "false");
     }
     const lbl = _tmMenu.querySelector(".tmAtual");
-    if (lbl) lbl.textContent = "Atual: " + _tmNomeAtual();
+    const ps = _painelSalvo();
+    if (lbl) lbl.textContent = "Atual: " + _tmNomeAtual() + (ps ? " · início: painel " + ((_painelPorId(ps) || {}).nome || "") : "");
+    const pcs = _tmMenu.querySelectorAll(".tmCardP");
+    for (let i = 0; i < pcs.length; i++) pcs[i].classList.toggle("tmEhSalvo", pcs[i].getAttribute("data-painel") === ps);
 };
 const _tmConstruir = () => {
     if (_tmMenu && _tmMenu.isConnected) return _tmMenu;
@@ -3957,12 +4040,30 @@ const _tmConstruir = () => {
         + '</button>';
     const m = document.createElement("div");
     m.id = "tmMenu"; m.className = "tmMenu";
+    // Painéis de tela única (v3.32.0): categoria separada, com miniatura do layout nas cores do painel.
+    const cor = (c) => /^#[0-9a-f]{3,8}$/i.test(String(c || "")) ? c : "#888";
+    const cardPainel = (p) => {
+        const c = p.prev || {}, bg = cor(c.bg), pn = cor(c.pn), ac = cor(c.ac), tx = cor(c.tx), ln = cor(c.ln || c.tx);
+        const bl = (cls, n) => '<span class="' + cls + '" style="background:' + pn + ';border-color:' + ln + '">' + new Array(n + 1).join('<i style="background:' + tx + '"></i>') + '</span>';
+        return '<button type="button" class="tmCard tmCardP" role="menuitemradio" aria-checked="false" tabindex="-1" data-painel="' + esc(p.id) + '" title="' + esc(p.descricao || p.nome) + '">'
+            + '<span class="tmPrev tmPrevP" aria-hidden="true" style="background:' + bg + ';border-color:' + ln + '">'
+            +   '<span class="tmPPh" style="background:' + pn + ';border-color:' + ln + '"><i style="background:' + ac + '"></i></span>'
+            +   '<span class="tmPPk">' + ['<b style="background:' + ac + '"></b>', '', '', ''].map(x => '<span style="background:' + pn + ';border-color:' + ln + '">' + x + '</span>').join("") + '</span>'
+            +   '<span class="tmPPc">' + bl("", 3) + bl("tmPPt", 6) + bl("", 3) + '</span>'
+            + '</span>'
+            + '<span class="tmFoot"><span class="tmName">' + esc(p.nome) + '</span><span class="tmSalvo">no início</span></span>'
+            + '</button>';
+    };
     m.innerHTML = '<div class="tmHead"><span class="tmTitulo">Tema</span><span class="tmAtual"></span></div>'
-        + '<div class="tmGrid" role="menu" aria-label="Temas de cores">' + TEMAS.map(cardHtml).join("") + '</div>';
+        + (PAINEIS.length ? '<div class="tmCat"><b>Temas clássicos</b><span>O relatório completo, com todas as opções e configurações.</span></div>' : '')
+        + '<div class="tmGrid" role="menu" aria-label="Temas de cores">' + TEMAS.map(cardHtml).join("") + '</div>'
+        + (PAINEIS.length ? '<div class="tmCat tmCatP"><b>Painéis de tela única</b><span>Tudo em uma tela; só a lista de vendas rola.</span></div>'
+            + '<div class="tmGrid tmGridP" role="menu" aria-label="Painéis de tela única">' + PAINEIS.map(cardPainel).join("") + '</div>' : '');
     m.addEventListener("click", (e) => {
         const alvo = e.target;
         const c = alvo && alvo.closest ? alvo.closest(".tmCard") : null;
         if (!c || !m.contains(c)) return;
+        if (c.hasAttribute("data-painel")) { _tmFechar(true); _irPainel(c.getAttribute("data-painel")); return; }
         _escolherTema(c.getAttribute("data-tema"));
         _tmFechar(true);
     });
@@ -4063,7 +4164,14 @@ const _tmFechar = (devolverFoco) => {
 // Aplica um tema (salva, marca no menu, avisa). Id inválido ou já ativo: não faz nada.
 const _escolherTema = (id) => {
     const t = _temaPorId(id);
-    if (!t || id === _temaAtual()) return false;
+    if (!t) return false;
+    // Mesmo tema clássico já na tela, mas com um painel escolhido: volta a valer o clássico.
+    if (id === _temaAtual()) {
+        if (!_painelSalvo()) return false;
+        _limparPainel(); _tmMarcarAtual();
+        toast("Tema alterado", t.nome + " (relatório clássico)");
+        return true;
+    }
     _salvarTema(id);
     _tmMarcarAtual();
     _tmAtualizarBotao();

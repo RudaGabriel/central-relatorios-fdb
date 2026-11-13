@@ -1,0 +1,71 @@
+<!doctype html>
+<!-- paineis/relevo-escuro.html — Relatórios FDB · painel de tela única "Relevo escuro (relevo em tons de grafite)".
+     @version 1.0.0
+       1.0.0 - 2026-11-13 - Primeira versão.
+     Histórico completo das versões: CHANGELOG.md no repositório.
+     Montado pelo servidor em /painel/relevo-escuro/: o marcador COMUM recebe comum.css + base.css, o
+     CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
+<html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Relevo escuro · Relatórios FDB</title>
+<!--COMUM-->
+<style>
+:root{color-scheme:dark;--bg:#22262e;--pn:#22262e;--cab:#262b34;--tx:#e6eaf2;--tx2:#c3cad8;--mu:#8a94a8;--ln:#30363f;--ln2:#2b3039;--ac:#8b9bff;--ac2:#b39dff;--hv:rgba(139,155,255,.07);--sel:rgba(139,155,255,.14);--trk:#1c2026;
+ --cl:#2c313b;--es:#15181d;--sai:6px 6px 14px var(--es),-6px -6px 14px var(--cl);--sai2:3px 3px 7px var(--es),-3px -3px 7px var(--cl);--ent:inset 4px 4px 9px var(--es),inset -4px -4px 9px var(--cl);--gap:12px;
+ --d-bg:#22262e;--d-tx:#e6eaf2;--d-mu:#8a94a8;--d-ac:#8b9bff;--d-ln:#30363f;--t-bg:#262b34;--t-tx:#e6eaf2;--t-ac:#8b9bff}
+html[data-perf="leve"]{--sai:3px 3px 6px var(--es),-3px -3px 6px var(--cl);--sai2:2px 2px 4px var(--es),-2px -2px 4px var(--cl);--ent:inset 2px 2px 5px var(--es),inset -2px -2px 5px var(--cl)}
+body{padding:12px 14px;gap:12px}
+.top{flex:none;display:flex;align-items:center;gap:12px;min-width:0}
+.marca{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto}
+.logo{width:38px;height:38px;border-radius:12px;box-shadow:var(--sai2);display:grid;place-items:center;font-weight:900;color:var(--ac);font-size:13px;flex:none}
+.marca b{display:block;font-size:15px;white-space:nowrap}.marca small{display:flex;align-items:center;gap:6px;color:var(--mu);font-size:11.5px;white-space:nowrap}
+.vivo:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2);margin-right:5px;animation:pulsoVivo 2s infinite}@keyframes pulsoVivo{50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.busca{display:flex;align-items:center;gap:8px;height:38px;border-radius:12px;box-shadow:var(--ent);padding:0 12px;width:min(340px,30vw);color:var(--mu)}
+.busca input{flex:1;min-width:0;border:0;background:none;outline:0;font:500 13.5px Inter,"Segoe UI",sans-serif;color:var(--tx)}
+.busca kbd{font:700 10px ui-monospace,Consolas,monospace;border-radius:5px;padding:1px 5px;box-shadow:var(--sai2)}
+.seg{display:flex;gap:4px;padding:4px;border-radius:13px;box-shadow:var(--ent)}
+.seg button{border:0;background:none;border-radius:9px;padding:6px 12px;font-weight:700;font-size:12.5px;color:var(--mu);cursor:pointer;transition:box-shadow .2s,color .2s}
+.seg button.on{box-shadow:var(--sai2);color:var(--ac);background:var(--bg)}
+[data-perf-ctl]{background:var(--bg);box-shadow:var(--ent);border:0;color:var(--tx)}[data-perf-ctl] button[aria-pressed="true"]{background:var(--bg);box-shadow:var(--sai2);color:var(--ac)}
+.lk{display:flex;gap:8px}.lk a,.lk button{font-family:inherit;cursor:pointer;height:38px;display:grid;place-items:center;padding:0 14px;border-radius:12px;box-shadow:var(--sai2);color:var(--tx);text-decoration:none;font-weight:700;font-size:12.5px;white-space:nowrap}.lk a:active,.lk button:active{box-shadow:var(--ent)}
+.kpis{flex:none}
+.kp{border-radius:16px;box-shadow:var(--sai);padding:10px 14px}
+.kp1{box-shadow:var(--ent)}
+.kp1 b{text-shadow:0 0 18px rgba(139,155,255,.35)}
+.grade{flex:1;min-height:0;display:grid;grid-template-columns:270px minmax(0,1fr) 330px;gap:14px}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0;min-width:0}
+.col>.pn,.cx-tab{border-radius:18px;box-shadow:var(--sai);padding:12px 12px 10px}
+.cx-tipos{flex:none}.cx-pag{flex:0 1 auto}.cx-cx{flex:0 1 auto}.cx-conv{flex:1 1 90px}
+.cx-vend{flex:1.5 1 0}.cx-hr{flex:0 0 150px}.cx-prod{flex:1 1 0}
+@media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
+.cx-tab{min-height:0}
+.cx-tab .tabela{border-radius:14px;box-shadow:var(--ent);overflow:hidden;background:var(--bg)}
+#cab{background:#262b34;border-bottom:1px solid var(--ln)}
+.lv:nth-child(even){background:rgba(255,255,255,.018)}.lv:hover{background:var(--hv)}
+.br-b i,.pd-b i{box-shadow:0 0 6px color-mix(in srgb,var(--c,var(--ac)) 50%,transparent)}
+.vd-b{box-shadow:inset 1px 1px 2px var(--es)}
+#ov{background:rgba(16,18,22,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}#ov .det{box-shadow:var(--sai);border-radius:24px}#ov .fechar{border:0;box-shadow:var(--sai2);background:var(--bg)}
+.toast{box-shadow:var(--sai);border-radius:14px}
+@media (max-width:1180px){.grade{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.cx-tab{grid-row:1/3}.esq{grid-column:2;grid-row:1}.dir{grid-column:2;grid-row:2}.cx-prod,.cx-conv{display:none}.busca{width:200px}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}}
+@media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}}
+@media (max-width:980px){.lk .lk-cl{display:none}}
+@media (max-width:820px){
+ body{padding:10px 10px 0;gap:10px}
+ .top{flex-wrap:wrap;gap:8px}.marca{width:100%}.busca{flex:1;width:auto;height:36px}.seg{order:5;width:100%;justify-content:space-between}.seg button{flex:1;padding:6px 4px}[data-perf-ctl]{display:none}.lk a,.lk button{font-family:inherit;cursor:pointer;height:36px;padding:0 10px}
+ .grade{display:flex;flex-direction:column;overflow:auto;gap:12px;padding:2px 2px 10px}.col{display:contents}
+ .col>.pn,.cx-tab{flex:none}.cx-tab{flex:1;min-height:0}.cx-pag,.cx-cx,.cx-conv,.cx-vend,.cx-prod{max-height:none}.cx-hr{height:170px}
+ .kpis{gap:10px}.kp{padding:8px 12px}
+ .abas{margin:0 -10px;background:var(--bg);box-shadow:0 -6px 14px -8px var(--es)}
+ .cx-tab>h3 em{display:none}
+}
+</style></head><body>
+<header class="top">
+ <div class="marca"><span class="logo">FDB</span><div><b>Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+ <label class="busca">🔍<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
+ <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
+ <div data-perf-ctl></div>
+ <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><a class="lk-cl" href="/?classico=1" title="Abrir o relatório clássico (configurações e demais opções)">Clássico</a></nav>
+</header>
+<!--CORPO-->
+<script>window.PAINEL_CFG={cores:{"Gerencial":"#fbbf24","NFC-e":"#8b9bff","NF-e":"#c084fc","Recebimento":"#2dd4bf"},paleta:["#4ade80","#8b9bff","#fbbf24","#f472b6","#c084fc","#22d3ee","#f87171","#a3e635"],corCaixa:"#94a3b8"};</script>
+<!--MOTOR-->
+</body></html>

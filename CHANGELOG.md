@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.25.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.31.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.26.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.32.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
@@ -23,12 +23,38 @@ Versões em uso hoje:
 | [`gerar_relatorio_por_data.bat`](#gerar_relatorio_por_databat) | 1.5.0 |
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
+| [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.26.0 — 2026-11-13
+
+**Painéis de tela única: nova categoria de temas (`/painel/<id>/`).**
+
+As demos de layout viraram parte do sistema. Cada painel é montado pelo servidor a partir da pasta `paineis` do projeto:
+
+- `/painel/<id>/` entrega o painel pronto (estilos e scripts embutidos), só para os ids listados em `paineis/temas.json`. Nada fora dessa lista ou fora da pasta é entregue.
+- O painel lê o relatório de hoje (`/`) ou o do período (`/periodo?i=&f=`, quando a página traz `?i=` e `?f=`), sempre somente leitura, e atualiza ao vivo (`/api/events`).
+- `/painel/` (sem id) abre o painel escolhido neste navegador, ou o padrão. `/painel/<id>` sem a barra final leva para `/painel/<id>/` e mantém o período.
+- `/api/temas` passa a listar as duas categorias: os 7 temas clássicos, como antes, e os painéis, cada um com o campo `categoria` (`classico` ou `painel`). `/api/navigate/tema/<id>` (e o `api.ps1 tema`) aceita também um painel.
+- As rotas provisórias `/demos` e `/demos/...` passam a levar para `/painel/` (301), e a pasta `demos` deixa de ser usada.
+- Sem a pasta `paineis`, a página explica o que fazer, e `/api/temas` lista só os temas clássicos.
+
+Testes novos: rotas dos painéis, catálogo completo e prévias dos temas clássicos iguais às cores do gerador (33 testes).
 
 ### 2.25.0 — 2026-11-13
 
@@ -334,6 +360,20 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.32.0 — 2026-11-13
+
+**Menu Tema com duas categorias: temas clássicos e painéis de tela única.**
+
+- Os 7 temas de sempre continuam iguais: mesmos ids, nomes, ordem e cores. Agora ficam sob o título "Temas clássicos".
+- Nova seção "Painéis de tela única", com miniaturas do layout de cada painel. A lista vem de `paineis/temas.json`.
+- Ao escolher um painel, ele passa a abrir no lugar do relatório de hoje e do relatório de período. A escolha fica salva neste navegador.
+- Escolher um tema clássico volta ao relatório clássico. Isso vale também para o tema clássico que já está na tela.
+- `?classico=1` abre o relatório clássico sem trocar a escolha (atalho "Clássico" dos painéis, para acessar as configurações e as demais opções).
+- O menu mostra qual painel está escolhido para abrir no início.
+- A troca remota de tema (`api.ps1 tema`) também leva ao painel.
+- O arquivo de relatório aberto direto do disco (sem o servidor) continua sempre no clássico.
+- Sem a pasta `paineis`, a categoria não aparece.
 
 ### 3.31.0 — 2026-11-12
 
@@ -1241,3 +1281,35 @@ Atalho do Windows para rodar os testes automáticos (`npm test`) com o Firebird 
 ### 1.0.0 — 2026-10-05 22:15
 
 **Primeira versão.** Substitui o antigo `bateria-de-testes.bat`, que só funcionava de dentro da pasta `test`, não conferia o Node.js e não mostrava o resumo de aprovados e reprovados nem devolvia código de saída. Agora usa o executor de testes do Node (`node --test`). Mantém CRLF.
+
+---
+
+## `paineis/` (pasta dos painéis de tela única)
+
+Categoria de temas própria, separada dos temas clássicos. O servidor monta cada painel em `/painel/<id>/` juntando estes arquivos:
+
+- `temas.json`: catálogo da categoria (ids, nomes, descrições, cores das miniaturas), o painel padrão e as cores dos temas clássicos usadas nas miniaturas do menu.
+- `motor.js`: lê os dados reais (somente leitura), atualiza ao vivo e decide o modo de desempenho.
+- `painel.js`: indicadores, painéis, tabela, detalhe da venda, abas do celular e menu Tema.
+- `base.css` e `comum.css`: estrutura comum.
+- `corpo.html`: blocos da tela.
+- Um `.html` por painel, com cores e disposição próprias.
+
+### 1.0.0 — 2026-11-13
+
+**Primeira versão: cinco painéis de tela única.** São eles: Relevo, Relevo escuro, Central de comando, Vidro e Nítido.
+
+Em todos, tudo cabe na tela e só a tabela de vendas rola, com estes elementos:
+
+- **Indicadores**: total, ticket médio, itens, maior venda, média por hora, última venda e participação fiscal.
+- **Painéis**:
+  - por tipo;
+  - formas de pagamento e caixas, que filtram ao clicar;
+  - ranking de vendedores, com a divisão por tipo;
+  - vendas por hora, por tipo;
+  - produtos mais vendidos;
+  - conversões em nota fiscal.
+- **Tabela compacta**: colunas ordenáveis, valor por forma de pagamento, rodapé com soma e ticket, navegação pelo teclado e detalhe da venda.
+- **Celular**: abas Resumo, Vendas, Pagamentos e Equipe.
+- **Desempenho**: modos Automático, Completo e Leve, compartilhados com o relatório.
+- **Menu Tema**: as duas categorias e o atalho para o relatório clássico.

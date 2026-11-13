@@ -5,14 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.25.0
+ * @version 2.26.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.25.0 - 2026-11-13 - Rota /demos/: prévias de layout com os dados reais (somente leitura;
- *     só arquivos da pasta "demos", com extensões permitidas e sem sair da pasta).
+ *   2.26.0 - 2026-11-13 - Painéis de tela única: rota /painel/<id>/ (monta a página a partir da
+ *     pasta "paineis"; só ids de paineis/temas.json), /api/temas e o tema remoto com as duas
+ *     categorias; as rotas /demos (prévias) passam a levar para /painel/.
  */
 
 
@@ -20,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.25.0";
+const SERVER_VERSION = "2.26.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5089,6 +5090,52 @@ var _temasDoGerador = function() {
     } catch (e) { return _TEMAS_RESERVA; }
 };
 
+// PAINÉIS DE TELA ÚNICA (v2.26.0): catálogo em paineis/temas.json (fonte única da
+// categoria) e montagem da página a partir dos arquivos da pasta (relidos quando mudam).
+var PAINEIS_DIR = path.join(__dirname, "paineis");
+var _PAINEIS_ARQS = ["comum.css", "base.css", "painel.js", "motor.js", "corpo.html"];
+var _paineisCatalogo = function() {
+    try {
+        var j = JSON.parse(fs.readFileSync(path.join(PAINEIS_DIR, "temas.json"), "utf8").replace(/^\uFEFF/, ""));
+        var lista = (Array.isArray(j && j.paineis) ? j.paineis : []).filter(function(p) {
+            return p && /^[a-z0-9-]{1,40}$/.test(String(p.id || "")) && typeof p.nome === "string" && p.nome.trim();
+        }).map(function(p) {
+            return { id: p.id, nome: String(p.nome).slice(0, 60), descricao: String(p.descricao || "").slice(0, 200), prev: (p.prev && typeof p.prev === "object") ? p.prev : {} };
+        });
+        if (!lista.length) return null;
+        var padrao = lista.some(function(p){ return p.id === j.padrao; }) ? j.padrao : lista[0].id;
+        return { padrao: padrao, paineis: lista, previasClassicos: (j.previasClassicos && typeof j.previasClassicos === "object") ? j.previasClassicos : {} };
+    } catch (e) { return null; }
+};
+// Todos os temas, nas duas categorias (controle remoto e menu): clássicos primeiro.
+var _temasTodos = function() {
+    var lista = _temasDoGerador().map(function(t){ return { id: t.id, nome: t.nome, categoria: "classico" }; });
+    var cat = _paineisCatalogo();
+    if (cat) cat.paineis.forEach(function(p){ if (!lista.some(function(t){ return t.id === p.id; })) lista.push({ id: p.id, nome: p.nome, categoria: "painel" }); });
+    return lista;
+};
+var _painelCache = {};
+var _montarPainel = function(id, cat) {
+    try {
+        var classicos = _temasDoGerador().map(function(t){ return { id: t.id, nome: t.nome, prev: cat.previasClassicos[t.id] || {} }; });
+        var arqs = _PAINEIS_ARQS.concat([id + ".html", "temas.json"]);
+        var chave = arqs.map(function(a){ return fs.statSync(path.join(PAINEIS_DIR, a)).mtimeMs; }).join("|") + "|" + _temasCacheMtime;
+        var c = _painelCache[id];
+        if (c && c.chave === chave) return c.html;
+        var ler = function(a){ return fs.readFileSync(path.join(PAINEIS_DIR, a), "utf8").replace(/^\uFEFF/, ""); };
+        var comum = ler("comum.css"), base = ler("base.css"), painelJs = ler("painel.js"), motor = ler("motor.js"), corpo = ler("corpo.html"), pagina = ler(id + ".html");
+        // Nada pode fechar a tag em que é embutido.
+        if (/<\/(script|style)/i.test(painelJs + motor) || /<\/style/i.test(comum + base)) return null;
+        if (pagina.indexOf("<!--COMUM-->") < 0 || pagina.indexOf("<!--MOTOR-->") < 0) return null;
+        var info = JSON.stringify({ atual: id, paineis: cat.paineis, classicos: classicos }).replace(/</g, "\\u003c");
+        var html = pagina.replace("<!--CORPO-->", function(){ return corpo; })
+            .replace("<!--COMUM-->", function(){ return "<style>\n" + comum + "\n" + base + "\n</style>"; })
+            .replace("<!--MOTOR-->", function(){ return "<script>window.FDB_TEMAS=" + info + ";</script>\n<script>\n" + painelJs + "\n</script>\n<script>\n" + motor + "\n</script>"; });
+        _painelCache[id] = { chave: chave, html: html };
+        return html;
+    } catch (e) { return null; }
+};
+
 // Programas: "programas" do config.json DESTA máquina (relido a cada pedido —
 // editar o arquivo vale na hora) + 2 fixos. Validação: nome até 60, caminho
 // até 260, args string ou lista; no máximo 30 itens.
@@ -6150,13 +6197,13 @@ var server=http.createServer(function(req,res){
 
     // /api/temas — temas disponíveis (lidos do próprio gerador: fonte única).
     if(rota==="/api/temas" && req.method==="GET"){
-        sendJson({ok:true, temas:_temasDoGerador(), padrao:"ultra-dark"});return;
+        sendJson({ok:true, temas:_temasTodos(), padrao:"ultra-dark"});return;
     }
     // /api/navigate/tema/<id> — troca o tema nas abas abertas (e fica salvo
     // no navegador de cada uma, como se o usuário tivesse escolhido no menu).
     var mTema = rota.match(/^\/api\/navigate\/tema\/([a-z0-9-]{1,40})$/);
     if(mTema){
-        var _temas = _temasDoGerador();
+        var _temas = _temasTodos();
         var _tm = _temas.filter(function(t){ return t.id === mTema[1]; })[0];
         if(!_tm){ sendJson({ok:false, erro:"Tema desconhecido: " + mTema[1] + ". Disponíveis: " + _temas.map(function(t){return t.id;}).join(", ")}, 400); return; }
         var sentTema = broadcastSSE({type:"tema", id:_tm.id, nome:_tm.nome});
@@ -6201,48 +6248,50 @@ var server=http.createServer(function(req,res){
         });
         return;
     }
-    // DEMOS (v2.25.0): prévias de layout que usam os dados reais do dia. Entrega SOMENTE
-    // arquivos da pasta "demos" do sistema (estáticos, somente leitura), com extensões
-    // permitidas e sem sair da pasta (".." e caminhos absolutos são recusados). Sem a
-    // pasta, responde 404 com uma explicação. "/demos" → "/demos/".
+    // PAINÉIS DE TELA ÚNICA (v2.26.0): categoria de temas própria, separada dos temas
+    // clássicos. "/painel/<id>/" monta a página a partir da pasta "paineis" (lista em
+    // paineis/temas.json; só ids da lista, nada fora da pasta). A página lê os mesmos dados
+    // do relatório ("/" ou "/periodo?i=&f=") — somente leitura. As rotas antigas "/demos"
+    // (prévias, v2.25.0) levam para cá.
     if ((rota === "/demos" || rota.indexOf("/demos/") === 0) && req.method === "GET") {
-        if (rota === "/demos") { res.writeHead(302, {"Location": "/demos/"}); res.end(); return; }
-        var _dmBase = path.join(__dirname, "demos");
-        var _dmRel;
-        try { _dmRel = decodeURIComponent(rota.slice("/demos/".length)); } catch (_) { _dmRel = null; }
-        if (_dmRel === null || _dmRel.indexOf("\0") >= 0 || /(^|[\\/])\.\.([\\/]|$)/.test(_dmRel) || /^[\\/]|^[a-z]:/i.test(_dmRel)) {
-            res.writeHead(400, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Caminho inválido."); return;
-        }
-        if (_dmRel === "" || /[\\/]$/.test(_dmRel)) _dmRel += "index.html";
-        var _dmArq = path.resolve(_dmBase, _dmRel);
-        if (_dmArq.indexOf(_dmBase + path.sep) !== 0) { res.writeHead(400, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Caminho inválido."); return; }
-        var _dmTipos = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
-            ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-            ".webp": "image/webp", ".ico": "image/x-icon", ".woff2": "font/woff2"};
-        var _dmTipo = _dmTipos[path.extname(_dmArq).toLowerCase()];
-        if (!_dmTipo) {
-            // Sem extensão: pode ser a pasta de uma demo sem a barra no fim → redireciona.
-            fs.stat(_dmArq, function(eSd, stSd) {
-                if (!eSd && stSd.isDirectory()) { res.writeHead(302, {"Location": rota + "/"}); res.end(); return; }
-                res.writeHead(404, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Arquivo não permitido.");
-            });
+        res.writeHead(301, {"Location": "/painel/"}); res.end(); return;
+    }
+    if ((rota === "/painel" || rota.indexOf("/painel/") === 0) && req.method === "GET") {
+        if (_aguardandoFdbManual) { res.writeHead(302, {"Location": "/"}); res.end(); return; }
+        var _pnCat = _paineisCatalogo();
+        if (!_pnCat) {
+            res.writeHead(404, {"Content-Type": "text/html; charset=utf-8"});
+            res.end(paginaErro("Painéis indisponíveis", "A pasta \"paineis\" não foi encontrada (ou está incompleta) na pasta do sistema. Baixe o projeto novamente e copie a pasta \"paineis\" para o lado do servidor-relatorio.js.", "/?classico=1"));
             return;
         }
-        fs.stat(_dmArq, function(eSt, stDm) {
-            if (eSt || !stDm.isFile()) {
-                // Pasta da demo sem barra no fim ("/demos/01-aurora") → redireciona para a pasta.
-                if (!eSt && stDm.isDirectory()) { res.writeHead(302, {"Location": rota + "/"}); res.end(); return; }
-                res.writeHead(404, {"Content-Type": "text/html; charset=utf-8"});
-                res.end(paginaErro("Demo não encontrada", "Coloque a pasta \"demos\" (do arquivo das demos) dentro da pasta do sistema, ao lado do servidor-relatorio.js, e abra novamente.", "/"));
-                return;
-            }
-            if (stDm.size > 8 * 1024 * 1024) { res.writeHead(413, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Arquivo grande demais."); return; }
-            fs.readFile(_dmArq, function(eRd, bufDm) {
-                if (eRd) { res.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"}); res.end("Não foi possível ler o arquivo da demo."); return; }
-                res.writeHead(200, {"Content-Type": _dmTipo, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"});
-                res.end(bufDm);
-            });
-        });
+        var _pnQs = "";
+        var _pnI = parsed.searchParams.get("i") || "", _pnF = parsed.searchParams.get("f") || "";
+        if (/^\d{4}-\d{2}-\d{2}$/.test(_pnI) && /^\d{4}-\d{2}-\d{2}$/.test(_pnF)) _pnQs = "?i=" + _pnI + "&f=" + _pnF;
+        if (rota === "/painel" || rota === "/painel/") {
+            // Sem id: abre o painel salvo neste navegador (ou o padrão).
+            var _pnIds = JSON.stringify(_pnCat.paineis.map(function(p){ return p.id; })).replace(/</g, "\\u003c");
+            res.writeHead(200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"});
+            res.end("<!doctype html><html lang=\"pt-br\"><head><meta charset=\"utf-8\"><title>Painel</title></head><body><script>(function(){var ids=" + _pnIds +
+                ",p=\"\";try{p=localStorage.getItem(\"fdb_painel\")||\"\";}catch(e){}if(ids.indexOf(p)<0)p=" + JSON.stringify(_pnCat.padrao) +
+                ";location.replace(\"/painel/\"+p+\"/\"+" + JSON.stringify(_pnQs) + ");})();</script></body></html>");
+            return;
+        }
+        var _pnM = rota.match(/^\/painel\/([a-z0-9-]{1,40})(\/?)$/);
+        var _pnTema = _pnM ? _pnCat.paineis.filter(function(p){ return p.id === _pnM[1]; })[0] : null;
+        if (!_pnTema) {
+            res.writeHead(404, {"Content-Type": "text/html; charset=utf-8"});
+            res.end(paginaErro("Painel não encontrado", "Este painel não existe. Escolha um painel no menu Tema do relatório.", "/painel/"));
+            return;
+        }
+        if (!_pnM[2]) { res.writeHead(302, {"Location": "/painel/" + _pnTema.id + "/" + _pnQs}); res.end(); return; }
+        var _pnHtml = _montarPainel(_pnTema.id, _pnCat);
+        if (!_pnHtml) {
+            res.writeHead(500, {"Content-Type": "text/html; charset=utf-8"});
+            res.end(paginaErro("Painel incompleto", "Faltam arquivos na pasta \"paineis\". Baixe o projeto novamente e copie a pasta inteira.", "/?classico=1"));
+            return;
+        }
+        res.writeHead(200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"});
+        res.end(_pnHtml);
         return;
     }
     // /api/log?linhas=N — últimas linhas do relatorio.log (máx. 1000). Só da rede local.

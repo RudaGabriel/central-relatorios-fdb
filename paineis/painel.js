@@ -1,6 +1,7 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.0.1
- *   1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+ * @version 1.0.2
+ *   1.0.2 - 2026-11-13 - Botão Configurações: Nesta tela → Desempenho (fora do cabeçalho), configurações do
+ *                        sistema e relatório clássico.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -225,7 +226,7 @@
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
     document.addEventListener("keydown", e => {
-      if ($("#ov.on") || (menu && menu.classList.contains("on"))) return; const q = $("#q");
+      if ($("#ov.on") || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
       if (e.key === "/" && document.activeElement !== q && q) { e.preventDefault(); q.focus(); q.select(); return; }
       if (e.key === "Escape" && document.activeElement === q && q.value) { q.value = ""; E().st.q = ""; E().render(); return; }
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter") return;
@@ -279,7 +280,7 @@
   let menu = null;
   function fecharMenu(){ if (!menu) return; menu.classList.remove("on"); const b = $("#btnTema"); if (b) b.setAttribute("aria-expanded", "false"); }
   function abrirMenu(){
-    const b = $("#btnTema"); if (!b) return;
+    const b = $("#btnTema"); if (!b) return; fecharCfg();
     if (!menu) {
       menu = document.createElement("div"); menu.id = "tmMenu"; menu.className = "tmMenu"; menu.setAttribute("role", "menu"); menu.setAttribute("aria-label", "Escolher tema");
       const es = E().esc, atualNome = (TM.paineis.find(p => p.id === TM.atual) || {}).nome || "";
@@ -299,9 +300,50 @@
     menu.classList.add("on"); b.setAttribute("aria-expanded", "true");
     const sel = menu.querySelector('[aria-checked="true"]') || menu.querySelector(".tmCard"); if (sel) sel.focus({preventScroll: true});
   }
+  // ── Configurações do painel (v1.0.2): como no relatório clássico, o desempenho fica em
+  // Configurações → Nesta tela (fora do cabeçalho). Também leva às configurações do sistema
+  // (/config, que volta para este painel) e ao relatório clássico.
+  let cfgM = null;
+  const PERF_EST = () => { const en = E(), pref = en.perfPref ? en.perfPref() : "auto", lv = en.leve();
+    return pref === "leve" ? "Leve (escolhido)" : pref === "completo" ? "Completo (escolhido)" : "Automático — " + (lv ? "leve" : "completo"); };
+  function cfgEstado(){ const e = cfgM && cfgM.querySelector(".cfgEst"); if (e) e.textContent = PERF_EST(); }
+  function fecharCfg(){ if (!cfgM) return; cfgM.classList.remove("on"); const b = $("#btnCfg"); if (b) b.setAttribute("aria-expanded", "false"); }
+  function montarCfg(){
+    if (cfgM) return cfgM;
+    const es = E().esc, voltar = encodeURIComponent(location.pathname + location.search);
+    cfgM = document.createElement("div"); cfgM.id = "cfgMenu"; cfgM.className = "tmMenu cfgMenu"; cfgM.setAttribute("role", "dialog"); cfgM.setAttribute("aria-label", "Configurações");
+    cfgM.innerHTML =
+      `<div class="tmSec"><div class="tmCab"><b>Nesta tela</b><span>Vale só para este aparelho.</span></div>` +
+      `<div class="cfgLin"><div class="cfgRot"><b>Desempenho</b><span class="cfgEst"></span></div><div data-perf-ctl></div>` +
+      `<p class="cfgDica">Leve: sem animações, desfoque nem sombras pesadas — indicado para computadores, notebooks e celulares de menor desempenho. A opção Automático identifica o aparelho e escolhe o modo adequado. É o mesmo ajuste do relatório clássico.</p></div></div>` +
+      `<div class="tmSec"><div class="tmCab"><b>Sistema</b></div><div class="cfgLinks">` +
+      `<a href="/config?voltar=${voltar}">Configurações do sistema</a><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a></div></div>`;
+    document.body.appendChild(cfgM);
+    E().perfCtl(); cfgEstado();
+    return cfgM;
+  }
+  function posMenu(m, b){
+    const r = b.getBoundingClientRect(), estreito = innerWidth <= 820;
+    m.style.top = Math.round(r.bottom + 8) + "px";
+    m.style.left = estreito ? "8px" : "auto"; m.style.right = estreito ? "8px" : Math.max(8, Math.round(innerWidth - r.right)) + "px";
+    m.style.maxHeight = Math.max(200, innerHeight - r.bottom - 20) + "px";
+  }
+  function abrirCfg(){
+    const b = $("#btnCfg"); if (!b) return; fecharMenu();
+    montarCfg(); posMenu(cfgM, b); cfgEstado(); cfgM.classList.add("on"); b.setAttribute("aria-expanded", "true");
+    const f = cfgM.querySelector('[aria-pressed="true"]') || cfgM.querySelector("button,a"); if (f) f.focus({preventScroll: true});
+  }
+  function cfgInit(){
+    const b = $("#btnCfg"); if (!b) return;
+    b.addEventListener("click", e => { e.stopPropagation(); if (cfgM && cfgM.classList.contains("on")) fecharCfg(); else abrirCfg(); });
+    document.addEventListener("click", e => { if (cfgM && cfgM.classList.contains("on") && !cfgM.contains(e.target) && !e.target.closest("[data-perf-op]")) fecharCfg(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && cfgM && cfgM.classList.contains("on")) { e.stopPropagation(); fecharCfg(); b.focus(); } }, true);
+    addEventListener("resize", fecharCfg);
+  }
+
   function temaInit(){
     if (TM.atual && ehPainel(TM.atual)) salvarPainel(TM.atual); // o painel aberto passa a ser o escolhido
-    const cl = $(".lk-cl"); if (cl) cl.setAttribute("href", urlClassico());
+    cfgInit();
     const b = $("#btnTema"); if (!b) return;
     b.addEventListener("click", e => { e.stopPropagation(); if (menu && menu.classList.contains("on")) fecharMenu(); else abrirMenu(); });
     document.addEventListener("click", e => { if (menu && menu.classList.contains("on") && !menu.contains(e.target)) fecharMenu(); });
@@ -309,5 +351,5 @@
     addEventListener("resize", fecharMenu);
   }
 
-  window.PAINEL = {limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: cfg.perfMudou};
+  window.PAINEL = {limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
 })();

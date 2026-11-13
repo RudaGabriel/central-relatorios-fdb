@@ -1,6 +1,7 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.0.1
-     1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+   @version 1.0.2
+     1.0.2 - 2026-11-13 - Botão e painel Configurações (o desempenho sai do cabeçalho); cabeçalho do celular
+                          compacto (nome, Tema e Configurações na mesma linha).
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -97,6 +98,11 @@ button{font:inherit;color:inherit}
   .top .busca{flex:1 1 240px;min-width:150px;width:auto;max-width:420px;margin-right:auto}
   .top .seg button{white-space:nowrap}
 }
+/* Celulares estreitos: nome, Tema e Configurações cabem na mesma linha. */
+@media (max-width:420px){
+  .top{column-gap:6px}.top .marca b{font-size:13px}.top .logo{width:32px;height:32px}
+  .top .lk{gap:5px}.top .lk a,.top .lk button{padding:0 9px!important}
+}
 /* Abas (só no celular) */
 .abas{display:none}
 @media (max-width:820px){
@@ -131,7 +137,9 @@ button{font:inherit;color:inherit}
 
 /* Menu Tema (duas categorias: painéis de tela única e temas clássicos) */
 .lk button{border:0;background:none;color:inherit;font:inherit}
-#btnTema{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#btnTema,#btnCfg{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#btnCfg .ic{width:15px;height:15px;flex:none}
+#btnCfg[aria-expanded="true"] .ic{transform:rotate(45deg)}#btnCfg .ic{transition:transform .25s}
 #btnTema svg{width:11px;height:11px;transition:transform .18s}
 #btnTema[aria-expanded="true"] svg{transform:rotate(180deg)}
 .tmMenu{position:fixed;z-index:90;width:min(660px,calc(100vw - 16px));overflow:auto;overscroll-behavior:contain;padding:14px;background:var(--mbg,var(--cab,var(--pn)));color:var(--tx);border:1px solid var(--ln);border-radius:16px;box-shadow:0 24px 60px -18px rgba(0,0,0,.55);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .16s,transform .16s,visibility 0s linear .16s}
@@ -157,3 +165,18 @@ button{font:inherit;color:inherit}
 .tmPe b{color:var(--tx)}.tmPe a{color:var(--ac);font-weight:700;text-decoration:none}.tmPe a:hover{text-decoration:underline}
 html[data-perf="leve"] .tmMenu{transition:none}
 @media (max-width:820px){.tmMenu{padding:12px}.tmGrade{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.tmCard{padding:5px;gap:5px;font-size:11px}.tmP{height:44px}.tmCab span{display:none}.tmSec+.tmSec{margin-top:10px;padding-top:10px}.tmPe{margin-top:10px;padding-top:10px}}
+
+/* Configurações do painel: Nesta tela → Desempenho, configurações do sistema e relatório clássico */
+.cfgMenu{width:min(440px,calc(100vw - 16px))}
+.cfgMenu [data-perf-ctl]{display:inline-flex!important;flex-wrap:wrap;margin-top:8px}
+.cfgMenu [data-perf-ctl] .perfRot{display:none!important}
+.cfgMenu [data-perf-ctl] button{padding:7px 14px}
+.cfgLin{padding:2px}
+.cfgRot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}.cfgRot b{font-size:12.5px}
+.cfgEst{font-size:11.5px;color:var(--mu)}
+.cfgDica{margin-top:8px;font-size:11.5px;line-height:1.45;color:var(--mu)}
+.cfgLinks{display:flex;flex-direction:column;gap:6px}
+.cfgLinks a{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid var(--ln);border-radius:10px;color:var(--tx);text-decoration:none;font-weight:600;font-size:12.5px}
+.cfgLinks a:after{content:"›";color:var(--mu);font-size:16px;line-height:1}
+.cfgLinks a:hover{border-color:var(--ac);color:var(--ac)}
+@media (max-width:820px){.cfgMenu .tmCab span{display:inline}}

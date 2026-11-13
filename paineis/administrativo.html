@@ -1,0 +1,202 @@
+<!doctype html>
+<!-- paineis/administrativo.html — Central de Relatórios FDB · painel de tela única "Administrativo (neutro, com menu lateral e modo claro ou escuro)".
+     @version 1.0.0
+       1.0.0 - 2026-11-13 - Primeira versão.
+     Histórico completo das versões: CHANGELOG.md no repositório.
+     Montado pelo servidor em /painel/administrativo/: o marcador COMUM recebe comum.css + base.css, o
+     CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
+<html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Administrativo · Central de Relatórios FDB</title>
+<script>
+// Modo claro ou escuro, decidido antes do primeiro desenho (sem piscar): a escolha salva
+// ("fdb_admin_modo") ou, sem escolha, o modo do sistema. O menu lateral recolhido também.
+(function(){var h=document.documentElement,m="";try{m=localStorage.getItem("fdb_admin_modo")||"";}catch(e){}
+if(m!=="claro"&&m!=="escuro"){try{m=matchMedia("(prefers-color-scheme: dark)").matches?"escuro":"claro";}catch(e){m="claro";}}h.setAttribute("data-modo",m);
+var s="";try{s=localStorage.getItem("fdb_admin_menu")||"";}catch(e){}if(s==="recolhido"||s==="aberto")h.setAttribute("data-menu",s);})();
+</script>
+<!--COMUM-->
+<style>
+:root{--bg:#ffffff;--sbbg:#fafafa;--card:#ffffff;--pn:#ffffff;--cab:#ffffff;--mbg:#ffffff;--tx:#09090b;--tx2:#3f3f46;--mu:#71717a;--ln:#e4e4e7;--ln2:#f4f4f5;--ac:#18181b;--ac2:#18181b;--on-ac:#fafafa;--hv:#f4f4f5;--sel:#f4f4f5;--trk:#f4f4f5;--sombra:0 1px 2px rgba(0,0,0,.05);--gap:12px;
+ --t1:#e76e50;--t2:#2a9d90;--t3:#274754;--t4:#e8c468;--p1:#2a9d90;--p2:#e76e50;--p3:#274754;--p4:#e8c468;--p5:#f4a462;--p6:#8b5cf6;--p7:#0ea5e9;--p8:#84cc16;--cxc:#71717a;
+ --d-bg:#ffffff;--d-tx:#09090b;--d-mu:#71717a;--d-ac:#71717a;--d-ln:#e4e4e7;--t-bg:#ffffff;--t-tx:#09090b;--t-ac:#18181b}
+html[data-modo="escuro"]{color-scheme:dark;--bg:#09090b;--sbbg:#09090b;--card:#09090b;--pn:#09090b;--cab:#09090b;--mbg:#0c0c0e;--tx:#fafafa;--tx2:#d4d4d8;--mu:#a1a1aa;--ln:#27272a;--ln2:#18181b;--ac:#fafafa;--ac2:#fafafa;--on-ac:#18181b;--hv:#18181b;--sel:#27272a;--trk:#27272a;--sombra:none;
+ --t1:#2662d9;--t2:#2eb88a;--t3:#e88c30;--t4:#af57db;--p1:#2eb88a;--p2:#2662d9;--p3:#e88c30;--p4:#af57db;--p5:#e23670;--p6:#0ea5e9;--p7:#facc15;--p8:#84cc16;--cxc:#a1a1aa;
+ --d-bg:#09090b;--d-tx:#fafafa;--d-mu:#a1a1aa;--d-ac:#a1a1aa;--d-ln:#27272a;--t-bg:#09090b;--t-tx:#fafafa;--t-ac:#fafafa}
+body{background:var(--sbbg);font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+svg{display:block}
+.shell{flex:1;min-height:0;display:flex}
+/* Menu lateral */
+.sb{width:256px;flex:none;display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--sbbg);border-right:1px solid var(--ln);transition:width .2s;min-height:0;overflow:hidden}
+.sbTop{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;min-width:0}
+.logo{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--ac);color:var(--on-ac);font-weight:800;font-size:11px}
+.sbNm{min-width:0}.sbNm b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sbNm small{display:block;font-size:12px;color:var(--mu);white-space:nowrap}
+.sbNav{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-top:6px}
+.sbGrp{padding:12px 8px 6px;font-size:12px;font-weight:500;color:var(--mu);white-space:nowrap}
+.sbIt{display:flex;align-items:center;gap:8px;height:34px;padding:0 8px;border:0;border-radius:7px;background:none;color:var(--tx2);font:500 13.5px Inter,"Segoe UI",sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;min-width:0;width:100%;text-align:left}
+.sbIt svg{width:16px;height:16px;flex:none}.sbIt span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sbIt em{font-style:normal;font-size:11.5px;font-weight:600;color:var(--mu);font-variant-numeric:tabular-nums;padding:1px 7px;border-radius:6px;background:var(--hv)}
+.sbIt:hover{background:var(--hv);color:var(--tx)}.sbIt.on{background:var(--sel);color:var(--tx);font-weight:600}
+.sbIt:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+.sbPe{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;border-top:1px solid var(--ln);min-width:0}
+.sbAv{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--hv);color:#22c55e;font-size:14px}
+.sbPe b{display:block;font-size:13px;font-weight:600;white-space:nowrap}.sbPe small{display:block;font-size:12px;color:var(--mu);white-space:nowrap}
+html[data-menu="recolhido"] .sb{width:64px}
+html[data-menu="recolhido"] .sbNm,html[data-menu="recolhido"] .sbGrp,html[data-menu="recolhido"] .sbIt span.sbModoTxt,html[data-menu="recolhido"] .sbIt span,html[data-menu="recolhido"] .sbIt em,html[data-menu="recolhido"] .sbPe div{display:none}
+html[data-menu="recolhido"] .sbIt{justify-content:center;padding:0}html[data-menu="recolhido"] .sbGrp+.sbIt{margin-top:10px}
+html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-content:center;padding:8px 0}
+.sbFundo{display:none}
+/* Área principal */
+.main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+.top{flex:none;display:flex;align-items:center;gap:10px;height:56px;padding:0 16px;border-bottom:1px solid var(--ln)}
+.ico{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:8px;background:none;color:var(--tx);cursor:pointer;flex:none}
+.ico:hover{background:var(--hv)}.ico svg{width:17px;height:17px}
+.sep{width:1px;height:18px;background:var(--ln);flex:none}
+.top .marca{display:none;align-items:center;gap:10px;min-width:0}.marca b{display:block;font-size:14px;font-weight:600;white-space:nowrap}.marca small{display:flex;gap:6px;font-size:11.5px;color:var(--mu);white-space:nowrap}
+.vivo{color:#16a34a;font-weight:600}html[data-modo="escuro"] .vivo{color:#4ade80}
+.busca{display:flex;align-items:center;gap:8px;height:36px;border:1px solid var(--ln);border-radius:8px;background:var(--hv);padding:0 10px;color:var(--mu);box-shadow:var(--sombra)}
+.busca svg{width:15px;height:15px;flex:none}.busca:focus-within{border-color:var(--mu);background:var(--bg)}
+.busca input{flex:1;min-width:0;border:0;background:none;outline:0;font:400 13.5px Inter,"Segoe UI",sans-serif;color:var(--tx)}
+.busca kbd{font:600 10.5px Inter,sans-serif;border:1px solid var(--ln);border-radius:4px;padding:1px 5px;color:var(--mu);background:var(--bg)}
+.seg{display:none;gap:2px;padding:3px;border-radius:9px;background:var(--hv)}
+.seg button{border:0;background:none;border-radius:6px;padding:5px 11px;font:500 13px Inter,"Segoe UI",sans-serif;color:var(--mu);cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.lk{display:flex;align-items:center;gap:6px}
+.lk button{height:36px;padding:0 12px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--tx);font:500 13.5px Inter,"Segoe UI",sans-serif;box-shadow:var(--sombra)}
+.lk button:hover{background:var(--hv)}.lk #btnModo{width:36px;padding:0;display:grid;place-items:center}.lk #btnModo svg{width:16px;height:16px}
+#btnModo .ic-lua,.sbModo .ic-lua{display:none}html[data-modo="escuro"] #btnModo .ic-sol,html[data-modo="escuro"] .sbModo .ic-sol{display:none}html[data-modo="escuro"] #btnModo .ic-lua,html[data-modo="escuro"] .sbModo .ic-lua{display:block}
+.sbModo svg{width:16px;height:16px}.sbModo>i{display:flex;flex:none;font-style:normal}
+/* Título */
+.tt{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px 12px}
+.tt h1{font-size:22px;font-weight:700;letter-spacing:-.025em;line-height:1.2}.tt p{color:var(--mu);font-size:13.5px;margin-top:2px}
+.btnPri{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:8px;background:var(--ac);color:var(--on-ac);font:500 13.5px Inter,"Segoe UI",sans-serif;text-decoration:none;white-space:nowrap}
+.btnPri:hover{opacity:.9}
+/* Indicadores em cartões com ícone */
+.kpis{flex:none;padding:0 20px}
+.kp{position:relative;border:1px solid var(--ln);border-radius:12px;background:var(--card);padding:12px 14px 12px;box-shadow:var(--sombra)}
+.kp small{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--tx2);padding-right:20px}
+.kp b{font-family:Inter,"Segoe UI",sans-serif;font-weight:700;font-size:clamp(16px,1.45vw,23px);letter-spacing:-.025em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kp1 b{color:var(--tx)}
+.kp span{font-size:11.5px}
+.kp:after{content:"";position:absolute;top:13px;right:13px;width:15px;height:15px;background:var(--mu);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.kp1:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cline%20x1%3D%2212%22%20x2%3D%2212%22%20y1%3D%222%22%20y2%3D%2222%22%2F%3E%3Cpath%20d%3D%22M17%205H9.5a3.5%203.5%200%200%200%200%207h5a3.5%203.5%200%200%201%200%207H6%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cline%20x1%3D%2212%22%20x2%3D%2212%22%20y1%3D%222%22%20y2%3D%2222%22%2F%3E%3Cpath%20d%3D%22M17%205H9.5a3.5%203.5%200%200%200%200%207h5a3.5%203.5%200%200%201%200%207H6%22%2F%3E%3C%2Fsvg%3E")}.kp2:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%202v20l2-1%202%201%202-1%202%201%202-1%202%201%202-1%202%201V2l-2%201-2-1-2%201-2-1-2%201-2-1-2%201Z%22%2F%3E%3Cpath%20d%3D%22M16%208h-6a2%202%200%201%200%200%204h4a2%202%200%201%201%200%204H8%22%2F%3E%3Cpath%20d%3D%22M12%2017.5v-11%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%202v20l2-1%202%201%202-1%202%201%202-1%202%201%202-1%202%201V2l-2%201-2-1-2%201-2-1-2%201-2-1-2%201Z%22%2F%3E%3Cpath%20d%3D%22M16%208h-6a2%202%200%201%200%200%204h4a2%202%200%201%201%200%204H8%22%2F%3E%3Cpath%20d%3D%22M12%2017.5v-11%22%2F%3E%3C%2Fsvg%3E")}.kp3:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m7.5%204.27%209%205.15%22%2F%3E%3Cpath%20d%3D%22M21%208a2%202%200%200%200-1-1.73l-7-4a2%202%200%200%200-2%200l-7%204A2%202%200%200%200%203%208v8a2%202%200%200%200%201%201.73l7%204a2%202%200%200%200%202%200l7-4A2%202%200%200%200%2021%2016Z%22%2F%3E%3Cpath%20d%3D%22m3.3%207%208.7%205%208.7-5%22%2F%3E%3Cpath%20d%3D%22M12%2022V12%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m7.5%204.27%209%205.15%22%2F%3E%3Cpath%20d%3D%22M21%208a2%202%200%200%200-1-1.73l-7-4a2%202%200%200%200-2%200l-7%204A2%202%200%200%200%203%208v8a2%202%200%200%200%201%201.73l7%204a2%202%200%200%200%202%200l7-4A2%202%200%200%200%2021%2016Z%22%2F%3E%3Cpath%20d%3D%22m3.3%207%208.7%205%208.7-5%22%2F%3E%3Cpath%20d%3D%22M12%2022V12%22%2F%3E%3C%2Fsvg%3E")}.kp4:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%2222%207%2013.5%2015.5%208.5%2010.5%202%2017%22%2F%3E%3Cpolyline%20points%3D%2216%207%2022%207%2022%2013%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%2222%207%2013.5%2015.5%208.5%2010.5%202%2017%22%2F%3E%3Cpolyline%20points%3D%2216%207%2022%207%2022%2013%22%2F%3E%3C%2Fsvg%3E")}.kp5:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M22%2012h-4l-3%209L9%203l-3%209H2%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M22%2012h-4l-3%209L9%203l-3%209H2%22%2F%3E%3C%2Fsvg%3E")}.kp6:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Cpolyline%20points%3D%2212%206%2012%2012%2016%2014%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Cpolyline%20points%3D%2212%206%2012%2012%2016%2014%22%2F%3E%3C%2Fsvg%3E")}.kp7:after{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M15%202H6a2%202%200%200%200-2%202v16a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V7Z%22%2F%3E%3Cpath%20d%3D%22M14%202v4a2%202%200%200%200%202%202h4%22%2F%3E%3Cpath%20d%3D%22m9%2015%202%202%204-4%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M15%202H6a2%202%200%200%200-2%202v16a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V7Z%22%2F%3E%3Cpath%20d%3D%22M14%202v4a2%202%200%200%200%202%202h4%22%2F%3E%3Cpath%20d%3D%22m9%2015%202%202%204-4%22%2F%3E%3C%2Fsvg%3E")}
+/* Grade: gráfico e vendedores em cima; tabela e painéis embaixo */
+.grade{flex:1;min-height:0;display:grid;gap:12px;padding:12px 20px 16px;grid-template-columns:minmax(0,1fr) 300px 300px;grid-template-rows:232px minmax(0,1fr);grid-template-areas:"hr vend esq" "tab prod esq"}
+.dir{display:contents}.esq{grid-area:esq;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0}
+.cx-hr{grid-area:hr}.cx-vend{grid-area:vend}.cx-prod{grid-area:prod}.cx-tab{grid-area:tab}
+.grade .pn{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:14px 16px 12px;box-shadow:var(--sombra)}
+.esq .cx-tipos{flex:none}.esq .cx-pag{flex:0 1 auto}.esq .cx-cx{flex:0 1 auto}.esq .cx-conv{flex:1 1 80px}
+.pn>h3{font-size:14px;font-weight:600;letter-spacing:-.01em;text-transform:none;color:var(--tx);padding-bottom:10px}
+.pn>h3 em{font-size:12px;font-weight:400;color:var(--mu)}
+.vd-cab{display:none}
+#vends .vd{grid-template-columns:36px minmax(0,1fr) auto;padding:6px 4px;row-gap:0;border-radius:8px}
+#vends .vd-r{display:none}#vends .vd-av{display:grid;grid-row:1/4;width:34px;height:34px;border-radius:50%;place-items:center;font-size:12px;font-weight:600;background:var(--hv);color:var(--tx);border:1px solid var(--ln)}
+#vends .vd-n{font-size:13.5px;font-weight:500}#vends .vd-t{font-family:Inter,"Segoe UI",sans-serif;font-size:13.5px;font-weight:600}
+#vends .vd-s{grid-column:2;font-size:12px}#vends .vd-p{grid-column:3;grid-row:2;justify-self:end;font-size:11.5px}#vends .vd-b{grid-column:2/-1;height:3px}
+.br,.vd{border-radius:7px}.br.on,.vd.on{background:var(--sel);box-shadow:none}
+.br-t,.vd-t,.pd-t,.c-total{font-family:Inter,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+.hr-s{border-radius:4px 4px 2px 2px;background:var(--trk)}.hr-c.pk .hr-s{box-shadow:0 0 0 1.5px var(--tx)}.hr-c.ag small{color:var(--tx)}
+.cx-tab{padding:14px 0 0!important;min-height:0}.cx-tab>h3{padding:0 16px 10px}
+.cx-tab .tabela{border-top:1px solid var(--ln)}
+#cab{background:var(--card)}#cab>*{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--mu)}#cab .on{color:var(--tx)}
+.lv{--lh:34px;border-bottom-color:var(--ln)}.lv:hover{background:var(--hv)}.lv.sel{box-shadow:inset 2px 0 0 var(--tx)}
+.mn,.c-hora,.c-numero,.c-caixa{font-family:Inter,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0}
+.tg{border-radius:6px;font-weight:600;letter-spacing:0;font-size:11px}
+.c-pag i{border-radius:6px;background:var(--hv);border-color:transparent;font-weight:500}
+.c-itens b{border-radius:6px;background:var(--hv)}
+#rod{padding:8px 16px}
+#filtros button{border-color:var(--ln);background:var(--hv);color:var(--tx);border-radius:8px}
+#ov{background:rgba(0,0,0,.5)}#ov .det{border:1px solid var(--ln);border-radius:12px;box-shadow:0 20px 50px -12px rgba(0,0,0,.35)}#ov .fechar{border-radius:8px}
+#toasts{top:auto;bottom:16px;right:16px}.toast{border:1px solid var(--ln);border-radius:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.3)}
+.tmMenu{border-radius:12px;box-shadow:0 16px 40px -12px rgba(0,0,0,.25)}
+.cfgMenu [data-perf-ctl]{background:var(--hv);border:0;border-radius:9px;padding:3px}.cfgMenu [data-perf-ctl] button{border-radius:6px;color:var(--mu)}
+.cfgMenu [data-perf-ctl] button[aria-pressed="true"]{background:var(--bg);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.cfgLinks a{border-radius:8px}.cfgLinks a:hover{border-color:var(--mu);color:var(--tx)}
+@media (min-width:1600px){.grade{grid-template-columns:minmax(0,1fr) 330px 330px;grid-template-rows:260px minmax(0,1fr)}}
+@media (max-width:1599px){html:not([data-menu="aberto"]) .sb{width:64px}
+ html:not([data-menu="aberto"]) .sbNm,html:not([data-menu="aberto"]) .sbGrp,html:not([data-menu="aberto"]) .sbIt span,html:not([data-menu="aberto"]) .sbIt em,html:not([data-menu="aberto"]) .sbPe div{display:none}
+ html:not([data-menu="aberto"]) .sbIt{justify-content:center;padding:0}html:not([data-menu="aberto"]) .sbGrp+.sbIt{margin-top:10px}
+ html:not([data-menu="aberto"]) .sbTop,html:not([data-menu="aberto"]) .sbPe{justify-content:center;padding:8px 0}
+ .grade{grid-template-columns:minmax(0,1fr) 280px 280px;grid-template-rows:212px minmax(0,1fr)}
+ [data-perf-ctl] .perfRot{display:none}}
+@media (max-height:800px) and (min-width:821px){.tt{padding:10px 20px 8px}.tt h1{font-size:19px}.tt p{font-size:12.5px}.kp{padding:9px 12px}.kp b{margin-top:3px}.grade{grid-template-rows:190px minmax(0,1fr);padding-top:10px}}
+@media (max-width:1180px){
+ .sb{position:fixed;left:0;top:0;bottom:0;z-index:70;width:270px!important;transform:translateX(-105%);transition:transform .22s;box-shadow:0 0 40px rgba(0,0,0,.3)}
+ .sb .sbNm,.sb .sbGrp,.sb .sbIt span,.sb .sbIt em,.sb .sbPe div{display:block!important}.sb .sbIt{justify-content:flex-start!important;padding:0 8px!important}.sb .sbIt span{flex:1}.sb .sbIt em{display:inline!important}
+ .sb .sbTop,.sb .sbPe{justify-content:flex-start!important;padding:8px!important}
+ html.menuAberto .sb{transform:none}html.menuAberto .sbFundo{display:block;position:fixed;inset:0;z-index:69;background:rgba(0,0,0,.4)}
+ .top .marca{display:flex}.top .marca .logo{width:30px;height:30px}.seg{display:flex}.top .sep{display:none}
+ .grade{grid-template-columns:minmax(0,1fr) 290px;grid-template-rows:200px minmax(0,1fr);grid-template-areas:"hr vend" "tab esq"}
+ .cx-prod,.cx-conv{display:none}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}
+ .btnPri{display:none}.lk .lkTxt{display:none}}
+@media (max-width:820px){
+ .top{height:auto;flex-wrap:wrap;gap:8px;padding:10px}.seg{order:5;width:100%}.seg button{flex:1;padding:6px 4px}
+ .lk #btnModo{display:none}.top .marca .logo{display:none}.top .lk button{height:34px}
+ .kp{padding:8px 12px}.kp b{margin-top:2px;font-size:17px}.kp:after{top:9px;right:10px}
+ .tt{display:none}.kpis{padding:10px 10px 0}
+ .grade{display:flex;flex-direction:column;overflow:auto;gap:10px;padding:10px}.col,.dir,.esq{display:contents}
+ .grade .pn{flex:none}.grade .cx-tab{flex:1 1 0;min-height:0}
+ .abas{background:var(--bg)}.abas button.on{color:var(--tx)}.cx-tab>h3 em{display:none}}
+</style></head><body>
+<div class="shell">
+ <aside class="sb" id="sb" aria-label="Menu lateral">
+  <div class="sbTop"><span class="logo">FDB</span><div class="sbNm"><b>Central de Relatórios FDB</b><small>Relatórios do PDV</small></div></div>
+  <nav class="sbNav">
+   <div class="sbGrp">Vendas</div>
+   <button type="button" class="sbIt on" data-tipo="todos" title="Todas as vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Todas as vendas</span><em data-sbq="todos"></em></button>
+   <button type="button" class="sbIt" data-tipo="Gerencial" title="Gerencial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg><span>Gerencial</span><em data-sbq="Gerencial"></em></button>
+   <button type="button" class="sbIt" data-tipo="NFC-e" title="NFC-e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><span>NFC-e</span><em data-sbq="NFC-e"></em></button>
+   <button type="button" class="sbIt" data-tipo="NF-e" title="NF-e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg><span>NF-e</span><em data-sbq="NF-e"></em></button>
+   <div class="sbGrp">Relatórios</div>
+   <a class="sbIt" href="/periodo" title="Consultar um período"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg><span>Consultar período</span></a>
+   <a class="sbIt sbCl" href="/?classico=1" title="Abrir o relatório clássico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg><span>Relatório clássico</span></a>
+   <div class="sbGrp">Preferências</div>
+   <button type="button" class="sbIt sbModo" title="Alternar entre modo claro e escuro"><i class="ic-sol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></i><i class="ic-lua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></i><span class="sbModoTxt">Modo escuro</span></button>
+   <a class="sbIt sbCfg" href="/config" title="Configurações do sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Configurações do sistema</span></a>
+  </nav>
+  <div class="sbPe"><span class="sbAv">●</span><div><b class="vivo">Ao vivo</b><small data-hoje></small></div></div>
+ </aside>
+ <div class="sbFundo" id="sbFundo"></div>
+ <div class="main">
+  <header class="top">
+   <button type="button" class="ico" id="sbTgl" aria-label="Mostrar ou recolher o menu lateral" title="Mostrar ou recolher o menu lateral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+   <span class="sep"></span>
+   <div class="marca"><span class="logo">FDB</span><div><b>Central de Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+   <label class="busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
+   <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
+   <nav class="lk"><button type="button" id="btnModo" aria-label="Alternar entre modo claro e escuro" title="Alternar entre modo claro e escuro"><span class="ic-sol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span><span class="ic-lua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>
+  </header>
+  <div class="tt"><div><h1>Visão geral</h1><p>Vendas de <span data-hoje></span>, atualizadas ao vivo.</p></div><a class="btnPri sbCl" href="/?classico=1"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg> Relatório clássico</a></div>
+<!--CORPO-->
+ </div>
+</div>
+<script>
+window.PAINEL_CFG={cores:{"Gerencial":"var(--t1)","NFC-e":"var(--t2)","NF-e":"var(--t3)","Recebimento":"var(--t4)"},paleta:["var(--p1)","var(--p2)","var(--p3)","var(--p4)","var(--p5)","var(--p6)","var(--p7)","var(--p8)"],corCaixa:"var(--cxc)",
+ // Contagem de vendas por tipo no menu lateral (todas as vendas carregadas, sem os filtros).
+ after(){const v=(window.ENG&&ENG.vendas)||[],n={todos:v.length};v.forEach(x=>{n[x.t]=(n[x.t]||0)+1;});document.querySelectorAll("[data-sbq]").forEach(e=>{e.textContent=String(n[e.dataset.sbq]||0);});}};
+(function(){
+ const h=document.documentElement,salvar=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+ const estreito=()=>innerWidth<=1180;
+ function ligar(){
+  // Links do menu lateral: relatório clássico e configurações do sistema voltam para este painel.
+  const q=location.search,f=(function(){const p=new URLSearchParams(q),i=p.get("i")||"",fi=p.get("f")||"";return /^\d{4}-\d{2}-\d{2}$/.test(i)&&/^\d{4}-\d{2}-\d{2}$/.test(fi)?"/periodo?i="+i+"&f="+fi:"/";})();
+  document.querySelectorAll(".sbCl").forEach(a=>a.setAttribute("href",f+(f.indexOf("?")>=0?"&":"?")+"classico=1"));
+  document.querySelectorAll(".sbCfg").forEach(a=>a.setAttribute("href","/config?voltar="+encodeURIComponent(location.pathname+location.search)));
+  // Menu lateral: no computador recolhe e abre (a escolha fica salva); em telas estreitas abre por cima.
+  const tgl=document.getElementById("sbTgl"),fundo=document.getElementById("sbFundo");
+  const fechar=()=>h.classList.remove("menuAberto");
+  tgl.addEventListener("click",()=>{if(estreito()){h.classList.toggle("menuAberto");return;}
+   const rec=getComputedStyle(document.getElementById("sb")).width.replace("px","")<100;const novo=rec?"aberto":"recolhido";h.setAttribute("data-menu",novo);salvar("fdb_admin_menu",novo);});
+  fundo.addEventListener("click",fechar);
+  document.getElementById("sb").addEventListener("click",e=>{if(estreito()&&e.target.closest(".sbIt")&&!e.target.closest(".sbModo"))fechar();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&h.classList.contains("menuAberto"))fechar();});
+  addEventListener("resize",()=>{if(!estreito())fechar();});
+  // Modo claro ou escuro (botão do cabeçalho e item do menu lateral).
+  const txtModo=()=>{const t=h.getAttribute("data-modo")==="escuro"?"Modo claro":"Modo escuro";document.querySelectorAll(".sbModoTxt").forEach(e=>e.textContent=t);};
+  const trocar=()=>{const m=h.getAttribute("data-modo")==="escuro"?"claro":"escuro";h.setAttribute("data-modo",m);salvar("fdb_admin_modo",m);txtModo();};
+  document.querySelectorAll("#btnModo,.sbModo").forEach(b=>b.addEventListener("click",trocar));txtModo();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ligar);else ligar();
+})();
+</script>
+<!--MOTOR-->
+</body></html>

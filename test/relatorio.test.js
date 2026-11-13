@@ -1057,7 +1057,10 @@ test("servidor: painéis de tela única — /painel/<id>/ só da lista; /demos l
             assert.strictEqual(info.atual, p.id);
             assert.deepStrictEqual(info.classicos.map(t => t.id), ["ultra-dark", "light", "hud", "indigo", "executivo", "ambar", "brasa"], "temas clássicos intactos");
             assert.strictEqual(info.paineis.length, cat.paineis.length);
-            assert.match(html, /id="btnTema"/); assert.match(html, /class="lk-cl"/);
+            assert.match(html, /id="btnTema"/); assert.match(html, /id="btnCfg"/, "botão Configurações em " + p.id);
+            const cab = (html.match(/<header class="top[^"]*">[\s\S]*?<\/header>/) || [""])[0];
+            assert.ok(cab.length > 0, "cabeçalho encontrado em " + p.id);
+            assert.doesNotMatch(cab, /data-perf-ctl/, "desempenho fora do cabeçalho (fica em Configurações) em " + p.id);
             assert.strictEqual(r.headers.get("cache-control"), "no-store");
         }
         let r = await get("/painel/relevo");

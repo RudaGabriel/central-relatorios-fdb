@@ -1039,3 +1039,40 @@ test("servidor: aparelho com o relógio atrasado não recarrega sem parar (chang
         assert.ok(typeof stFim.agora === "number" && Math.abs(stFim.agora - Date.now()) < 5000, "/api/status deveria trazer o horário do servidor (agora)");
     } finally { srv.parar(); }
 });
+
+test("servidor: /demos/ entrega só arquivos da pasta demos (sem sair dela)", { timeout: 60000 }, async () => {
+    const dir = montarPasta();
+    fs.mkdirSync(path.join(dir, "demos", "01-teste"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "demos", "index.html"), "<!doctype html><title>galeria</title>GALERIA-OK");
+    fs.writeFileSync(path.join(dir, "demos", "01-teste", "index.html"), "<!doctype html><title>demo</title>DEMO-OK");
+    fs.writeFileSync(path.join(dir, "demos", "01-teste", "x.exe"), "MZ");
+    const srv = await iniciarServidor(dir);
+    try {
+        const get = (u) => fetch(srv.base + u, { redirect: "manual" });
+        let r = await get("/demos");
+        assert.strictEqual(r.status, 302, "/demos redireciona para /demos/");
+        assert.match(r.headers.get("location") || "", /\/demos\/$/);
+        r = await get("/demos/");
+        assert.strictEqual(r.status, 200); assert.match(await r.text(), /GALERIA-OK/);
+        assert.match(r.headers.get("content-type") || "", /text\/html/);
+        r = await get("/demos/01-teste");
+        assert.strictEqual(r.status, 302, "pasta sem barra no fim redireciona");
+        r = await get("/demos/01-teste/");
+        assert.strictEqual(r.status, 200); assert.match(await r.text(), /DEMO-OK/);
+        // Pedido "cru" (sem o fetch normalizar ".."), como um atacante enviaria.
+        const cru = (caminho) => new Promise((ok, falha) => {
+            const u = new URL(srv.base);
+            const rq = require("node:http").request({ host: u.hostname, port: u.port, path: caminho, method: "GET" }, rs => { rs.resume(); ok(rs.statusCode); });
+            rq.on("error", falha); rq.end();
+        });
+        for (const ruim of ["/demos/..%2Fconfig.json", "/demos/..%2F..%2Fconfig.json", "/demos/%2e%2e/config.json", "/demos/../config.json", "/demos/01-teste/..%5C..%5Cconfig.json", "/demos/%00x.html"]) {
+            // 400 (recusado pela rota) ou 404 (o servidor normaliza ".." antes e a rota nem é alcançada).
+            assert.ok([400, 404].includes(await cru(ruim)), "caminho recusado: " + ruim);
+        }
+        assert.strictEqual(await cru("/demos/..%2Fconfig.json"), 400, "barra codificada não sai da pasta");
+        r = await get("/demos/01-teste/x.exe");
+        assert.strictEqual(r.status, 404, "extensão não permitida não é entregue");
+        r = await get("/demos/nao-existe/");
+        assert.strictEqual(r.status, 404);
+    } finally { srv.parar(); }
+});

@@ -4,3 +4,6 @@ hora-fixada-cache.json
 favicon.png
 *.tmp[0-9]*
 preferencias-aparelhos.json
+
+# Demos de layout (vêm no demos.zip; abertas em /demos/)
+demos/

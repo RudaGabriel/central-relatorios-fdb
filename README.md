@@ -6,14 +6,14 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.24.5" src="https://img.shields.io/badge/servidor-v2.24.5-2563EB?style=flat">
+<img alt="servidor: v2.25.0" src="https://img.shields.io/badge/servidor-v2.25.0-2563EB?style=flat">
 <img alt="gerador: v3.31.0" src="https://img.shields.io/badge/gerador-v3.31.0-2563EB?style=flat">
 <img alt="bandeja: v1.8.3" src="https://img.shields.io/badge/bandeja-v1.8.3-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 30 passando" src="https://img.shields.io/badge/testes-30%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 31 passando" src="https://img.shields.io/badge/testes-31%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -34,7 +34,7 @@
 
 **As vendas do dia na tela, atualizadas a cada venda · No computador e no celular · Na loja ou de qualquer lugar · Nunca escreve no banco · Funciona sem internet**
 
-[Instalar](#instalacao) · [Usar](#uso) · [Recursos](#recursos) · [Celular](#celular) · [Fora da loja](#fora) · [Liberar para outra pessoa](#compartilhar) · [Aparelhos](#aparelhos) · [Configurar](#configuracao) · [API](#api) · [Problemas](#problemas)
+[Instalar](#instalacao) · [Usar](#uso) · [Recursos](#recursos) · [Celular](#celular) · [Fora da loja](#fora) · [Liberar para outra pessoa](#compartilhar) · [Aparelhos](#aparelhos) · [Configurar](#configuracao) · [Demos](#demos) · [API](#api) · [Problemas](#problemas)
 
 </div>
 
@@ -341,6 +341,23 @@ A janela fica em *Configurações → Janela de correção de horário* ou em `j
 ---
 
 <a id="api"></a>
+<a id="demos"></a>
+## 🎨 Demos de layout (prévias)
+
+Propostas de visual novo para o relatório, que usam as **vendas reais de hoje** e se atualizam **ao vivo**. Servem para testar e escolher um layout; o relatório de sempre continua igual.
+
+1. Baixe o arquivo das demos (`demos.zip`) e descompacte: ele tem uma pasta **`demos`**.
+2. Copie a pasta `demos` para dentro da **pasta do sistema**, ao lado do `servidor-relatorio.js`.
+3. Com o servidor ligado, abra **`http://localhost:7734/demos/`**. No celular, use o mesmo endereço do relatório com `/demos/` no final.
+
+Cada demo fica na sua própria pasta (`01-aurora`, `02-seda`…). Em todas você encontra:
+
+- o total contando até o valor e a venda nova chegando com animação;
+- filtros por tipo e por vendedor, busca e detalhe da venda ao clicar;
+- o controle de **Desempenho** (Automático, Completo ou Leve), que é o mesmo do relatório. No **Leve**, saem o desfoque, as partículas, os efeitos 3D e as animações contínuas, para não pesar em computadores e celulares mais simples.
+
+As demos só **leem** o que o relatório já mostra (nada é gravado no banco). Para removê-las, basta apagar a pasta `demos`.
+
 ## 🔌 API e linha de comando
 
 Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell) dá acesso a todas as rotas, com menu interativo — use na própria máquina ou em outro computador da rede:
@@ -363,6 +380,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/` | GET | Relatório de hoje |
 | `/periodo?i=AAAA-MM-DD&f=AAAA-MM-DD` | GET | Relatório de um período (sem parâmetros: formulário) |
 | `/atualizar` | GET | Descarta o cache de hoje e regenera |
+| `/demos/` | GET | Demos de layout (prévias) com os dados reais: entrega só os arquivos da pasta `demos` do sistema (somente leitura) |
 | `/config` · `/selecionar-fdb` | GET | Páginas de configurações e de seleção do banco |
 | `/qr` · `/qr.svg` · `/api/qr` | GET | QR code do endereço desta máquina na rede (página, imagem, texto); `/qr.svg?externo=1` (nome) ou `?externo=ip` (IP) e os campos `externo`/`externoNome`/`externoIP` de `/api/qr` = endereço do Tailscale (com o nome MagicDNS, fixo) |
 | `/pronto?k=CHAVE` | GET | Estado de uma geração em andamento |
@@ -410,7 +428,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.24.5 | Gerador v3.31.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.25.0 | Gerador v3.31.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -443,7 +461,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor) e a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 31 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor) a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar) e a rota das **demos de layout** (só entrega a pasta `demos`, sem sair dela). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
@@ -477,6 +495,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem 
 | `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado sozinho, não versionado) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |
+| `demos/` (opcional) | Demos de layout com os dados reais, abertas em `/demos/` (vêm no `demos.zip`, não ficam no repositório) |
 | `LICENSE` | Licença: software proprietário de Ruda Gabriel, todos os direitos reservados |
 | `CLAUDE.md` | Regras do projeto para o assistente de código (idioma, somente leitura, changelog, README sempre atualizado) |
 
@@ -507,6 +526,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 30 testes cobrem 
 | Continua iniciando sozinho após remover | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
 | Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |
 | "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor acha o Node de novo e tenta sozinho; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
+| Ao abrir `/demos/` aparece "Demo não encontrada" | A pasta `demos` não está na pasta do sistema. Descompacte o `demos.zip` e copie a pasta `demos` para o lado do `servidor-relatorio.js` (servidor 2.25.0 ou mais novo) |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |
 
 ---

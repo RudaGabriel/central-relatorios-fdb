@@ -7,7 +7,7 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.24.5 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.25.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.31.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.3 |
@@ -29,6 +29,20 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.25.0 — 2026-11-13
+
+**Demos de layout com os dados reais (`/demos/`).**
+
+Nova rota para testar propostas de layout com as vendas reais do dia. Ela entrega **somente** os arquivos da pasta `demos` do sistema (estáticos, somente leitura) e segue estas regras:
+
+- Só entrega extensões permitidas: html, js, css, json, imagens e fontes.
+- Não sai da pasta: `..`, barras codificadas, caminhos absolutos e caracteres nulos são recusados com 400.
+- Arquivos maiores que 8 MB não são entregues.
+- `/demos` leva para `/demos/`, e a pasta de uma demo sem a barra no fim leva para a pasta.
+- Sem a pasta `demos`, mostra uma página explicando onde colocá-la.
+
+As demos leem o relatório de hoje (`/`) e recebem as atualizações ao vivo (`/api/events`), como o relatório. Não há nenhuma rota nova que leia o banco. Teste novo (31 testes).
 
 ### 2.24.5 — 2026-11-12
 

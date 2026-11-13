@@ -1,7 +1,8 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.0.2
- *   1.0.2 - 2026-11-13 - ENG.perfCtl(): desenha o controle de desempenho criado depois (Configurações do painel);
- *                        escolher um tipo marca todos os botões desse tipo (cabeçalho, menu lateral e painel "Por tipo").
+ * @version 1.1.0
+ *   1.1.0 - 2026-11-13 - Busca e proibidos iguais aos do relatório clássico (window.BUSCA); avisos no padrão
+ *                        do clássico (sem repetição, botão fechar e barra de tempo); Atualização ligada recarrega
+ *                        como F5 a cada venda nova (também pela conferência de reserva); preferências do aparelho.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -241,6 +242,8 @@
       if (window.BUSCA) { try { BUSCA.indexar(DADOS); proibidosIniciais(); } catch (e) {} }
       const novas = converter(DADOS), antigos = new Set(vendas.map(v => v.id));
       const chegaram = primeira ? [] : novas.filter(v => !antigos.has(v.id));
+      // Atualização ligada: venda nova vinda da conferência de reserva também recarrega como F5.
+      if (chegaram.length && window.PAINEL && PAINEL.recarregar && PAINEL.recarregar()) { location.reload(); return; }
       novas.forEach(v => v.novo = chegaram.some(c => c.id === v.id));
       vendas = novas;
       renderLista();

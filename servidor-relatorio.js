@@ -5,14 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.26.1
+ * @version 2.27.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.26.1 - 2026-11-13 - Novo nome do projeto, "Central de Relatórios FDB", no rodapé da página
- *     de configurações.
+ *   2.27.0 - 2026-11-13 - Painéis de tela única: recebem a mesma busca e os mesmos proibidos do relatório
+ *     clássico (trechos ==BUSCA-COMUM== do gerador), as preferências do aparelho, o nome da loja
+ *     declarado (appName) no título e no cabeçalho e a duração dos avisos (toastDuration).
  */
 
 
@@ -20,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.26.1";
+const SERVER_VERSION = "2.27.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');

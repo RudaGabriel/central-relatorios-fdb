@@ -1,7 +1,8 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.0.2
- *   1.0.2 - 2026-11-13 - Botão Configurações: Nesta tela → Desempenho (fora do cabeçalho), configurações do
- *                        sistema e relatório clássico.
+ * @version 1.1.0
+ *   1.1.0 - 2026-11-13 - Botões Proibidos e Limpar filtros; Configurações com Atualização e Tamanho do texto
+ *                        (mesmas chaves do clássico); caixas do maior para o menor; cliques nos filtros e nos chips
+ *                        voltaram a funcionar (o clique era capturado pelo atributo data-aba do body).
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -219,7 +220,7 @@
   }
 
   // ── Interação ───────────────────────────────────────────────────────────────
-  function aba(n){ document.body.dataset.aba = n; $$("[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
+  function aba(n){ document.body.dataset.aba = n; $$("button[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
   function intro(){
     esqueletos(); temaInit();
     let a = "vendas"; try { a = sessionStorage.getItem("fdb_aba") || "vendas"; } catch (e) {}
@@ -228,7 +229,7 @@
       const o = e.target.closest("[data-ord]"); if (o) { const k = o.dataset.ord; if (ord.k === k) ord.d = -ord.d; else { ord.k = k; ord.d = (k === "vendedor" || k === "tipo" || k === "cliente") ? 1 : -1; } marcaOrd(); E().render(); return; }
       const p = e.target.closest("[data-pg]"); if (p) { ext.pg = ext.pg === p.dataset.pg ? null : p.dataset.pg; E().render(); return; }
       const c = e.target.closest("[data-cx]"); if (c) { ext.cx = ext.cx === c.dataset.cx ? null : c.dataset.cx; E().render(); return; }
-      const ab = e.target.closest("[data-aba]"); if (ab) { aba(ab.dataset.aba); return; }
+      const ab = e.target.closest("button[data-aba]"); if (ab) { aba(ab.dataset.aba); return; }
       const l = e.target.closest("[data-limpa]"); if (l) { const k = l.dataset.limpa, q = $("#q");
         if (k === "tipo" || k === "tudo") { const b = $('[data-tipo="todos"]'); if (b) b.click(); }
         if (k === "vend" || k === "tudo") { const b = $('#vends [data-vend=""]'); if (b) b.click(); else E().st.vend = null; }

@@ -1,11 +1,14 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.32.1
+ * @version 3.33.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.32.1 - 2026-11-13 - Novo nome do projeto, "Central de Relatórios FDB", no rodapé de Configurações.
+ *   3.33.0 - 2026-11-13 - Gerencial "Finalizada - Aguardando Documento Fiscal" (TOTAL 0 com pagamento e itens)
+ *            volta a ser venda gerencial, com hora, caixa, vendedor e cliente da própria venda (antes saía como
+ *            "Recebimento"). Trechos da busca e dos proibidos marcados com ==BUSCA-COMUM==, reaproveitados
+ *            pelo servidor nos painéis de tela única (fonte única, sem cópia).
  */
 
 (function() {
@@ -13,7 +16,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.32.1";
+    const SCRIPT_VERSION = "3.33.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -1073,6 +1076,12 @@
 				if (!_situacaoCache.has(_ch) || _sit) _situacaoCache.set(_ch, _sit);
 			}
 
+			// v3.33.0: gerenciais (modelo 99) SEM TOTAL na tabela nfce continuam descartadas aqui
+			// (abertas ou canceladas), mas os dados delas ficam guardados: quando um pagamento
+			// e itens apontam para o mesmo número, é uma venda real "Finalizada - Aguardando
+			// Documento Fiscal" (o PDV deixa TOTAL = 0 até emitir a nota) — ver o Pass 2 e a
+			// reclassificação logo depois dos itens do ALTERACA.
+			const _gerenciaisTotalZero = new Map(); // "dt|numero" → {hora, caixa, vendedor, cliente, natureza}
 			for (const n of rNfce.rows) {
 				if (n.CANC === 'S' || n.CANC === 'T' || n.SIT === 'C' || n.EMI === 'C') continue; 
 				const totalNum = Number(n.TOTAL || 0);
@@ -1099,7 +1108,19 @@
 				// Gerencial sem total volta a ser descartada, como antes.
 				const _modeloLinha = Number(n.MODELO || 65);
 				const _ehDocFiscal = _modeloLinha === 65 || _modeloLinha === 55;
-				if (totalNum <= 0 && !_ehDocFiscal) continue;
+				if (totalNum <= 0 && !_ehDocFiscal) {
+					if (_modeloLinha === 99) {
+						let _cxZ = String(n.CAIXA ?? "").trim();
+						if (/^\d+$/.test(_cxZ) && _cxZ.length > 0 && _cxZ.length < 3) _cxZ = _cxZ.padStart(3, "0");
+						const _dadosZ = { hora: String(n.HORA || "").trim(), caixa: _cxZ, vendedor: String(n.VENDEDOR_NFCE || "").trim(),
+							cliente: String(n.CLI_NOME || "").trim(), natureza: String(n.NAT_OP || "").trim() };
+						for (const c of validCols) {
+							const idZ = String(n["VAL_" + c] || "").trim().replace(/^0+/, "");
+							if (idZ) _gerenciaisTotalZero.set(toISO(n.DATA) + "|" + idZ, _dadosZ);
+						}
+					}
+					continue;
+				}
 
 				const ids = [];
 				for (const c of validCols) {
@@ -1494,7 +1515,9 @@
 					mapVendas.set(searchKey, {
 						_dtKey: dt, vendedor: grp.vendedor, modelo: 99, numero: ped, caixa: "",
 						total_nfce: 0, total_pag: valor, formas: grp.formas,
-						formasValores: grp.formasValores, is_recebimento: true
+						formasValores: grp.formasValores, is_recebimento: true,
+						// v3.33.0: número de uma gerencial sem total (ver _gerenciaisTotalZero)
+						_gerZero: _gerenciaisTotalZero.get(searchKey) || null
 					});
 					idIndex.set(searchKey, searchKey);
 				}
@@ -1609,6 +1632,27 @@
 						altMap.get(primaryKey).push(qtd + "x " + desc);
 					}
 				}
+			}
+
+			// ── v3.33.0: gerencial "Finalizada - Aguardando Documento Fiscal" ─────
+			// O PDV grava TOTAL = 0 na tabela nfce até emitir a nota; o pagamento existe e os
+			// itens também. Antes isso aparecia como "Recebimento de Título / Conta" (tipo
+			// Recebimento, com hora/caixa errados). Agora, com itens não cancelados, volta a ser
+			// a venda gerencial, com hora, caixa e cliente da própria linha. O total não muda
+			// (o de gerencial já vem da soma dos itens). Sem itens, continua recebimento.
+			for (const [kZ, vZ] of mapVendas.entries()) {
+				if (!vZ.is_recebimento || !vZ._gerZero) continue;
+				const itsZ = altItensMap.get(kZ);
+				if (!itsZ || !itsZ.length) { delete vZ._gerZero; continue; }
+				const gZ = vZ._gerZero;
+				vZ.is_recebimento = false;
+				if (gZ.hora) vZ.hora = gZ.hora;
+				if (gZ.caixa) vZ.caixa = gZ.caixa;
+				if ((!vZ.vendedor || vZ.vendedor === "?") && gZ.vendedor) vZ.vendedor = gZ.vendedor;
+				if (gZ.cliente) vZ.cliente = gZ.cliente;
+				if (gZ.natureza) vZ.natureza = gZ.natureza;
+				delete vZ._gerZero;
+				if (_DEBUG_LOG) console.log("  >> gerencial " + vZ.numero + " sem total na nfce (aguardando documento fiscal) reconhecida pelo pagamento e pelos itens");
 			}
 
 			// ── ITENS001: itens das NF-e ────────────────────────────────────

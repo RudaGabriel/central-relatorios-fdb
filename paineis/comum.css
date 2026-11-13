@@ -1,6 +1,6 @@
-/* paineis/comum.css — Relatórios FDB · comum aos painéis: controle de desempenho, avisos e modo Leve.
-   @version 1.0.0
-     1.0.0 - 2026-11-13 - Primeira versão.
+/* paineis/comum.css — Central de Relatórios FDB · comum aos painéis: controle de desempenho, avisos e modo Leve.
+   @version 1.0.1
+     1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
    Histórico completo das versões: CHANGELOG.md no repositório. */
 /* A página nunca rola para o lado (nem durante as animações); os cabeçalhos fixos continuam funcionando. */
 html{overflow-x:hidden}

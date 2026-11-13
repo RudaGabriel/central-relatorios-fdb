@@ -1,13 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.32.0
+ * @version 3.32.1
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.32.0 - 2026-11-13 - Menu Tema com duas categorias: "Temas clássicos" (os 7 de sempre) e
- *     "Painéis de tela única" (paineis/temas.json); o painel escolhido passa a abrir no lugar do
- *     relatório de hoje e do período ("?classico=1" abre o clássico sem trocar a escolha).
+ *   3.32.1 - 2026-11-13 - Novo nome do projeto, "Central de Relatórios FDB", no rodapé de Configurações.
  */
 
 (function() {
@@ -15,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.32.0";
+    const SCRIPT_VERSION = "3.32.1";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -7601,7 +7599,7 @@ var __abrirModalConfig = function(opcoes) {
                   '</div>') +
               '<div id="cfgStatus" style="display:none;text-align:center;padding:8px 0;font-size:13px;color:var(--text-muted)">Salvando...</div>' +
               '<button class="btn" id="cfgSalvar" type="button" style="width:100%;min-height:48px;height:auto;padding:12px 18px;font-size:15px;font-weight:700;white-space:normal;line-height:1.3;gap:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>' + (_soPrefs ? 'Salvar preferências' : 'Salvar configurações') + '</button>' +
-              '<div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px;opacity:.85">Relatórios FDB — criado e mantido por Ruda Gabriel</div>' +
+              '<div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px;opacity:.85">Central de Relatórios FDB — criado e mantido por Ruda Gabriel</div>' +
             '</div>' +
           '</div>';
 

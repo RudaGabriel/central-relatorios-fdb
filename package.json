@@ -1,7 +1,7 @@
 {
-  "name": "relatorios-fdb",
+  "name": "central-relatorios-fdb",
   "private": true,
-  "description": "Painel de vendas em tempo real (Gerencial, NFC-e e NF-e) para PDV com banco Firebird. Criado e mantido por Ruda Gabriel.",
+  "description": "Central de Relatórios FDB: relatórios de vendas do PDV em tempo real (Gerencial, NFC-e e NF-e), para lojas com banco Firebird. Criado e mantido por Ruda Gabriel.",
   "author": "Ruda Gabriel",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {

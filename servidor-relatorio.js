@@ -5,15 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.26.0
+ * @version 2.26.1
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.26.0 - 2026-11-13 - Painéis de tela única: rota /painel/<id>/ (monta a página a partir da
- *     pasta "paineis"; só ids de paineis/temas.json), /api/temas e o tema remoto com as duas
- *     categorias; as rotas /demos (prévias) passam a levar para /painel/.
+ *   2.26.1 - 2026-11-13 - Novo nome do projeto, "Central de Relatórios FDB", no rodapé da página
+ *     de configurações.
  */
 
 
@@ -21,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.26.0";
+const SERVER_VERSION = "2.26.1";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5873,7 +5872,7 @@ var server=http.createServer(function(req,res){
             "<p class=\"hint\">As vendas que contiverem esses termos serão ocultadas do relatório.</p></div>"+
             "<button class=\"btn\" id=\"salvarBtn\" onclick=\"salvar()\">Salvar configurações</button>"+
             "<button class=\"btn btn-sec\" style=\"margin-top:10px\" id=\"voltarBtn\" data-voltar=\""+escH(_voltarCfg)+"\" onclick=\"window.location.href=this.getAttribute('data-voltar')||'/'\">"+(_voltarCfg === "/" ? "Voltar para o relatório" : "Voltar para a tela anterior")+"</button>"+
-            "<p style=\"text-align:center;font-size:11px;color:#52525b;margin:18px 0 0\">Relatórios FDB — criado e mantido por Ruda Gabriel</p>"+
+            "<p style=\"text-align:center;font-size:11px;color:#52525b;margin:18px 0 0\">Central de Relatórios FDB — criado e mantido por Ruda Gabriel</p>"+
             "</div>"+
             "<script>"+
             "(function(){"+

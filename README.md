@@ -1,14 +1,14 @@
 <div align="center">
 
-# 📊 Relatórios FDB
+# 📊 Central de Relatórios FDB
 
-### Painel de vendas em tempo real para lojas com PDV em banco Firebird
+### Relatórios de vendas do PDV em tempo real, para lojas com banco Firebird
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.26.0" src="https://img.shields.io/badge/servidor-v2.26.0-2563EB?style=flat">
-<img alt="gerador: v3.32.0" src="https://img.shields.io/badge/gerador-v3.32.0-2563EB?style=flat">
-<img alt="bandeja: v1.8.3" src="https://img.shields.io/badge/bandeja-v1.8.3-2563EB?style=flat">
+<img alt="servidor: v2.26.1" src="https://img.shields.io/badge/servidor-v2.26.1-2563EB?style=flat">
+<img alt="gerador: v3.32.1" src="https://img.shields.io/badge/gerador-v3.32.1-2563EB?style=flat">
+<img alt="bandeja: v1.8.4" src="https://img.shields.io/badge/bandeja-v1.8.4-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
@@ -451,7 +451,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.26.0 | Gerador v3.32.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.26.1 | Gerador v3.32.1
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -559,7 +559,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 33 testes cobrem 
 
 ## 👤 Autoria e créditos
 
-**Relatórios FDB foi criado, desenvolvido e é mantido por Ruda Gabriel** — concepção, regras de negócio, código, testes e manutenção.
+**A Central de Relatórios FDB foi criada, desenvolvida e é mantida por Ruda Gabriel** — concepção, regras de negócio, código, testes e manutenção.
 
 É um projeto **próprio e independente**: não é derivado de outros projetos nem afiliado ao fabricante do PDV cujo banco ele lê. Bibliotecas e serviços citados em *Tecnologias e bibliotecas* (Node.js, `node-firebird`, Tailscale etc.) são apenas ferramentas usadas, sem vínculo com a autoria.
 

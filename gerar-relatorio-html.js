@@ -3796,7 +3796,9 @@ _prepararDados(DADOS);
 const fmt=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
 // Valor sem símbolo de moeda — usado na exibição de formas no modal
 const fmtN=v=>new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v||0));
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const fmtCopia=v=>new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:false}).format(Number(v||0));
+/* ==/BUSCA-COMUM== */
 // "2026-05-19" (ou "2026-05-19T10:00") -> "19/05/26" (dd/mm/aa). Vazio se a data faltar ou não for válida:
 // quem usa decide o que mostrar — nunca se inventa uma data.
 const _dataCurta=iso=>{
@@ -4242,6 +4244,7 @@ window.addEventListener("resize", () => {
     _tmRaf = requestAnimationFrame(() => { _tmRaf = 0; if (_tmAberto) _tmPosicionar(); });
 });
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const rmAcento=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const normP=v=>rmAcento(v).trim().toUpperCase().replace(/\s+/g," ");
 
@@ -4252,7 +4255,9 @@ const _indexarVendas = () => { for(let i=0; i<DADOS.vendas.length; i++){
     x._busca = rmAcento((x.vendedor||"")+" "+(x.tipo||"")+" "+(x.pagamentos||"")+" "+(x.itens||"")+" "+(x.caixa||"")+" "+(x.numero||"")+" "+(x.cliente||"")+" "+(x.natureza||"")).toLowerCase();
 } };
 _indexarVendas();
+/* ==/BUSCA-COMUM== */
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const LS_KEY="__cupons_proibidos__";
 // PADRÃO DE FÁBRICA (v3.3.1): vazio. Antes trazia uma lista fixa de marcas de
 // uma loja específica, aplicada automaticamente em qualquer instalação nova
@@ -4318,6 +4323,7 @@ const setProibidosUser=(lista)=>{
     valoresProibidos=limpo.length?limpo:proibidosPadrao.slice();
     _recompileProibidos();
 };
+/* ==/BUSCA-COMUM== */
 
 // ── Formato da lista de proibidos (v3.4.0) ──────────────────────────────────
 // Formato aceito: UM termo por linha. Listas coladas de outros lugares chegam
@@ -5098,6 +5104,7 @@ const itensTdHTML=(itensRaw,venda)=>{
     return{html,title:tituloPartes.join(" • ")};
 };
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const semWS=s=>{
     let o="";
     for(const ch of String(s||"")){
@@ -5610,6 +5617,7 @@ const passaFiltro = (x, i) => {
     }
     return passaFiltroFast(x, i, _passaFiltroCtxCache);
 };
+/* ==/BUSCA-COMUM== */
 
 const limparPagamentoCopia=p=>String(p||"").split("|").map(s=>s.trim().replace(/^cartao(?: +|$)/i,"").trim()).filter(Boolean).join(" | ");
 const formasDe=x=>limparPagamentoCopia(x.pagamentos||"").split("|").map(s=>normP(s)).filter(Boolean);

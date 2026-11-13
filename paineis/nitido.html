@@ -6,11 +6,11 @@
      Montado pelo servidor em /painel/nitido/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Nítido · Central de Relatórios FDB</title>
+<title>Nítido · __NOME_LOJA__</title>
 <!--COMUM-->
 <style>
 :root{--bg:#f6f7f9;--pn:#ffffff;--cab:#fafbfc;--tx:#0f172a;--tx2:#334155;--mu:#64748b;--ln:#e5e7eb;--ln2:#f1f3f5;--ac:#2563eb;--ac2:#7c3aed;--hv:#f5f8ff;--sel:#eaf1ff;--trk:#eef0f3;--gap:0px;
- --d-bg:#fff;--d-tx:#0f172a;--d-mu:#64748b;--d-ac:#2563eb;--d-ln:#e5e7eb;--t-bg:#0f172a;--t-tx:#fff;--t-ac:#93c5fd}
+ --d-bg:#fff;--d-tx:#0f172a;--d-mu:#64748b;--d-ac:#2563eb;--d-ln:#e5e7eb}
 body{background:var(--bg)}
 .top{flex:none;display:flex;align-items:center;gap:12px;min-width:0;height:52px;padding:0 14px;background:#fff;border-bottom:1px solid var(--ln)}
 .marca{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto}
@@ -51,7 +51,7 @@ body{background:var(--bg)}
 .hr-s{border-radius:2px;background:#f3f4f6}
 #rod{background:#fafbfc}
 #ov{background:rgba(15,23,42,.35)}#ov .det{border-radius:12px;border:1px solid var(--ln);box-shadow:0 30px 60px -20px rgba(15,23,42,.35)}
-.toast{border-radius:8px}
+
 @media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}.marca{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:0}.marca .logo{grid-row:1/3}.marca .sep{display:none}.marca small{grid-column:2}}
 @media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
 @media (max-width:1180px){.grade{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.cx-tab{grid-row:1/3;border-right:1px solid var(--ln)}.esq{grid-column:2;grid-row:1;border-right:0;border-bottom:1px solid var(--ln)}.dir{grid-column:2;grid-row:2;border-left:0}.cx-prod,.cx-conv{display:none}.busca{width:200px}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}}
@@ -64,9 +64,10 @@ body{background:var(--bg)}
  .abas{background:#fff}
  .cx-tab>h3 em{display:none}
 }
+.tst{border-radius:8px;box-shadow:0 12px 30px -12px rgba(15,23,42,.3)}
 </style></head><body>
 <header class="top">
- <div class="marca"><span class="logo">FDB</span><b>Central de Relatórios FDB</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
+ <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><b>__NOME_LOJA__</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
  <label class="busca">⌕<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

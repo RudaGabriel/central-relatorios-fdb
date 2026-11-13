@@ -98,7 +98,7 @@ function query(sql, params, cb) {
                 return cb(null, ["DATA", "PEDIDO", "CAIXA", "DESCRICAO", "QUANTIDADE", "TOTAL", "ITEM"].map(c => ({ C: c })));
             if (/from ALTERACA where DATA between/i.test(s))
                 return cb(null, (st.alt || []).map(r => ({
-                    DATA: hojeUTC(), PED: String(r.pedido), CX: "1", DESCRICAO: r.desc, QUANTIDADE: r.qtd || 1,
+                    DATA: hojeUTC(), PED: String(r.pedido), CX: r.caixa || "1", DESCRICAO: r.desc, QUANTIDADE: r.qtd || 1,
                     VENDEDOR_ALT: null, HORA_ALT: "", TOTAL_ITEM: r.total === undefined ? null : r.total
                 })));
             // PAGAMENT da geração: estado.pagGer = [{ numero, forma: "03 PIX", valor }] (separado
@@ -122,8 +122,9 @@ function query(sql, params, cb) {
                 const _resp = (st.nfce || []).map(r => ({
                     // r.canc: "S" = cancelada, "T" = gerencial convertida (vínculo na coluna
                     // GERENCIAL da NFC-e/NF-e nova, r.gerencial).
-                    DATA: hojeUTC(), MODELO: r.modelo || 65, TOTAL: r.total === undefined ? 10 : r.total, CAIXA: "1", VENDEDOR_NFCE: _texto(r.vendedor === undefined ? "ANA" : r.vendedor),
-                    CANC: r.canc || "N", SIT: "", EMI: "", HORA: r.hora, CLI_NOME: "", NAT_OP: "",
+                    DATA: hojeUTC(), MODELO: r.modelo || 65, TOTAL: r.total === undefined ? 10 : r.total, CAIXA: r.caixa || "1", VENDEDOR_NFCE: _texto(r.vendedor === undefined ? "ANA" : r.vendedor),
+                    // r.caixa, r.cliente e r.nat (opcionais): caixa, cliente e natureza da operação.
+                    CANC: r.canc || "N", SIT: "", EMI: "", HORA: r.hora, CLI_NOME: _texto(r.cliente || ""), NAT_OP: _texto(r.nat || ""),
                     VAL_NUMERONF: r.numero, VAL_GERENCIAL: r.gerencial || null
                 }));
                 return st.atrasoGeracaoMs ? setTimeout(() => cb(null, _resp), st.atrasoGeracaoMs) : cb(null, _resp);

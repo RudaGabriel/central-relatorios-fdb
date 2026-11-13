@@ -1,6 +1,6 @@
 /* paineis/comum.css — Central de Relatórios FDB · comum aos painéis: controle de desempenho, avisos e modo Leve.
-   @version 1.0.1
-     1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+   @version 1.1.0
+     1.1.0 - 2026-11-13 - Sem os estilos antigos dos avisos (agora no padrão do relatório clássico, em base.css).
    Histórico completo das versões: CHANGELOG.md no repositório. */
 /* A página nunca rola para o lado (nem durante as animações); os cabeçalhos fixos continuam funcionando. */
 html{overflow-x:hidden}
@@ -29,8 +29,4 @@ html[data-perf="leve"] .so-completo{display:none!important}
 :where(#ov .det) :where(.row){display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--d-ln,rgba(127,127,127,.25))}
 :where(#ov .det .row) :where(b){white-space:nowrap}
 :where(#ov) :where(.fechar){position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:12px;border:1px solid var(--d-ln,rgba(127,127,127,.3));background:transparent;color:inherit;font-size:20px;cursor:pointer}
-:where(#toasts){position:fixed;top:18px;right:18px;z-index:60;display:flex;flex-direction:column;gap:8px}
-:where(.toast){max-width:calc(100vw - 32px);position:relative;overflow:hidden;background:var(--t-bg,#111);color:var(--t-tx,#fff);padding:12px 18px 14px;border-radius:14px;font-size:13.5px;box-shadow:0 16px 34px -14px rgba(0,0,0,.5)}
-:where(.toast) :where(b){color:var(--t-ac,#4ade80)}
-:where(.toast) :where(i){position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--t-ac,#4ade80);transform-origin:left}
 :where(#vazio,#mais){padding:24px;text-align:center;opacity:.7}

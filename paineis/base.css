@@ -1,7 +1,8 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.0.2
-     1.0.2 - 2026-11-13 - Botão e painel Configurações (o desempenho sai do cabeçalho); cabeçalho do celular
-                          compacto (nome, Tema e Configurações na mesma linha).
+   @version 1.1.0
+     1.1.0 - 2026-11-13 - Barras de rolagem nas cores do tema, avisos no padrão do relatório clássico, botões
+                          Proibidos e Limpar filtros, Atualização e Tamanho do texto em Configurações,
+                          logo com o favicon e lista de vendas sem rolagem lateral.
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -59,7 +60,7 @@ button{font:inherit;color:inherit}
 
 /* Tabela de vendas */
 .tabela{display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;container-type:inline-size}
-.tb-sc{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;position:relative}
+.tb-sc{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative}
 #cab,.lv{display:grid;grid-template-columns:var(--cols,86px 68px 66px 44px minmax(100px,1fr) minmax(90px,.9fr) minmax(170px,2.2fr) minmax(110px,1.15fr) 88px);align-items:center}
 #cab{position:sticky;top:0;z-index:3;background:var(--cab,var(--pn));border-bottom:1px solid var(--ln)}
 #cab>*{border:0;background:none;text-align:left;padding:7px 8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:4px;align-items:center}
@@ -180,3 +181,52 @@ html[data-perf="leve"] .tmMenu{transition:none}
 .cfgLinks a:after{content:"›";color:var(--mu);font-size:16px;line-height:1}
 .cfgLinks a:hover{border-color:var(--ac);color:var(--ac)}
 @media (max-width:820px){.cfgMenu .tmCab span{display:inline}}
+
+/* Tamanho do texto (Configurações → Tamanho do texto): a página inteira cresce ou diminui e a
+   altura é compensada, para continuar cabendo exatamente na tela. */
+body{zoom:var(--zoom,1);height:calc(100vh / var(--zoom,1));height:calc(100dvh / var(--zoom,1))}
+
+/* Barras de rolagem finas, nas cores do tema (como no relatório clássico) */
+*{scrollbar-width:thin;scrollbar-color:var(--sbt,color-mix(in srgb,var(--mu) 45%,transparent)) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--sbt,color-mix(in srgb,var(--mu) 45%,transparent));border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background-color:var(--mu)}
+
+/* Logo: o favicon da pasta do sistema (o mesmo do relatório clássico); sem ele, "FDB". */
+.logo{overflow:hidden}
+.logo img{display:block;width:100%;height:100%;object-fit:contain;padding:14%}
+.logo.semImg:before{content:"FDB"}
+
+/* Avisos: mesmo padrão do relatório clássico (texto, fechar e barra de tempo restante) */
+#toasts{position:fixed;top:16px;left:16px;right:auto;bottom:auto;z-index:2147483000;display:flex;flex-direction:column;gap:10px;pointer-events:none;width:max-content;max-width:min(440px,calc(100vw - 32px))}
+.tst{pointer-events:auto;position:relative;overflow:hidden;background:var(--mbg,var(--cab,var(--pn)));color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:0 16px 36px -14px rgba(0,0,0,.5);padding:12px 38px 15px 14px;font:600 13px/1.4 Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:0;text-transform:none;opacity:0;transform:translateY(-10px);transition:opacity .22s,transform .22s}
+.tst.on{opacity:1;transform:none}
+.tst b{color:var(--ac);font-weight:700}
+.tst-x{position:absolute;top:9px;right:9px;width:22px;height:22px;display:grid;place-items:center;border:0;border-radius:11px;background:transparent;color:var(--mu);cursor:pointer}
+.tst-x:hover{color:var(--tx);background:var(--hv)}
+.tst-tr,.tst-br{position:absolute;left:0;bottom:0;width:100%;height:3px}
+.tst-tr{background:var(--ln)}
+.tst-br{background:linear-gradient(90deg,var(--ac),var(--ac2,var(--ac)));transform-origin:left}
+
+/* Proibidos e Limpar filtros, no topo da lista de vendas */
+.tbAc{display:flex;gap:6px;flex:none;margin-left:auto}
+.cx-tab>h3 em+.tbAc{margin-left:12px}
+.tbAc button{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--ln);border-radius:8px;background:transparent;color:var(--tx2,var(--tx));font:600 12px Inter,"Segoe UI",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap}
+.tbAc button svg{width:13px;height:13px;flex:none}
+.tbAc button:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
+.tbAc button:disabled{opacity:.45;cursor:default}
+.tbAc button[aria-pressed="true"]{background:color-mix(in srgb,var(--ac) 16%,transparent);border-color:var(--ac);color:var(--tx)}
+.cx-tab>h3{gap:8px}
+@media (max-width:1400px){.cx-tab>h3 em{display:none}}
+@media (max-width:480px){.tbAc span{display:none}.tbAc button{padding:0 8px}}
+
+/* Configurações: Atualização e Tamanho do texto */
+.cfgLin+.cfgLin{margin-top:12px;padding-top:12px;border-top:1px solid var(--ln)}
+.cfgChk{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;font-weight:500;cursor:pointer}
+.cfgChk input{width:16px;height:16px;flex:none;accent-color:var(--ac);cursor:pointer}
+.cfgZ{display:inline-flex;gap:4px;margin-top:8px;padding:4px;border-radius:999px;background:rgba(127,127,127,.14);border:1px solid rgba(127,127,127,.22)}
+.cfgZ button{border:0;background:none;color:inherit;font:600 12px Inter,"Segoe UI",sans-serif;padding:7px 14px;border-radius:999px;cursor:pointer;opacity:.8}
+.cfgZ button:hover:not(:disabled){opacity:1}
+.cfgZ button[aria-pressed="true"]{background:rgba(127,127,127,.32);opacity:1}
+.cfgZ button:disabled{opacity:.35;cursor:default}

@@ -6,14 +6,14 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.26.1" src="https://img.shields.io/badge/servidor-v2.26.1-2563EB?style=flat">
-<img alt="gerador: v3.32.1" src="https://img.shields.io/badge/gerador-v3.32.1-2563EB?style=flat">
+<img alt="servidor: v2.27.0" src="https://img.shields.io/badge/servidor-v2.27.0-2563EB?style=flat">
+<img alt="gerador: v3.33.0" src="https://img.shields.io/badge/gerador-v3.33.0-2563EB?style=flat">
 <img alt="bandeja: v1.8.4" src="https://img.shields.io/badge/bandeja-v1.8.4-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 33 passando" src="https://img.shields.io/badge/testes-33%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 35 passando" src="https://img.shields.io/badge/testes-35%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -42,9 +42,9 @@
 
 ## O que é
 
-Um servidor Node.js que **lê** o banco Firebird do PDV da loja (`SMALL.FDB`) e publica, na rede da loja, um painel web com as vendas do dia — **Gerencial, NFC-e e NF-e** — por vendedor, forma de pagamento e item. A tela se atualiza sozinha em menos de um segundo a cada venda, cancelamento ou autorização da SEFAZ.
+Um servidor Node.js que **lê** o banco Firebird do PDV da loja (`SMALL.FDB`) e publica, na rede da loja, um painel web com as vendas do dia — **Gerencial, NFC-e e NF-e** — por vendedor, forma de pagamento e item. A tela se atualiza automaticamente em menos de um segundo a cada venda, cancelamento ou autorização da SEFAZ.
 
-Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se recupera sozinho de quedas e abre em qualquer computador ou celular da loja pelo navegador.
+Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se recupera automaticamente de quedas e abre em qualquer computador ou celular da loja pelo navegador.
 
 | | |
 |---|---|
@@ -54,14 +54,14 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 | 👤 **Cada aparelho do seu jeito** | Avisos, proibidos, teclas, apelido e opções de tela por aparelho — só o computador do servidor muda para todos |
 | 🔒 **Somente leitura** | Nenhum `INSERT`, `UPDATE` ou `DELETE` — o banco do caixa nunca é alterado |
 | 🌐 **Sem internet** | Tudo local: gráficos, ícones e QR code são gerados pelo próprio sistema |
-| 🛟 **Se cuida sozinho** | Watchdog, reconexão automática com o banco e aviso na tela quando o servidor cai |
+| 🛟 **Recuperação automática** | Watchdog, reconexão automática com o banco e aviso na tela quando o servidor cai |
 
 ---
 
 <a id="instalacao"></a>
 ## 🚀 Instalação em 3 passos
 
-> **Requisitos:** Windows 10 ou 11 · acesso ao Firebird do PDV (local ou na rede, porta 3050). O Node.js 18+ e o módulo `node-firebird` são instalados sozinhos.
+> **Requisitos:** Windows 10 ou 11 · acesso ao Firebird do PDV (local ou na rede, porta 3050). O Node.js 18+ e o módulo `node-firebird` são instalados automaticamente.
 
 1. **Copie a pasta do sistema** para a máquina servidora (ou para uma pasta de rede).
 2. **Execute `instalar-na-inicializacao.bat`.** Ele pede permissão de administrador, instala o que faltar, pergunta o nome da loja, libera a porta 7734 no firewall, cria a inicialização automática e já liga o servidor.
@@ -73,14 +73,14 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 <details>
 <summary><b>O que a inicialização automática faz</b></summary>
 
-A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco. Nada aparece na tela ao ligar o computador: com o sistema numa pasta do próprio computador, a tarefa abre o `launcher.vbs` direto; numa pasta de rede, a própria tarefa espera a pasta ficar disponível em segundo plano, sem janela (sem nenhum script extra copiado para o computador). Ao instalar a versão nova, a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap` é apagada sozinha.
+A tarefa dispara **ao fazer logon** (qualquer usuário) e **ao ligar o computador**, sem condições (ocioso, energia, rede — funciona em notebook na bateria). Se falhar, tenta de novo a cada 1 min (até 99 vezes), não tem limite de tempo, nunca abre uma segunda cópia e espera até 30 min pela pasta de rede e pelo banco. Nada aparece na tela ao ligar o computador: com o sistema numa pasta do próprio computador, a tarefa abre o `launcher.vbs` direto; numa pasta de rede, a própria tarefa espera a pasta ficar disponível em segundo plano, sem janela (sem nenhum script extra copiado para o computador). Ao instalar a versão nova, a pasta antiga `%LOCALAPPDATA%\RelatoriosBootstrap` é apagada automaticamente.
 
 </details>
 
 <details>
 <summary><b>Remover a inicialização automática</b></summary>
 
-Execute **`remover-inicializacao.bat`**. Ele remove tudo o que inicia o relatório sozinho:
+Execute **`remover-inicializacao.bat`**. Ele remove tudo o que inicia o relatório automaticamente:
 
 - a tarefa agendada (com qualquer nome, inclusive de versões antigas);
 - o atalho na pasta Inicializar e as entradas `Run` do registro;
@@ -113,7 +113,9 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Mudar o tema de cores | Botão **Tema** |
 | Usar um painel de tela única (tudo em uma tela) | Botão **Tema** → **Painéis de tela única** (veja [Painéis](#paineis)); para voltar, **Tema** → **Temas clássicos** |
 | Abrir o relatório clássico sem trocar o painel escolhido | No painel, **⚙ Configurações → Abrir o relatório clássico** · `http://IP:7734/?classico=1` |
-| Desempenho (Automático, Completo ou Leve) num painel | **⚙ Configurações → Nesta tela → Desempenho** (o mesmo ajuste do relatório clássico) |
+| Desempenho, atualização ou tamanho do texto num painel | **⚙ Configurações → Nesta tela** (os mesmos ajustes do relatório clássico) |
+| Ocultar as vendas com itens proibidos num painel | Botão **Proibidos**, no topo da lista de vendas (clique de novo para mostrar) |
+| Tirar todos os filtros de um painel | Botão **Limpar filtros**, no topo da lista de vendas |
 | Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
 | Dar um nome ao aparelho, mudar avisos/proibidos/teclas só dele | **Configurações → Minhas preferências** (veja [Aparelhos](#aparelhos)) |
 | Trocar o banco | Bandeja → *Configurações → Selecionar banco (FDB)* · `http://IP:7734/selecionar-fdb` |
@@ -162,7 +164,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 ### 🛠️ Operação
 - **Bandeja do Windows** com menu completo e ícones: status ao vivo, abrir, atualizar, período, telas abertas (trazer para frente, recarregar, enviar aviso, tema), dispositivos conectados, configurações, ferramentas (informações, copiar endereço, pasta, log, log ao vivo, `api.ps1`, programas), reiniciar e sair (ao sair, uma notificação perto do relógio confirma o encerramento, sem caixa para clicar em OK).
 - **Watchdog:** reinicia o servidor se cair ou se ficar ~60 s sem responder. Tolerante a máquina lenta (não reinicia à toa), registra no log o motivo de cada falha e o código de saída, e espera 1 min se o servidor cair várias vezes logo ao iniciar.
-- **Detecção do banco:** caminhos conhecidos → `config.json` → varredura da rede na porta 3050 → página para escolher o `SMALL.FDB`. Reconecta sozinho quando o banco volta.
+- **Detecção do banco:** caminhos conhecidos → `config.json` → varredura da rede na porta 3050 → página para escolher o `SMALL.FDB`. Reconecta automaticamente quando o banco volta.
 - **Instalação automática de dependências** (Node.js com verificação de integridade e `node-firebird`).
 
 <details>
@@ -174,7 +176,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 - **Um refresh por movimento:** a geração espera o pagamento da venda (até 1,5 s) e a autorização da NFC-e convertida (até 8 s) e gera uma vez só, com tudo.
 - **Tempo até a tela atualizar:** ~140 ms do registro no banco ao aviso no navegador (Firebird 3 local).
 - Cada venda e cada pagamento entram numa assinatura (hash) somada por tipo; se o Firebird não aceitar essa consulta, o fast-poll segue no modo básico, sem parar.
-- **Navegador:** atualização por SSE (Server-Sent Events), com polling HTTP de reserva; faixa de aviso quando o servidor cai e volta sozinho.
+- **Navegador:** atualização por SSE (Server-Sent Events), com polling HTTP de reserva; faixa de aviso quando o servidor cai e volta automaticamente.
 
 </details>
 
@@ -210,14 +212,14 @@ O navegador não envia o nome de "Ajustes → Geral → Sobre"; o servidor pergu
 
 Para abrir o relatório no 4G ou em outro Wi-Fi, use o **Tailscale** (gratuito). Ele cria uma rede **privada e criptografada** só entre os seus aparelhos: não abre porta no roteador e o relatório não fica exposto na internet. Só os seus aparelhos e quem você liberar acessam.
 
-1. **No computador do servidor:** instale o Tailscale (<https://tailscale.com/download>) e entre com uma conta (Google, Microsoft ou Apple). No ícone dele, ative **Preferences → Run unattended**. No painel <https://login.tailscale.com/admin/machines>, em **⋯ → Disable key expiry** no computador da loja, para ele não se desconectar sozinho depois de 180 dias.
+1. **No computador do servidor:** instale o Tailscale (<https://tailscale.com/download>) e entre com uma conta (Google, Microsoft ou Apple). No ícone dele, ative **Preferences → Run unattended**. No painel <https://login.tailscale.com/admin/machines>, em **⋯ → Disable key expiry** no computador da loja, para que ele não se desconecte automaticamente depois de 180 dias.
 2. **No celular:** instale o app **Tailscale**, entre com a **mesma conta**, permita a configuração de VPN e deixe-o ligado (no iPhone dá para ativar "VPN On Demand").
 3. **No relatório:** **Celular → aba "Fora da loja"** (ou bandeja → *Abrir no celular*) e escaneie o QR code. O endereço usa o **nome** da máquina no Tailscale, ex.: `http://pc-loja.tailxxxx.ts.net:7734/` (o IP `http://100.x.y.z:7734/` também funciona).
    A janela mostra **dois cartões**, cada um com o seu botão de copiar: o **nome do Tailscale** (fixo) e o **IP do Tailscale** (também funciona). O cartão destacado é o do QR code; toque no outro para trocar o QR.
 
 > **O endereço muda?** Não. O nome (MagicDNS) é **fixo**: é o nome da máquina + o nome da sua rede no Tailscale, e só muda se alguém renomear um dos dois no painel, ou se a máquina for removida e adicionada de novo. O IP `100.x` também é fixo nessas mesmas condições. Pode salvar nos favoritos ou na tela de início do celular. Se o nome não aparecer, ative o **MagicDNS** em <https://login.tailscale.com/admin/dns> (vem ligado por padrão nas contas novas).
 
-Não precisa reiniciar o servidor nem mexer no roteador: o sistema detecta o Tailscale sozinho, e a regra de firewall do instalador já vale para essa rede.
+Não precisa reiniciar o servidor nem mexer no roteador: o sistema detecta o Tailscale automaticamente, e a regra de firewall do instalador já vale para essa rede.
 
 <a id="compartilhar"></a>
 ### 🤝 Liberar o acesso para outra pessoa (sem passar o seu e-mail)
@@ -258,7 +260,7 @@ Cada celular ou computador tem as **suas** preferências. Quando um muda, os out
 <a id="busca"></a>
 ## 🔎 Busca e filtros
 
-A caixa de busca aceita filtros combináveis; a ajuda completa fica no botão **Ajuda**. Os botões **Todos / Gerencial / NFC-e / NF-e** restringem o tipo.
+A caixa de busca aceita filtros combináveis; a ajuda completa fica no botão **Ajuda**. Os botões **Todos / Gerencial / NFC-e / NF-e** restringem o tipo. A busca dos [painéis de tela única](#paineis) é a mesma, com os mesmos resultados.
 
 | Coringa | Significado | Exemplo |
 |---|---|---|
@@ -283,7 +285,7 @@ A maior parte pode ser editada pela própria tela (**Configurações**), no comp
 
 | Chave | Padrão | Para que serve |
 |---|---|---|
-| `appName` | `"Relatorios"` | Nome exibido no título, na bandeja e nas janelas |
+| `appName` | `"Relatorios"` | Nome da loja exibido no título, na bandeja, nas janelas e no cabeçalho dos painéis de tela única |
 | `porta` | `7734` | Porta HTTP |
 | `fdbPath` / `fbHost` | automático | Caminho do `SMALL.FDB` e host do Firebird (salvos ao encontrar o banco) |
 | `fbUser` / `fbPass` | `SYSDBA` / `masterkey` | Credenciais do Firebird (passadas por variável de ambiente, nunca pela linha de comando) |
@@ -368,12 +370,21 @@ Em todos os painéis você encontra:
   - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
-- **Painéis em volta:** por tipo, formas de pagamento e caixas (um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque), produtos mais vendidos e conversões em nota fiscal.
+- **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque), produtos mais vendidos e conversões em nota fiscal.
+- **Busca igual à do relatório clássico:** a mesma caixa de busca, com todos os coringas da seção [Busca e filtros](#busca) e os mesmos resultados.
 - **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
+- **Botões no topo da lista de vendas:**
+  - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
+  - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
+  - no celular aparecem só os ícones.
+- **Logo e nome da loja:** a logo é o `favicon.png` da pasta do sistema (sem o arquivo, aparece "FDB") e o nome declarado em `appName` aparece no cabeçalho e no título da aba.
+- **Avisos** no mesmo padrão do relatório clássico (botão fechar e barra de tempo, sem repetir o mesmo aviso), nas cores de cada painel, e barras de rolagem nas cores do tema.
 - **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, cada item com o valor e cada forma de pagamento.
 - **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
 - **⚙ Configurações** (no cabeçalho de cada painel):
   - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve). No **Leve**, saem o desfoque e as animações contínuas.
+  - **Nesta tela → Atualização:** ligada (padrão), a página é recarregada como no F5 a cada venda nova (a busca e os filtros são limpos); desligada, as vendas novas entram sem recarregar. É a mesma opção do relatório clássico.
+  - **Nesta tela → Tamanho do texto:** de 80% a 140% (A− / Padrão / A+), separado para computador e celular, como no relatório clássico.
   - **Configurações do sistema:** abre a página de configurações e volta para o painel.
   - **Abrir o relatório clássico.**
 
@@ -432,7 +443,7 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/api/restart` · `/api/encerrar` | GET | Reinicia / encerra de forma ordenada (rede local) |
 | `/api/log-error` · `/api/hora-usuario` | POST | Uso interno do navegador |
 
-No `status`, `-1` significa "ainda não lido do banco"; a resposta traz `obs` explicando. O `api.ps1` repete sozinho em falha de rede ou erro 5xx e mostra o motivo enviado pelo servidor.
+No `status`, `-1` significa "ainda não lido do banco"; a resposta traz `obs` explicando. O `api.ps1` repete a chamada automaticamente em falha de rede ou erro 5xx e mostra o motivo enviado pelo servidor.
 
 </details>
 
@@ -456,7 +467,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.26.1 | Gerador v3.32.1
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.27.0 | Gerador v3.33.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -470,7 +481,7 @@ Uma única biblioteca externa — o resto é do próprio Node.js, do Windows ou 
 | Parte | Tecnologia | Para quê |
 |---|---|---|
 | Servidor e gerador | **Node.js 18+** (módulos nativos `http`, `child_process`, `fs`, `crypto`, `dns`, `dgram`, `net`, `os`) | Servidor HTTP/SSE, geração em subprocesso, cookie dos aparelhos, nome dos aparelhos (mDNS/NetBIOS/DNS), detecção do banco na rede |
-| Banco | **[node-firebird](https://www.npmjs.com/package/node-firebird)** — única dependência externa, instalada sozinha | Leitura do Firebird do PDV, só em transações somente leitura |
+| Banco | **[node-firebird](https://www.npmjs.com/package/node-firebird)** — única dependência externa, instalada automaticamente | Leitura do Firebird do PDV, só em transações somente leitura |
 | Tela do relatório | **HTML5, CSS e JavaScript** puros (sem framework) | Interface, temas, busca, painel detalhado, atualização sem recarregar |
 | Tempo real | **SSE** (Server-Sent Events) + polling HTTP de reserva | Aviso de venda nova em menos de um segundo |
 | Gráficos e ícones | **SVG** gerado pelo próprio sistema; ícones no estilo **Lucide** embutidos | Painel detalhado, botões e menu da bandeja |
@@ -489,7 +500,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 33 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias e prévias com as cores reais dos temas). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 35 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar) a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
@@ -520,7 +531,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 33 testes cobrem 
 | `api.ps1` | Cliente de linha de comando da API |
 | `_instalar-node.ps1` · `node-firebird.bat` | Instalam o Node.js e o `node-firebird` |
 | `config.json` | Configurações (padrão de todos) |
-| `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado sozinho, não versionado) |
+| `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado automaticamente, não versionado) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |
 | `paineis/` | Painéis de tela única (categoria de temas própria): `temas.json` (lista), `motor.js` e `painel.js` (dados e tela), `base.css` e `comum.css`, `corpo.html` e um `.html` por painel. O servidor monta cada um em `/painel/ID/` |
@@ -543,17 +554,18 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 33 testes cobrem 
 | Um aparelho mostra avisos/proibidos diferentes dos outros | Ele tem preferências próprias: *Minhas preferências → Voltar ao padrão do servidor*, ou bandeja → *Dispositivos conectados → Voltar ao padrão* |
 | Quero que a página não recarregue | *Configurações → Nesta tela → Atualização*: desligue "Recarregar relatório ao detectar mudanças" (as vendas continuam entrando) |
 | Quero que a tela volte limpa a cada venda (sem filtros) | *Configurações → Nesta tela → Atualização*: ligue "Recarregar relatório ao detectar mudanças" (funciona como F5) |
+| Uma venda gerencial "Finalizada - Aguardando Documento Fiscal" aparece como **Recebimento** (sem itens, com outro caixa ou hora) | Atualize o `gerar-relatorio-html.js` para a 3.33.0 ou mais nova: ela volta a aparecer como venda gerencial, com os itens, o caixa, a hora e o cliente da própria venda |
 | Relatório de período longo não termina | Aumente `spawnTimeoutMs` (até 600000) |
 | Instalação nova: "Node.js não foi instalado corretamente" na 1ª vez | Corrigido no instalador 1.14.1 (espera o Node terminar e relê o PATH). Se ainda acontecer, rode o instalador de novo |
 | A tela do relatório pisca / recarrega várias vezes seguidas (principalmente no celular) | Atualize o `servidor-relatorio.js` para a 2.24.2 ou mais nova: o relógio do aparelho atrasado em relação ao computador da loja fazia a página recarregar sem parar por alguns segundos depois de cada venda ou reinício |
-| Servidor "reiniciando sozinho" toda hora | Atualize o `iniciar-tray.ps1` (1.7.0+). Depois, veja no `relatorio.log` as linhas `[TRAY]`: "demorou a responder" (máquina sobrecarregada — o servidor só é reiniciado após ~60 s sem resposta) ou "o processo do servidor terminou (código de saída …)" (o servidor caiu — as linhas `[SERVIDOR]`/`[UNCAUGHT EXCEPTION]` logo antes mostram o porquê) |
+| O servidor reinicia automaticamente a todo momento | Atualize o `iniciar-tray.ps1` (1.7.0+). Depois, veja no `relatorio.log` as linhas `[TRAY]`: "demorou a responder" (máquina sobrecarregada — o servidor só é reiniciado após ~60 s sem resposta) ou "o processo do servidor terminou (código de saída …)" (o servidor caiu — as linhas `[SERVIDOR]`/`[UNCAUGHT EXCEPTION]` logo antes mostram o porquê) |
 | Ao ligar o computador o relatório fica fora do ar (só volta com "Reiniciar servidor") | Atualize o `iniciar-tray.ps1` para a 1.7.1 ou mais nova (a 1.7.0 tinha esse defeito no teste da porta) |
 | Uma janela preta do PowerShell aparece ao ligar o computador | Rode `instalar-na-inicializacao.bat` de novo: a versão 1.15.1+ recria a tarefa sem nenhuma janela |
 | Servidor não inicia no logon | Rode `instalar-na-inicializacao.bat` de novo e veja as linhas `[INSTALL]` e `[TRAY]` no log |
-| Removedor mostra `[ADMIN] … será feito com permissão de Administrador` | Normal: a tarefa foi criada pelo instalador como Administrador. Aceite o pedido do Windows (UAC) e a remoção termina sozinha |
-| Continua iniciando sozinho após remover | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
+| Removedor mostra `[ADMIN] … será feito com permissão de Administrador` | Normal: a tarefa foi criada pelo instalador como Administrador. Aceite o pedido do Windows (UAC) e a remoção é concluída automaticamente |
+| O sistema continua iniciando automaticamente após a remoção | Rode `remover-inicializacao.bat` como administrador e veja as linhas `[REMOVER]` |
 | Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |
-| "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor acha o Node de novo e tenta sozinho; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
+| "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor localiza o Node novamente e tenta outra vez automaticamente; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
 | Ao abrir um painel aparece "Painéis indisponíveis" ou "Painel incompleto" | Falta a pasta `paineis` (ou parte dela) na pasta do sistema. Baixe o projeto novamente e copie a pasta `paineis` inteira para o lado do `servidor-relatorio.js`. Enquanto isso, o relatório clássico continua em `http://localhost:7734/?classico=1` |
 | O relatório sempre abre num painel e eu quero o de sempre | Em **Tema**, escolha um tema em **Temas clássicos** (ou abra `/?classico=1` só desta vez) |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |

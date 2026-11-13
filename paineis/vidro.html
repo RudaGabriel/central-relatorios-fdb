@@ -1,18 +1,18 @@
 <!doctype html>
 <!-- paineis/vidro.html — Central de Relatórios FDB · painel de tela única "Vidro (vidro fosco sobre luzes suaves)".
-     @version 1.0.2
-       1.0.2 - 2026-11-13 - Desempenho sai do cabeçalho e vai para o botão Configurações (com o relatório clássico e as
+     @version 1.1.0
+       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no título e no cabeçalho e avisos no padrão do relatório clássico, nas cores do tema.
                             configurações do sistema). Botões do cabeçalho compactos no celular.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/vidro/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vidro · Central de Relatórios FDB</title>
+<title>Vidro · __NOME_LOJA__</title>
 <!--COMUM-->
 <style>
 :root{color-scheme:dark;--bg:#0b0d17;--pn:rgba(255,255,255,.055);--cab:rgba(22,25,40,.92);--tx:#f1f3fb;--tx2:#c9cfe2;--mu:#8e96b3;--ln:rgba(255,255,255,.09);--ln2:rgba(255,255,255,.05);--ac:#7dd3fc;--ac2:#c4b5fd;--hv:rgba(255,255,255,.05);--sel:rgba(125,211,252,.13);--trk:rgba(255,255,255,.07);--gap:12px;
  --vid:rgba(255,255,255,.06);--bd:rgba(255,255,255,.12);--mbg:rgba(20,24,42,.97);
- --d-bg:rgba(24,27,44,.92);--d-tx:#f1f3fb;--d-mu:#8e96b3;--d-ac:#7dd3fc;--d-ln:rgba(255,255,255,.1);--t-bg:rgba(30,34,56,.9);--t-tx:#f1f3fb;--t-ac:#7dd3fc}
+ --d-bg:rgba(24,27,44,.92);--d-tx:#f1f3fb;--d-mu:#8e96b3;--d-ac:#7dd3fc;--d-ln:rgba(255,255,255,.1)}
 body{padding:12px 14px;gap:12px;background:#0b0d17;position:relative}
 .luz{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(900px 600px at 12% 0%,#1d2a5c 0,transparent 70%),radial-gradient(800px 600px at 100% 100%,#3b1d5c 0,transparent 70%),#0b0d17}
 .luz i{position:absolute;width:42vmax;height:42vmax;border-radius:50%;filter:blur(80px);opacity:.38;animation:deriva 28s ease-in-out infinite alternate}
@@ -45,7 +45,7 @@ html[data-perf="leve"] .vd2,html[data-perf="leve"] .top,html[data-perf="leve"] .
 .hr-s{background:rgba(255,255,255,.05)}
 #ov{background:rgba(5,6,12,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}#ov .det{border:1px solid var(--bd);border-radius:22px;-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px)}
 .tmMenu{border-color:var(--bd);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
-.toast{border:1px solid var(--bd);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+
 @media (max-width:1440px){[data-perf-ctl] .perfRot{display:none}}
 @media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
 @media (max-width:1180px){.grade{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.cx-tab{grid-row:1/3}.esq{grid-column:2;grid-row:1}.dir{grid-column:2;grid-row:2}.cx-prod,.cx-conv{display:none}.busca{width:200px}#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kp5,.kp6,.kp7{display:none}}
@@ -59,10 +59,11 @@ html[data-perf="leve"] .vd2,html[data-perf="leve"] .top,html[data-perf="leve"] .
  .cx-tab>h3 em{display:none}
  .kp{padding:7px 12px}.top{padding:8px}.lk a,.lk button{padding:0 10px;height:34px}.logo{width:32px;height:32px}
 }
+.tst{border:1px solid var(--bd);background:rgba(20,24,42,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 </style></head><body>
 <div class="luz"><i class="so-completo"></i><i class="so-completo"></i><i class="so-completo"></i></div>
 <header class="top">
- <div class="marca"><span class="logo">FDB</span><div><b>Central de Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+ <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div><b>__NOME_LOJA__</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
  <label class="busca">🔍<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

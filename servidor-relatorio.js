@@ -5,14 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.26.1
+ * @version 2.27.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.26.1 - 2026-11-13 - Novo nome do projeto, "Central de Relatórios FDB", no rodapé da página
- *     de configurações.
+ *   2.27.0 - 2026-11-13 - Painéis de tela única: recebem a mesma busca e os mesmos proibidos do relatório
+ *     clássico (trechos ==BUSCA-COMUM== do gerador), as preferências do aparelho, o nome da loja
+ *     declarado (appName) no título e no cabeçalho e a duração dos avisos (toastDuration).
  */
 
 
@@ -20,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.26.1";
+const SERVER_VERSION = "2.27.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5113,12 +5114,41 @@ var _temasTodos = function() {
     if (cat) cat.paineis.forEach(function(p){ if (!lista.some(function(t){ return t.id === p.id; })) lista.push({ id: p.id, nome: p.nome, categoria: "painel" }); });
     return lista;
 };
+// Busca e proibidos dos painéis = os MESMOS do relatório clássico: o servidor copia do
+// gerar-relatorio-html.js os trechos marcados com ==BUSCA-COMUM== (fonte única, sem cópia
+// no projeto) e os embrulha numa função que expõe window.BUSCA. Sem os marcadores, ""
+// (o painel usa a busca simples).
+var _buscaCache = { mt: 0, js: "" };
+var _buscaComum = function() {
+    try {
+        var arq = path.join(__dirname, "gerar-relatorio-html.js"), mt = fs.statSync(arq).mtimeMs;
+        if (_buscaCache.mt === mt) return _buscaCache.js;
+        var txt = fs.readFileSync(arq, "utf8"), re = /\/\* ==BUSCA-COMUM==[^\n]*\n([\s\S]*?)\/\* ==\/BUSCA-COMUM== \*\//g, m, partes = [];
+        while ((m = re.exec(txt))) partes.push(m[1]);
+        var js = "";
+        if (partes.length >= 4 && !/<\/script/i.test(partes.join(""))) {
+            js = "(function(){\nvar DADOS = { vendas: [] };\n" + partes.join("\n") +
+                "\nvar _TIPOS = { \"Gerencial\": \"gerencial\", \"NFC-e\": \"nfce\", \"NF-e\": \"nfe\" };\n" +
+                "window.BUSCA = { pronto: true,\n" +
+                " indexar: function(d){ DADOS = (d && Array.isArray(d.vendas)) ? d : { vendas: [] }; _indexarVendas(); },\n" +
+                " ctx: function(q, tipo, vend){ tipoBusca = _TIPOS[tipo] || \"todos\"; vendAtual = vend || \"\"; qAtual = String(q || \"\"); qInc = parseBusca(qAtual).inc;\n" +
+                "   var c = _construirCtxFiltro(qAtual, \"\"); if (c.ehSoma) { somaKey = \"\"; calcSomaSel(); } return c; },\n" +
+                " passa: function(raw, i, c){ return passaFiltroFast(raw, i, c); },\n" +
+                " proibidos: function(lista){ setProibidosUser(Array.isArray(lista) ? lista.map(String) : []); },\n" +
+                " temProibido: function(raw){ return vendaTemProibido(raw); },\n" +
+                " lista: function(){ return valoresProibidos.slice(); } };\n})();";
+        }
+        _buscaCache = { mt: mt, js: js };
+        return js;
+    } catch (e) { return ""; }
+};
 var _painelCache = {};
 var _montarPainel = function(id, cat) {
     try {
         var classicos = _temasDoGerador().map(function(t){ return { id: t.id, nome: t.nome, prev: cat.previasClassicos[t.id] || {} }; });
         var arqs = _PAINEIS_ARQS.concat([id + ".html", "temas.json"]);
-        var chave = arqs.map(function(a){ return fs.statSync(path.join(PAINEIS_DIR, a)).mtimeMs; }).join("|") + "|" + _temasCacheMtime;
+        var busca = _buscaComum();
+        var chave = arqs.map(function(a){ return fs.statSync(path.join(PAINEIS_DIR, a)).mtimeMs; }).join("|") + "|" + _temasCacheMtime + "|" + _buscaCache.mt + "|" + APP_NAME + "|" + TOAST_DURATION;
         var c = _painelCache[id];
         if (c && c.chave === chave) return c.html;
         var ler = function(a){ return fs.readFileSync(path.join(PAINEIS_DIR, a), "utf8").replace(/^\uFEFF/, ""); };
@@ -5126,10 +5156,13 @@ var _montarPainel = function(id, cat) {
         // Nada pode fechar a tag em que é embutido.
         if (/<\/(script|style)/i.test(painelJs + motor) || /<\/style/i.test(comum + base)) return null;
         if (pagina.indexOf("<!--COMUM-->") < 0 || pagina.indexOf("<!--MOTOR-->") < 0) return null;
-        var info = JSON.stringify({ atual: id, paineis: cat.paineis, classicos: classicos }).replace(/</g, "\\u003c");
+        var info = JSON.stringify({ atual: id, paineis: cat.paineis, classicos: classicos, app: APP_NAME, toastMs: TOAST_DURATION }).replace(/</g, "\\u003c");
         var html = pagina.replace("<!--CORPO-->", function(){ return corpo; })
             .replace("<!--COMUM-->", function(){ return "<style>\n" + comum + "\n" + base + "\n</style>"; })
-            .replace("<!--MOTOR-->", function(){ return "<script>window.FDB_TEMAS=" + info + ";</script>\n<script>\n" + painelJs + "\n</script>\n<script>\n" + motor + "\n</script>"; });
+            .replace("<!--MOTOR-->", function(){ return "<script>window.FDB_TEMAS=" + info + ";</script>\n" + (busca ? "<script>\n" + busca + "\n</script>\n" : "") + "<script>\n" + painelJs + "\n</script>\n<script>\n" + motor + "\n</script>"; });
+        // Nome da loja (config.json → appName), como no relatório clássico; sem nome, o do projeto.
+        var _nomeLoja = (APP_NAME && APP_NAME !== "Relatorios") ? APP_NAME : "Central de Relatórios FDB";
+        html = html.split("__NOME_LOJA__").join(escH(_nomeLoja));
         _painelCache[id] = { chave: chave, html: html };
         return html;
     } catch (e) { return null; }
@@ -6290,7 +6323,8 @@ var server=http.createServer(function(req,res){
             return;
         }
         res.writeHead(200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"});
-        res.end(_pnHtml);
+        // Preferências deste aparelho (proibidos, duração dos avisos), como no relatório clássico.
+        res.end(_htmlComAparelho(_pnHtml, req));
         return;
     }
     // /api/log?linhas=N — últimas linhas do relatorio.log (máx. 1000). Só da rede local.

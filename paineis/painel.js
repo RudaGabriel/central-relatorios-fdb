@@ -1,7 +1,8 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.0.2
- *   1.0.2 - 2026-11-13 - Botão Configurações: Nesta tela → Desempenho (fora do cabeçalho), configurações do
- *                        sistema e relatório clássico.
+ * @version 1.1.0
+ *   1.1.0 - 2026-11-13 - Botões Proibidos e Limpar filtros; Configurações com Atualização e Tamanho do texto
+ *                        (mesmas chaves do clássico); caixas do maior para o menor; cliques nos filtros e nos chips
+ *                        voltaram a funcionar (o clique era capturado pelo atributo data-aba do body).
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -121,7 +122,7 @@
   function pCaixas(){
     const el = $("#caixas"); if (!el) return; const l = lista("cx"), g = {}; let tot = 0;
     l.forEach(x => { const k = x.cx || "—"; const o = g[k] || (g[k] = {q: 0, t: 0}); o.q++; o.t += x.tot; tot += x.tot; });
-    const arr = Object.keys(g).sort().map(k => ({k, ...g[k]}));
+    const arr = Object.keys(g).map(k => ({k, ...g[k]})).sort((a, b) => b.t - a.t || b.q - a.q || String(a.k).localeCompare(String(b.k), "pt-BR"));
     el.innerHTML = arr.length ? arr.map(o => barraLinha(` data-cx="${E().esc(o.k)}" title="Filtrar: caixa ${E().esc(o.k)}"`, ext.cx === o.k, cfg.corCaixa || "#64748b", "Caixa " + E().esc(o.k), o.q, o.t, pct(o.t, tot))).join("") : `<div class="obs">Sem vendas.</div>`;
   }
   function pHoras(l){
@@ -178,8 +179,10 @@
     if (ext.pg) ch.push(["pg", "Pagamento: " + ext.pg]);
     if (ext.cx) ch.push(["cx", "Caixa " + ext.cx]);
     if (en.st.q.trim()) ch.push(["q", "Busca: " + en.st.q.trim()]);
-    f.innerHTML = ch.length ? ch.map(([k, t]) => `<button type="button" data-limpa="${k}" title="Remover este filtro">${es(t)} <b>×</b></button>`).join("") + (ch.length > 1 ? `<button type="button" data-limpa="tudo">Limpar tudo</button>` : "") : "";
+    f.innerHTML = ch.length ? ch.map(([k, t]) => `<button type="button" data-limpa="${k}" title="Remover este filtro">${es(t)} <b>×</b></button>`).join("") : "";
     f.classList.toggle("vazio", !ch.length);
+    const bl = $("#btnLimpar"); if (bl) { bl.disabled = !ch.length && ord.k === "hora" && ord.d === -1; }
+    const bp = $("#btnProib"); if (bp) bp.setAttribute("aria-pressed", PROIB_RE.test(en.st.q) ? "true" : "false");
   }
 
   // ── Detalhe da venda ────────────────────────────────────────────────────────
@@ -204,8 +207,20 @@
     return true;
   }
 
+  // ── Proibidos: o mesmo filtro [proibidos] do relatório clássico (oculta as vendas com
+  // itens da lista de proibidos; NF-e não entra). O botão liga e desliga o termo na busca.
+  const PROIB_RE = /\[(proibidos|1p)\]/i;
+  function alternarProibidos(){
+    const q = $("#q"); if (!q) return; const en = E();
+    const lista = window.BUSCA && BUSCA.lista ? BUSCA.lista() : [];
+    if (!PROIB_RE.test(q.value) && !lista.length) { en.toast("<b>Proibidos</b> · Nenhum termo proibido cadastrado. Cadastre em Configurações do sistema → Proibidos."); return; }
+    q.value = PROIB_RE.test(q.value) ? q.value.replace(/\s*\[(proibidos|1p)\]\s*/ig, " ").trim() : (q.value.trim() + " [proibidos]").trim();
+    en.st.q = q.value; en.render();
+    en.toast(PROIB_RE.test(q.value) ? "<b>Proibidos</b> · Vendas com itens proibidos ocultas." : "<b>Proibidos</b> · Filtro removido.");
+  }
+
   // ── Interação ───────────────────────────────────────────────────────────────
-  function aba(n){ document.body.dataset.aba = n; $$("[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
+  function aba(n){ document.body.dataset.aba = n; $$("button[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
   function intro(){
     esqueletos(); temaInit();
     let a = "vendas"; try { a = sessionStorage.getItem("fdb_aba") || "vendas"; } catch (e) {}
@@ -214,14 +229,16 @@
       const o = e.target.closest("[data-ord]"); if (o) { const k = o.dataset.ord; if (ord.k === k) ord.d = -ord.d; else { ord.k = k; ord.d = (k === "vendedor" || k === "tipo" || k === "cliente") ? 1 : -1; } marcaOrd(); E().render(); return; }
       const p = e.target.closest("[data-pg]"); if (p) { ext.pg = ext.pg === p.dataset.pg ? null : p.dataset.pg; E().render(); return; }
       const c = e.target.closest("[data-cx]"); if (c) { ext.cx = ext.cx === c.dataset.cx ? null : c.dataset.cx; E().render(); return; }
-      const ab = e.target.closest("[data-aba]"); if (ab) { aba(ab.dataset.aba); return; }
+      const ab = e.target.closest("button[data-aba]"); if (ab) { aba(ab.dataset.aba); return; }
       const l = e.target.closest("[data-limpa]"); if (l) { const k = l.dataset.limpa, q = $("#q");
         if (k === "tipo" || k === "tudo") { const b = $('[data-tipo="todos"]'); if (b) b.click(); }
         if (k === "vend" || k === "tudo") { const b = $('#vends [data-vend=""]'); if (b) b.click(); else E().st.vend = null; }
         if (k === "pg" || k === "tudo") ext.pg = null;
         if (k === "cx" || k === "tudo") ext.cx = null;
         if ((k === "q" || k === "tudo") && q) { q.value = ""; E().st.q = ""; }
-        E().render(); }
+        if (k === "tudo") { ord.k = "hora"; ord.d = -1; marcaOrd(); if (q) q.focus({preventScroll: true}); }
+        E().render(); return; }
+      const pb = e.target.closest("#btnProib"); if (pb) { alternarProibidos(); return; }
     });
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
@@ -293,10 +310,7 @@
       document.body.appendChild(menu);
       menu.addEventListener("click", e => { const c = e.target.closest("[data-tema-id]"); if (!c) return; const id = c.dataset.temaId; fecharMenu(); if (id !== TM.atual) aplicarTema(id, false); });
     }
-    const r = b.getBoundingClientRect(), estreito = innerWidth <= 820;
-    menu.style.top = Math.round(r.bottom + 8) + "px";
-    menu.style.left = estreito ? "8px" : "auto"; menu.style.right = estreito ? "8px" : Math.max(8, Math.round(innerWidth - r.right)) + "px";
-    menu.style.maxHeight = Math.max(200, innerHeight - r.bottom - 20) + "px";
+    posMenu(menu, b);
     menu.classList.add("on"); b.setAttribute("aria-expanded", "true");
     const sel = menu.querySelector('[aria-checked="true"]') || menu.querySelector(".tmCard"); if (sel) sel.focus({preventScroll: true});
   }
@@ -306,7 +320,29 @@
   let cfgM = null;
   const PERF_EST = () => { const en = E(), pref = en.perfPref ? en.perfPref() : "auto", lv = en.leve();
     return pref === "leve" ? "Leve (escolhido)" : pref === "completo" ? "Completo (escolhido)" : "Automático — " + (lv ? "leve" : "completo"); };
-  function cfgEstado(){ const e = cfgM && cfgM.querySelector(".cfgEst"); if (e) e.textContent = PERF_EST(); }
+  // Tamanho do texto: 80% a 140%, salvo separado no celular e no computador (mesmas chaves
+  // do relatório clássico: fdb_zoom_mob / fdb_zoom_pc).
+  const ZOOM = [0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4];
+  const zCel = () => { try { return matchMedia("(max-width: 680px)").matches; } catch (e) { return false; } };
+  const zChave = () => zCel() ? "fdb_zoom_mob" : "fdb_zoom_pc";
+  function zLer(){ let v = 1; try { v = parseFloat(localStorage.getItem(zChave())); } catch (e) {} return ZOOM.indexOf(v) >= 0 ? v : 1; }
+  function zAplicar(){ const z = zLer(); if (z === 1) document.documentElement.style.removeProperty("--zoom"); else document.documentElement.style.setProperty("--zoom", String(z)); }
+  function zPasso(d){
+    const at = zLer(), i = ZOOM.indexOf(at), n = d === 0 ? 1 : ZOOM[Math.max(0, Math.min(ZOOM.length - 1, (i < 0 ? 2 : i) + (d > 0 ? 1 : -1)))];
+    try { if (n === 1) localStorage.removeItem(zChave()); else localStorage.setItem(zChave(), String(n)); } catch (e) {}
+    zAplicar(); cfgEstado(); if (cfgM && cfgM.classList.contains("on")) posMenu(cfgM, $("#btnCfg"));
+  }
+  zAplicar(); addEventListener("resize", zAplicar);
+  // Atualização: mesma opção do relatório clássico ("fdb_recarga_auto"; ligada por padrão).
+  const recLigada = () => { try { return localStorage.getItem("fdb_recarga_auto") !== "0"; } catch (e) { return true; } };
+  function cfgEstado(){
+    if (!cfgM) return;
+    const e = cfgM.querySelector(".cfgEst"); if (e) e.textContent = PERF_EST();
+    const r = cfgM.querySelector("#cfgRec"); if (r) r.checked = recLigada();
+    const re = cfgM.querySelector(".cfgRecEst"); if (re) re.textContent = recLigada() ? "Automática" : "Manual";
+    const z = zLer(), ze = cfgM.querySelector(".cfgZEst"); if (ze) ze.textContent = Math.round(z * 100) + "%";
+    cfgM.querySelectorAll("[data-z]").forEach(b => { const d = Number(b.dataset.z); b.disabled = (d < 0 && z <= ZOOM[0]) || (d > 0 && z >= ZOOM[ZOOM.length - 1]); if (!d) b.setAttribute("aria-pressed", z === 1 ? "true" : "false"); });
+  }
   function fecharCfg(){ if (!cfgM) return; cfgM.classList.remove("on"); const b = $("#btnCfg"); if (b) b.setAttribute("aria-expanded", "false"); }
   function montarCfg(){
     if (cfgM) return cfgM;
@@ -315,18 +351,29 @@
     cfgM.innerHTML =
       `<div class="tmSec"><div class="tmCab"><b>Nesta tela</b><span>Vale só para este aparelho.</span></div>` +
       `<div class="cfgLin"><div class="cfgRot"><b>Desempenho</b><span class="cfgEst"></span></div><div data-perf-ctl></div>` +
-      `<p class="cfgDica">Leve: sem animações, desfoque nem sombras pesadas — indicado para computadores, notebooks e celulares de menor desempenho. A opção Automático identifica o aparelho e escolhe o modo adequado. É o mesmo ajuste do relatório clássico.</p></div></div>` +
+      `<p class="cfgDica">Leve: sem animações, desfoque nem sombras pesadas — indicado para computadores, notebooks e celulares de menor desempenho. A opção Automático identifica o aparelho e escolhe o modo adequado.</p></div>` +
+      `<div class="cfgLin"><div class="cfgRot"><b>Atualização</b><span class="cfgRecEst"></span></div><label class="cfgChk"><input type="checkbox" id="cfgRec"><span>Recarregar o painel ao detectar mudanças</span></label>` +
+      `<p class="cfgDica">Ligado: a cada nova venda, a página é recarregada como no F5 — a busca, os filtros e as janelas abertas são limpos. Desligado: as novas vendas são incluídas automaticamente, sem recarregar — filtros, busca e rolagem são mantidos.</p></div>` +
+      `<div class="cfgLin"><div class="cfgRot"><b>Tamanho do texto</b><span class="cfgZEst"></span></div><div class="cfgZ" role="group" aria-label="Tamanho do texto"><button type="button" data-z="-1" aria-label="Diminuir o texto">A−</button><button type="button" data-z="0" aria-label="Tamanho padrão">Padrão</button><button type="button" data-z="1" aria-label="Aumentar o texto">A+</button></div>` +
+      `<p class="cfgDica">Os mesmos ajustes do relatório clássico, válidos somente para este aparelho.</p></div></div>` +
       `<div class="tmSec"><div class="tmCab"><b>Sistema</b></div><div class="cfgLinks">` +
       `<a href="/config?voltar=${voltar}">Configurações do sistema</a><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a></div></div>`;
     document.body.appendChild(cfgM);
+    cfgM.addEventListener("click", e => { const z = e.target.closest("[data-z]"); if (z) { e.stopPropagation(); zPasso(Number(z.dataset.z)); } });
+    cfgM.querySelector("#cfgRec").addEventListener("change", e => {
+      try { localStorage.setItem("fdb_recarga_auto", e.target.checked ? "1" : "0"); } catch (er) {}
+      cfgEstado(); E().toast(e.target.checked ? "<b>Atualização</b> · A cada nova venda, a página será recarregada e os filtros serão limpos (como no F5)." : "<b>Atualização</b> · As novas vendas continuarão sendo incluídas, sem recarregar a página.");
+    });
     E().perfCtl(); cfgEstado();
     return cfgM;
   }
   function posMenu(m, b){
-    const r = b.getBoundingClientRect(), estreito = innerWidth <= 820;
-    m.style.top = Math.round(r.bottom + 8) + "px";
-    m.style.left = estreito ? "8px" : "auto"; m.style.right = estreito ? "8px" : Math.max(8, Math.round(innerWidth - r.right)) + "px";
-    m.style.maxHeight = Math.max(200, innerHeight - r.bottom - 20) + "px";
+    if (!m || !b) return;
+    const z = zLer(), r = b.getBoundingClientRect(), estreito = innerWidth <= 820;
+    m.style.top = Math.round((r.bottom + 8) / z) + "px";
+    m.style.left = estreito ? Math.round(8 / z) + "px" : "auto"; m.style.right = estreito ? Math.round(8 / z) + "px" : Math.round(Math.max(8, innerWidth - r.right) / z) + "px";
+    m.style.maxHeight = Math.round(Math.max(200, innerHeight - r.bottom - 20) / z) + "px";
+    m.style.width = estreito ? "auto" : "";
   }
   function abrirCfg(){
     const b = $("#btnCfg"); if (!b) return; fecharMenu();
@@ -351,5 +398,5 @@
     addEventListener("resize", fecharMenu);
   }
 
-  window.PAINEL = {limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
+  window.PAINEL = {recarregar: recLigada, limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
 })();

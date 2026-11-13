@@ -1,6 +1,6 @@
 <!-- paineis/corpo.html — Central de Relatórios FDB · corpo comum dos painéis (indicadores, painéis, tabela e abas).
-     @version 1.0.1
-       1.0.1 - 2026-11-13 - Novo nome do projeto: Central de Relatórios FDB.
+     @version 1.1.0
+       1.1.0 - 2026-11-13 - Botões "Proibidos" e "Limpar filtros" fixos no topo da lista de vendas.
      Histórico completo das versões: CHANGELOG.md no repositório. -->
 <section id="kpis" class="kpis" data-de="resumo" data-pulso></section>
 <main class="grade">
@@ -10,7 +10,7 @@
   <section class="pn cx-cx" data-de="pagtos"><h3>Caixas</h3><div class="lst" id="caixas"></div></section>
   <section class="pn cx-conv" data-de="pagtos"><h3>Conversões em nota fiscal <em id="conv-n"></em></h3><div class="lst" id="conv"></div></section>
  </div>
- <section class="pn cx-tab" data-de="vendas"><h3>Vendas <span id="filtros" class="vazio"></span><em>↑ ↓ navegar · Enter detalhes · / buscar</em></h3>
+ <section class="pn cx-tab" data-de="vendas"><h3>Vendas <span id="filtros" class="vazio"></span><em>↑ ↓ navegar · Enter detalhes · / buscar</em><span class="tbAc"><button type="button" id="btnProib" aria-pressed="false" title="Ocultar as vendas com itens proibidos (filtro [proibidos], como no relatório clássico)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><span>Proibidos</span></button><button type="button" id="btnLimpar" data-limpa="tudo" title="Limpar todos os filtros e exibir todas as vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg><span>Limpar filtros</span></button></span></h3>
   <div class="tabela"><div class="tb-sc"><div id="cab"></div><div id="feed"></div><div id="vazio" style="display:none"></div><div id="mais" style="display:none"></div></div><div id="rod"></div></div></section>
  <div class="col dir">
   <section class="pn cx-vend" data-de="equipe"><h3>Vendedores <em>clique para filtrar</em></h3><div class="vd-cab"><span>#</span><span>Nome · vendas · ticket</span><span>Total</span><span>%</span></div><div class="lst" id="vends"></div></section>

@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.26.1 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.32.1 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.27.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.33.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.4 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
@@ -24,23 +24,32 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.1 |
-| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.2 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.0.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.27.0 — 2026-11-13
+
+**Painéis de tela única com a busca, os proibidos e o nome da loja do relatório clássico.**
+
+- **Mesma busca do relatório clássico:** o servidor copia do `gerar-relatorio-html.js` os trechos marcados com `==BUSCA-COMUM==` (busca, sintaxe e proibidos) e os entrega aos painéis como `window.BUSCA`. Fonte única: não há cópia do código no projeto, e qualquer melhoria na busca do clássico vale também nos painéis. Sem os marcadores, o painel usa a busca simples.
+- **Preferências do aparelho:** a página do painel recebe as mesmas preferências do aparelho que o relatório clássico (proibidos e duração dos avisos).
+- **Nome da loja:** o `appName` do `config.json` aparece no título da aba e no cabeçalho de cada painel, com os caracteres especiais escapados. Sem nome declarado, aparece "Central de Relatórios FDB".
+- **Duração dos avisos:** o `toastDuration` do `config.json` também vale nos painéis.
 
 ### 2.26.1 — 2026-11-13
 
@@ -365,6 +374,14 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.33.0 — 2026-11-13
+
+**Gerencial "Finalizada - Aguardando Documento Fiscal" volta a aparecer como venda gerencial.**
+
+- **Problema:** enquanto o documento fiscal não é emitido, o PDV grava a venda gerencial com `TOTAL = 0`. O gerador descartava essa linha e o pagamento ficava sem venda, o que o fazia aparecer como **Recebimento**, sem itens, sem caixa e sem hora corretos. Esse "recebimento" também passava no filtro Gerencial e no `[proibidos]`.
+- **Correção:** quando o pagamento sem venda tem itens lançados (ALTERACA) e corresponde a uma gerencial de total zero do mesmo dia, ele volta a ser a venda gerencial, com hora, caixa, vendedor, cliente e natureza da própria venda. O total continua sendo a soma dos itens, como em toda gerencial. Pagamentos sem itens continuam como Recebimento.
+- **Busca compartilhada:** os trechos da busca e dos proibidos ficam marcados com `==BUSCA-COMUM==`, para que o servidor os reaproveite nos painéis de tela única (fonte única). Nenhuma mudança de comportamento no relatório.
 
 ### 3.32.1 — 2026-11-13
 
@@ -1307,6 +1324,24 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.2.0 — 2026-11-13
+
+**Painéis completos, no padrão do relatório clássico.** (1.2.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
+
+- **Busca e proibidos iguais aos do clássico** (`motor.js` 1.1.0): a mesma sintaxe (`-termo`, `a+b`, `a|b`, `>300`, `10-100`, `=500`, `"frase exata"`, `caixa 4`, `vendedor b`, `[proibidos]`, `[-proibidos]`), com os mesmos resultados do relatório clássico.
+- **Botões no topo da lista de vendas** (`corpo.html` 1.1.0, `painel.js` 1.1.0):
+  - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
+  - **Limpar filtros:** zera a busca, o tipo, o vendedor, o pagamento, o caixa e a ordenação, como o "Limpar tudo" do clássico;
+  - no celular aparecem só os ícones.
+- **Configurações → Nesta tela** (`painel.js` 1.1.0), com as mesmas chaves do clássico:
+  - **Atualização:** ligada (padrão), recarrega a página como F5 a cada venda nova; desligada, as vendas novas entram sem recarregar;
+  - **Tamanho do texto:** de 80% a 140%, separado para computador e celular.
+- **Caixas do maior para o menor**, como os demais blocos.
+- **Avisos no padrão do clássico** (`base.css` 1.1.0, `comum.css` 1.1.0 e todos os temas 1.1.0): sem repetição, com botão fechar e barra de tempo, nas cores de cada tema.
+- **Barras de rolagem nas cores do tema**, e a lista de vendas nunca rola para o lado (`base.css` 1.1.0).
+- **Logo e nome da loja** (todos os temas 1.1.0): a logo usa o `favicon.png` da pasta do sistema (sem o arquivo, aparece "FDB") e o nome declarado em `appName` aparece no cabeçalho e no título. No Administrativo, com o menu lateral recolhido, o nome passa para o cabeçalho.
+- **Correção:** os cliques nos chips de filtro (×) não tinham efeito, porque o atributo `data-aba` do `<body>` capturava o clique (`painel.js` 1.1.0).
 
 ### 1.1.0 — 2026-11-13
 

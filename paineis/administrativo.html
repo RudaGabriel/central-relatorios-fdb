@@ -1,12 +1,12 @@
 <!doctype html>
 <!-- paineis/administrativo.html — Central de Relatórios FDB · painel de tela única "Administrativo (neutro, com menu lateral e modo claro ou escuro)".
-     @version 1.0.0
-       1.0.0 - 2026-11-13 - Primeira versão.
+     @version 1.1.0
+       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no menu lateral (no cabeçalho, com o menu recolhido) e no título e avisos no padrão do relatório clássico.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/administrativo/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Administrativo · Central de Relatórios FDB</title>
+<title>Administrativo · __NOME_LOJA__</title>
 <script>
 // Modo claro ou escuro, decidido antes do primeiro desenho (sem piscar): a escolha salva
 // ("fdb_admin_modo") ou, sem escolha, o modo do sistema. O menu lateral recolhido também.
@@ -18,10 +18,10 @@ var s="";try{s=localStorage.getItem("fdb_admin_menu")||"";}catch(e){}if(s==="rec
 <style>
 :root{--bg:#ffffff;--sbbg:#fafafa;--card:#ffffff;--pn:#ffffff;--cab:#ffffff;--mbg:#ffffff;--tx:#09090b;--tx2:#3f3f46;--mu:#71717a;--ln:#e4e4e7;--ln2:#f4f4f5;--ac:#18181b;--ac2:#18181b;--on-ac:#fafafa;--hv:#f4f4f5;--sel:#f4f4f5;--trk:#f4f4f5;--sombra:0 1px 2px rgba(0,0,0,.05);--gap:12px;
  --t1:#e76e50;--t2:#2a9d90;--t3:#274754;--t4:#e8c468;--p1:#2a9d90;--p2:#e76e50;--p3:#274754;--p4:#e8c468;--p5:#f4a462;--p6:#8b5cf6;--p7:#0ea5e9;--p8:#84cc16;--cxc:#71717a;
- --d-bg:#ffffff;--d-tx:#09090b;--d-mu:#71717a;--d-ac:#71717a;--d-ln:#e4e4e7;--t-bg:#ffffff;--t-tx:#09090b;--t-ac:#18181b}
+ --d-bg:#ffffff;--d-tx:#09090b;--d-mu:#71717a;--d-ac:#71717a;--d-ln:#e4e4e7}
 html[data-modo="escuro"]{color-scheme:dark;--bg:#09090b;--sbbg:#09090b;--card:#09090b;--pn:#09090b;--cab:#09090b;--mbg:#0c0c0e;--tx:#fafafa;--tx2:#d4d4d8;--mu:#a1a1aa;--ln:#27272a;--ln2:#18181b;--ac:#fafafa;--ac2:#fafafa;--on-ac:#18181b;--hv:#18181b;--sel:#27272a;--trk:#27272a;--sombra:none;
  --t1:#2662d9;--t2:#2eb88a;--t3:#e88c30;--t4:#af57db;--p1:#2eb88a;--p2:#2662d9;--p3:#e88c30;--p4:#af57db;--p5:#e23670;--p6:#0ea5e9;--p7:#facc15;--p8:#84cc16;--cxc:#a1a1aa;
- --d-bg:#09090b;--d-tx:#fafafa;--d-mu:#a1a1aa;--d-ac:#a1a1aa;--d-ln:#27272a;--t-bg:#09090b;--t-tx:#fafafa;--t-ac:#fafafa}
+ --d-bg:#09090b;--d-tx:#fafafa;--d-mu:#a1a1aa;--d-ac:#a1a1aa;--d-ln:#27272a}
 body{background:var(--sbbg);font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif}
 svg{display:block}
 .shell{flex:1;min-height:0;display:flex}
@@ -106,7 +106,7 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
 #rod{padding:8px 16px}
 #filtros button{border-color:var(--ln);background:var(--hv);color:var(--tx);border-radius:8px}
 #ov{background:rgba(0,0,0,.5)}#ov .det{border:1px solid var(--ln);border-radius:12px;box-shadow:0 20px 50px -12px rgba(0,0,0,.35)}#ov .fechar{border-radius:8px}
-#toasts{top:auto;bottom:16px;right:16px}.toast{border:1px solid var(--ln);border-radius:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.3)}
+
 .tmMenu{border-radius:12px;box-shadow:0 16px 40px -12px rgba(0,0,0,.25)}
 .cfgMenu [data-perf-ctl]{background:var(--hv);border:0;border-radius:9px;padding:3px}.cfgMenu [data-perf-ctl] button{border-radius:6px;color:var(--mu)}
 .cfgMenu [data-perf-ctl] button[aria-pressed="true"]{background:var(--bg);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
@@ -118,6 +118,9 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
  html:not([data-menu="aberto"]) .sbTop,html:not([data-menu="aberto"]) .sbPe{justify-content:center;padding:8px 0}
  .grade{grid-template-columns:minmax(0,1fr) 280px 280px;grid-template-rows:212px minmax(0,1fr)}
  [data-perf-ctl] .perfRot{display:none}}
+/* Menu lateral recolhido no computador: o nome da loja passa para o cabeçalho (a logo continua no menu). */
+@media (min-width:1181px) and (max-width:1599px){html:not([data-menu="aberto"]) .top .marca{display:flex}html:not([data-menu="aberto"]) .top .marca .logo{display:none}}
+@media (min-width:1600px){html[data-menu="recolhido"] .top .marca{display:flex}html[data-menu="recolhido"] .top .marca .logo{display:none}}
 @media (max-height:800px) and (min-width:821px){.tt{padding:10px 20px 8px}.tt h1{font-size:19px}.tt p{font-size:12.5px}.kp{padding:9px 12px}.kp b{margin-top:3px}.grade{grid-template-rows:190px minmax(0,1fr);padding-top:10px}}
 @media (max-width:1180px){
  .sb{position:fixed;left:0;top:0;bottom:0;z-index:70;width:270px!important;transform:translateX(-105%);transition:transform .22s;box-shadow:0 0 40px rgba(0,0,0,.3)}
@@ -136,10 +139,11 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
  .grade{display:flex;flex-direction:column;overflow:auto;gap:10px;padding:10px}.col,.dir,.esq{display:contents}
  .grade .pn{flex:none}.grade .cx-tab{flex:1 1 0;min-height:0}
  .abas{background:var(--bg)}.abas button.on{color:var(--tx)}.cx-tab>h3 em{display:none}}
+.tst{border-radius:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.3)}.tst b{color:var(--tx)}.tst-br{background:var(--tx)}
 </style></head><body>
 <div class="shell">
  <aside class="sb" id="sb" aria-label="Menu lateral">
-  <div class="sbTop"><span class="logo">FDB</span><div class="sbNm"><b>Central de Relatórios FDB</b><small>Relatórios do PDV</small></div></div>
+  <div class="sbTop"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="sbNm"><b>__NOME_LOJA__</b><small>Central de Relatórios FDB</small></div></div>
   <nav class="sbNav">
    <div class="sbGrp">Vendas</div>
    <button type="button" class="sbIt on" data-tipo="todos" title="Todas as vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Todas as vendas</span><em data-sbq="todos"></em></button>
@@ -160,7 +164,7 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
   <header class="top">
    <button type="button" class="ico" id="sbTgl" aria-label="Mostrar ou recolher o menu lateral" title="Mostrar ou recolher o menu lateral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
    <span class="sep"></span>
-   <div class="marca"><span class="logo">FDB</span><div><b>Central de Relatórios FDB</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+   <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div><b>__NOME_LOJA__</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
    <label class="busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
    <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
    <nav class="lk"><button type="button" id="btnModo" aria-label="Alternar entre modo claro e escuro" title="Alternar entre modo claro e escuro"><span class="ic-sol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span><span class="ic-lua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

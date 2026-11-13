@@ -1,23 +1,23 @@
 <!doctype html>
 <!-- paineis/comando.html — Central de Relatórios FDB · painel de tela única "Central de comando (escuro e técnico)".
-     @version 1.0.2
-       1.0.2 - 2026-11-13 - Desempenho sai do cabeçalho e vai para o botão Configurações (com o relatório clássico e as
+     @version 1.1.0
+       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no título e no cabeçalho e avisos no padrão do relatório clássico, nas cores do tema.
                             configurações do sistema). No celular de até 420 px, o relógio do cabeçalho se esconde.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/comando/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
 <html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Central de comando · Central de Relatórios FDB</title>
+<title>Central de comando · __NOME_LOJA__</title>
 <!--COMUM-->
 <style>
 :root{--cy:#22d3ee;--am:#fbbf24;--bg:#020a10;--pn:rgba(5,22,33,.86);--cab:#061a26;--tx:#dff9ff;--tx2:#a8e6f2;--mu:#5d9fb0;--ln:rgba(34,211,238,.18);--ln2:rgba(34,211,238,.08);--ac:#22d3ee;--ac2:#a78bfa;--hv:rgba(34,211,238,.07);--sel:rgba(34,211,238,.15);--trk:rgba(34,211,238,.1);--gap:10px;
- --d-bg:#041520;--d-tx:#dff9ff;--d-mu:#5d9fb0;--d-ac:#22d3ee;--d-ln:rgba(34,211,238,.2);--t-bg:#041520;--t-tx:#dff9ff;--t-ac:#22d3ee}
+ --d-bg:#041520;--d-tx:#dff9ff;--d-mu:#5d9fb0;--d-ac:#22d3ee;--d-ln:rgba(34,211,238,.2)}
 body{padding:10px 12px;gap:10px;background:radial-gradient(1200px 600px at 50% -10%,rgba(34,211,238,.1),transparent 70%),var(--bg);background-image:radial-gradient(1200px 600px at 50% -10%,rgba(34,211,238,.1),transparent 70%),linear-gradient(rgba(34,211,238,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.035) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px;font-family:"Segoe UI",Inter,system-ui,sans-serif}
 .hud{position:relative;background:var(--pn);border:1px solid var(--ln)}
 .hud:before,.hud:after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--cy);pointer-events:none}
 .hud:before{left:-1px;top:-1px;border-right:0;border-bottom:0}.hud:after{right:-1px;bottom:-1px;border-left:0;border-top:0}
 .top{flex:none;display:flex;align-items:center;gap:12px;min-width:0;padding:8px 12px}
-.marca{margin-right:auto;min-width:0}.marca b{display:block;font-size:14px;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.marca b em{font-style:normal;color:var(--cy)}
+.marca{margin-right:auto;min-width:0;display:flex;align-items:center;gap:10px}.mtx{min-width:0}.logo{width:34px;height:34px;flex:none;border:1px solid var(--ln);background:rgba(34,211,238,.06);display:grid;place-items:center;color:var(--cy);font:800 11px "Segoe UI",sans-serif}.marca b{display:block;font-size:14px;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.marca b em{font-style:normal;color:var(--cy)}
 .marca small{display:flex;gap:10px;color:var(--mu);font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 .vivo{color:var(--am)}.vivo:before{content:"● ";animation:pisca 1.2s steps(1) infinite}@keyframes pisca{50%{opacity:.15}}
 .busca{display:flex;align-items:center;gap:8px;height:34px;border:1px solid var(--ln);background:rgba(2,10,16,.8);padding:0 10px;width:min(360px,30vw);color:var(--cy)}
@@ -52,7 +52,7 @@ body{padding:10px 12px;gap:10px;background:radial-gradient(1200px 600px at 50% -
 .varre{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(34,211,238,.06) 50%,transparent);height:40%;animation:varre 6s linear infinite}
 @keyframes varre{from{transform:translateY(-100%)}to{transform:translateY(250%)}}
 #ov{background:rgba(2,10,16,.78)}#ov .det{border:1px solid var(--cy);border-radius:0;box-shadow:0 0 40px -10px rgba(34,211,238,.5)}#ov .det h2{color:#ecfeff;text-shadow:0 0 16px rgba(34,211,238,.5)}#ov .fechar{border-radius:0}
-.toast{border:1px solid var(--cy);border-radius:0}
+
 @media (max-width:1700px){.marca b em{display:none}}
 @media (max-width:1500px){[data-perf-ctl] .perfRot{display:none}.busca{width:220px}.seg button{padding:7px 9px}.marca b{letter-spacing:.18em}}
 @media (min-width:1600px){.grade{grid-template-columns:300px minmax(0,1fr) 380px}.cx-hr{flex-basis:190px}}
@@ -67,9 +67,10 @@ body{padding:10px 12px;gap:10px;background:radial-gradient(1200px 600px at 50% -
  .abas{margin:0 -8px;background:#041520;border-top:1px solid var(--ln)}
  .cx-tab>h3 em{display:none}
 }
+.tst{border:1px solid var(--cy);border-radius:0;box-shadow:0 0 30px -10px rgba(34,211,238,.5)}.tst-x{border-radius:0}.tst b{color:var(--cy)}
 </style></head><body>
 <header class="top hud">
- <div class="marca"><b>Central de Relatórios FDB <em>// Comando</em></b><small><span class="vivo">ao vivo</span><span data-hoje class="mn"></span><span class="mn" id="relogio"></span></small></div>
+ <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="mtx"><b>__NOME_LOJA__ <em>// Comando</em></b><small><span class="vivo">ao vivo</span><span data-hoje class="mn"></span><span class="mn" id="relogio"></span></small></div></div>
  <label class="busca">&gt;<input id="q" placeholder="BUSCAR VENDEDOR, ITEM, NÚMERO, VALOR" autocomplete="off" spellcheck="false"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Ger</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

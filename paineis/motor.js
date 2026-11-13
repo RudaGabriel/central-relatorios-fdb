@@ -1,7 +1,8 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.0.2
- *   1.0.2 - 2026-11-13 - ENG.perfCtl(): desenha o controle de desempenho criado depois (Configurações do painel);
- *                        escolher um tipo marca todos os botões desse tipo (cabeçalho, menu lateral e painel "Por tipo").
+ * @version 1.1.0
+ *   1.1.0 - 2026-11-13 - Busca e proibidos iguais aos do relatório clássico (window.BUSCA); avisos no padrão
+ *                        do clássico (sem repetição, botão fechar e barra de tempo); Atualização ligada recarrega
+ *                        como F5 a cada venda nova (também pela conferência de reserva); preferências do aparelho.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -58,7 +59,7 @@
       return {id: t + "|" + n + "|" + (x.caixa || "") + "|" + dt + "|" + h, n, dt, vend: String(x.vendedor || "").trim() || "(sem vendedor)", t, h,
         pg: String(x.pagamentos || ""), itens: itensDe(x), tot: Number(x.total) || 0, novo: false, cx: String(x.caixa || ""), cli: String(x.cliente || ""),
         seg: String(x.hora || "").slice(0, 8), nat: String(x.natureza || ""), rec: !!x.is_recebimento || t === "Recebimento", mod: Number(x.modelo) || 0,
-        fv: (x.formasValores && typeof x.formasValores === "object") ? x.formasValores : {}};
+        fv: (x.formasValores && typeof x.formasValores === "object") ? x.formasValores : {}, raw: x, ri: k};
     }).sort((a, b) => { const ka = a.dt + " " + a.seg, kb = b.dt + " " + b.seg; return kb > ka ? 1 : kb < ka ? -1 : 0; });
   }
 
@@ -66,6 +67,16 @@
   let vendas = [], DADOS = null, dataISO = "";
   const st = {tipo: "todos", vend: null, q: ""};
   function filtradas(){
+    const extra = x => !window.PAINEL || !PAINEL.filtroExtra || PAINEL.filtroExtra(x);
+    // Busca igual à do relatório clássico (mesma sintaxe: -termo, [termo], [proibidos], >100,
+    // 10-20, =soma, campo:valor, "frase", a|b, +): o servidor embute o motor dele (window.BUSCA).
+    const B = window.BUSCA;
+    if (B && B.pronto && DADOS) {
+      let c = null;
+      try { c = B.ctx(st.q, st.tipo === "Recebimento" ? "todos" : st.tipo, st.vend && st.vend !== "(sem vendedor)" ? st.vend : ""); } catch (e) { c = null; }
+      if (c) return vendas.filter(x => (st.tipo === "todos" || x.t === st.tipo) && (!st.vend || x.vend === st.vend) &&
+        (!x.raw || B.passa(x.raw, x.ri, c)) && extra(x));
+    }
     const q = norm(st.q.trim());
     return vendas.filter(x => (st.tipo === "todos" || x.t === st.tipo) && (!st.vend || x.vend === st.vend) &&
       (!q || norm([x.vend, x.t, x.n, x.pg, fmt(x.tot), x.cli, x.nat, x.cx, x.itens.map(i => i.d).join(" ")].join(" ")).includes(q)) &&
@@ -173,14 +184,47 @@
     document.addEventListener("keydown", esc_);
   }
 
-  // ── Aviso com barra de tempo ────────────────────────────────────────────────
+  // ── Proibidos (como no relatório clássico) ─────────────────────────────────
+  // Lista DESTE aparelho (window.__APARELHO__, injetada pelo servidor) — vale mesmo vazia;
+  // sem ela, a embutida no relatório; depois sincroniza com /api/proibidos.
+  let proibOk = false;
+  function proibidosIniciais(){
+    if (proibOk || !window.BUSCA) return; proibOk = true;
+    let ap = null; try { const a = window.__APARELHO__; if (a && a.prefs && Array.isArray(a.prefs.proibidos)) ap = a.prefs.proibidos.map(String); } catch (e) {}
+    if (ap) BUSCA.proibidos(ap); else if (DADOS && Array.isArray(DADOS.proibidosServidor) && DADOS.proibidosServidor.length) BUSCA.proibidos(DADOS.proibidosServidor);
+    fetch("/api/proibidos", {cache: "no-store", credentials: "same-origin"}).then(r => r.json()).then(d => {
+      if (Array.isArray(d.proibidos) && (d.efetivo === true || d.proibidos.length)) { const antes = BUSCA.lista().join("\n"); BUSCA.proibidos(d.proibidos); if (BUSCA.lista().join("\n") !== antes) renderLista(); }
+    }).catch(() => {});
+  }
+  // Preferências do aparelho mudaram (SSE "prefs"): relê duração dos avisos e proibidos.
+  function aplicarPrefs(){
+    fetch("/api/preferencias", {cache: "no-store", credentials: "same-origin"}).then(r => r.json()).then(d => {
+      if (!d || !d.ok || !d.prefs) return;
+      const td = parseInt(d.prefs.toastDuration, 10); if (td >= 500 && td <= 60000) window.__TOAST_MS = td;
+      if (window.BUSCA && Array.isArray(d.prefs.proibidos)) { const antes = BUSCA.lista().join("\n"); BUSCA.proibidos(d.prefs.proibidos); if (BUSCA.lista().join("\n") !== antes) renderLista(); }
+    }).catch(() => {});
+  }
+  // Duração dos avisos: a do aparelho, senão a do sistema (config.json → toastDuration).
+  try { const a = window.__APARELHO__, td = parseInt(a && a.prefs && a.prefs.toastDuration, 10), tp = parseInt(window.FDB_TEMAS && FDB_TEMAS.toastMs, 10);
+    window.__TOAST_MS = td >= 500 && td <= 60000 ? td : tp >= 500 ? tp : 5000; } catch (e) { window.__TOAST_MS = 5000; }
+
+  // ── Aviso (mesmo padrão do relatório clássico) ──────────────────────────────
+  // Texto, botão de fechar e barra de tempo restante; o mesmo aviso não se repete enquanto
+  // estiver na tela. A barra usa a Web Animations API (funciona também no modo Leve).
+  const avisosNaTela = new Set();
   function toast(txt){
-    let box = $("#toasts"); if (!box) { box = document.createElement("div"); box.id = "toasts"; document.body.appendChild(box); }
-    const t = document.createElement("div"); t.className = "toast"; t.innerHTML = txt + "<i></i>"; box.appendChild(t);
-    const bar = $("i", t);
-    if (bar && bar.animate) bar.animate([{transform: "scaleX(1)"}, {transform: "scaleX(0)"}], {duration: 5000, easing: "linear", fill: "forwards"});
-    if (anima()) t.animate([{opacity: 0, transform: "translateY(-12px) scale(.96)"}, {opacity: 1, transform: "none"}], {duration: 380, easing: "cubic-bezier(.2,.8,.2,1)"});
-    setTimeout(() => { if (!anima()) { t.remove(); return; } const a = t.animate([{opacity: 1}, {opacity: 0}], {duration: 260}); a.onfinish = () => t.remove(); }, 5000);
+    const chave = String(txt || ""); if (!chave || avisosNaTela.has(chave)) return; avisosNaTela.add(chave);
+    let box = $("#toasts"); if (!box) { box = document.createElement("div"); box.id = "toasts"; box.setAttribute("aria-live", "polite"); document.body.appendChild(box); }
+    const t = document.createElement("div"); t.className = "tst"; t.setAttribute("role", "status");
+    t.innerHTML = '<div class="tst-tx">' + chave + '</div><button type="button" class="tst-x" aria-label="Fechar aviso"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><i class="tst-tr"></i><i class="tst-br"></i>';
+    box.appendChild(t);
+    const dur = Math.max(500, Number(window.__TOAST_MS) || 5000);
+    let fora = false;
+    const tirar = () => { if (fora) return; fora = true; t.classList.remove("on"); setTimeout(() => { t.remove(); avisosNaTela.delete(chave); }, anima() ? 220 : 0); };
+    $(".tst-x", t).addEventListener("click", tirar);
+    requestAnimationFrame(() => t.classList.add("on"));
+    const bar = $(".tst-br", t); if (bar && bar.animate) bar.animate([{transform: "scaleX(1)"}, {transform: "scaleX(0)"}], {duration: dur, easing: "linear", fill: "forwards"});
+    setTimeout(tirar, dur);
   }
 
   // ── Carregar dados reais ────────────────────────────────────────────────────
@@ -195,8 +239,11 @@
       if (!m) { aviso(FONTE === "/" ? "Gerando o relatório de hoje… aguarde." : "Gerando o relatório do período… aguarde."); setTimeout(() => { carregando = false; carregar(); }, Math.min(8000, 1500 + 500 * tentativas++)); return; }
       tentativas = 0; aviso("");
       DADOS = JSON.parse(m[1]); dataISO = String(DADOS.data || "");
+      if (window.BUSCA) { try { BUSCA.indexar(DADOS); proibidosIniciais(); } catch (e) {} }
       const novas = converter(DADOS), antigos = new Set(vendas.map(v => v.id));
       const chegaram = primeira ? [] : novas.filter(v => !antigos.has(v.id));
+      // Atualização ligada: venda nova vinda da conferência de reserva também recarrega como F5.
+      if (chegaram.length && window.PAINEL && PAINEL.recarregar && PAINEL.recarregar()) { location.reload(); return; }
       novas.forEach(v => v.novo = chegaram.some(c => c.id === v.id));
       vendas = novas;
       renderLista();
@@ -216,11 +263,14 @@
     let es = null, tent = 0;
     const con = () => { try { es = new EventSource("/api/events");
       es.onmessage = ev => { try { const d = JSON.parse(ev.data);
-        if (d.type === "reload") carregar();
+        // "Recarregar ao detectar mudanças" (Configurações → Atualização, como no clássico):
+        // ligado, recarrega como F5; desligado, só traz as vendas novas, sem recarregar.
+        if (d.type === "reload") { if (window.PAINEL && PAINEL.recarregar && PAINEL.recarregar()) { location.reload(); return; } carregar(); }
         // Controle remoto (api.ps1): troca de tema, navegação e aviso nas telas abertas.
         else if (d.type === "tema" && d.id) { if (window.PAINEL_TEMA) window.PAINEL_TEMA.aplicar(String(d.id), true); }
         else if (d.type === "navigate") { let u = String(d.url || "/"); if (u.charAt(0) !== "/" || u.charAt(1) === "/") u = "/"; location.assign(u); }
         else if (d.type === "aviso" && d.msg) toast("<b>Aviso</b> · " + esc(String(d.msg).slice(0, 300)));
+        else if (d.type === "prefs") aplicarPrefs();
         else if (d.type === "encerrando") aviso(d.reiniciando ? "O servidor está reiniciando — reconectando…" : "O servidor de relatórios foi encerrado.");
       } catch (e) {} };
       es.onopen = () => { tent = 0; const a = $("#estado"); if (a && /^O servidor/.test(a.textContent)) aviso(""); };

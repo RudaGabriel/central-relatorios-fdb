@@ -226,6 +226,48 @@ test("padrão de fábrica: config.json do repositório sem dados de loja e sem p
     assert.ok(html.includes("const proibidosPadrao=[];"), "a lista padrão de proibidos deveria vir vazia");
 });
 
+test("gerador: gerencial sem total (aguardando documento fiscal) com pagamento e itens é venda gerencial, não recebimento", () => {
+    const dir = montarPasta({}, {
+        nfce: [
+            // A: "Finalizada - Aguardando Documento Fiscal" — o PDV grava TOTAL = 0 até emitir a nota
+            { numero: "900", hora: "11:05:00", modelo: 99, total: 0, vendedor: "VENDEDOR A", caixa: "64", cliente: "FULANO" },
+            // B: total 0 com pagamento, mas sem itens — continua recebimento
+            { numero: "901", hora: "11:10:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" },
+            // C: total 0 sem pagamento (venda aberta) — não aparece
+            { numero: "902", hora: "11:20:00", modelo: 99, total: 0, vendedor: "VENDEDOR C" },
+            // D: gerencial comum
+            { numero: "903", hora: "11:30:00", modelo: 99, total: 20, vendedor: "VENDEDOR A" }
+        ],
+        pagGer: [
+            { numero: "900", forma: "04 Cartao CREDITO", valor: 99 },
+            { numero: "901", forma: "03 PIX", valor: 50 },
+            { numero: "903", forma: "01 DINHEIRO", valor: 20 }
+        ],
+        alt: [
+            { pedido: "900", desc: "PRODUTO DE TESTE 75MG", qtd: 1, total: 99 },
+            { pedido: "903", desc: "OUTRO PRODUTO", qtd: 1, total: 20 }
+        ]
+    });
+    const html = gerar(dir);
+    const dados = JSON.parse(html.match(/<script id="dados" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+    const v = n => dados.vendas.find(x => String(x.numero).replace(/^0+/, "") === n);
+    const a = v("900");
+    assert.ok(a, "venda 900 presente");
+    assert.strictEqual(a.tipo, "gerencial", "aguardando documento fiscal é gerencial");
+    assert.strictEqual(a.is_recebimento, false);
+    assert.strictEqual(a.total, 99);
+    assert.strictEqual(a.caixa, "064", "caixa da própria linha");
+    assert.match(String(a.hora), /^11:05/, "hora da própria linha");
+    assert.strictEqual(a.cliente, "FULANO");
+    assert.ok(Array.isArray(a.itensDetalhe) && a.itensDetalhe.length === 1, "itens da venda");
+    assert.doesNotMatch(String(a.itens), /Recebimento/);
+    const b = v("901");
+    assert.ok(b && b.tipo === "recebimento" && b.is_recebimento === true, "sem itens continua recebimento");
+    assert.ok(!v("902"), "gerencial sem total e sem pagamento (aberta) não aparece");
+    assert.strictEqual(Math.round(dados.totais.total * 100) / 100, 169, "total do dia igual ao de antes (99 + 50 + 20)");
+    assert.strictEqual(dados.totais.qtd, 3);
+});
+
 test("gerador: duplicata gerencial→NFC-e vai para o painel e sai da tabela", () => {
     const dir = montarPasta({}, { nfce: [
         { numero: "300", hora: "10:00", modelo: 99 },
@@ -1089,6 +1131,59 @@ test("servidor: painéis de tela única — /painel/<id>/ só da lista; /demos l
         const t = await (await fetch(srv2.base + "/api/temas")).json();
         assert.ok(t.temas.length === 7 && t.temas.every(x => x.categoria === "classico"), "só os temas clássicos");
     } finally { srv2.parar(); }
+});
+
+test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório clássico; nome da loja escapado", { timeout: 60000 }, async () => {
+    const dir = montarPasta({ appName: "Loja & <Teste>", proibidos: ["AREIA"] }, {
+        nfce: [
+            { numero: "700", hora: "10:00:00", modelo: 99, total: 40, vendedor: "VENDEDOR A" },
+            { numero: "701", hora: "10:10:00", modelo: 65, total: 120, vendedor: "VENDEDOR B" },
+            { numero: "702", hora: "10:20:00", modelo: 99, total: 15, vendedor: "VENDEDOR A" },
+            // Aguardando documento fiscal (TOTAL 0 com pagamento e itens): gerencial, não recebimento
+            { numero: "703", hora: "10:30:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" },
+            { numero: "704", hora: "10:40:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" }
+        ],
+        pagGer: [
+            { numero: "700", forma: "03 PIX", valor: 40 },
+            { numero: "701", forma: "01 DINHEIRO", valor: 120 },
+            { numero: "702", forma: "03 PIX", valor: 15 },
+            { numero: "703", forma: "04 Cartao CREDITO", valor: 99 },
+            { numero: "704", forma: "03 PIX", valor: 30 }
+        ],
+        alt: [
+            { pedido: "700", desc: "RACAO PREMIUM 10KG", qtd: 1, total: 40 },
+            { pedido: "702", desc: "AREIA SANITARIA 4KG", qtd: 1, total: 15 },
+            { pedido: "703", desc: "PRODUTO DE TESTE 75MG", qtd: 1, total: 99 }
+        ]
+    });
+    const dados = JSON.parse(gerar(dir).match(/<script id="dados" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+    const srv = await iniciarServidor(dir);
+    try {
+        const html = await (await fetch(srv.base + "/painel/relevo/")).text();
+        assert.doesNotMatch(html, /__NOME_LOJA__/, "marcador do nome da loja substituído");
+        assert.match(html, /<b>Loja &amp; &lt;Teste&gt;<\/b>/, "nome da loja declarado e escapado no cabeçalho");
+        assert.match(html, /<img src="\/favicon\.png"/, "logo usa o favicon da pasta do sistema");
+        const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes("window.BUSCA = {"));
+        assert.ok(js, "busca do relatório clássico embutida no painel");
+        const vm = require("node:vm"), mem = {};
+        const ctx = { window: {}, console, localStorage: { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); }, removeItem: k => { delete mem[k]; } } };
+        vm.createContext(ctx); vm.runInContext(js, ctx);
+        const B = ctx.window.BUSCA;
+        B.indexar(dados); B.proibidos(["AREIA"]);
+        assert.deepStrictEqual([...B.lista()], ["AREIA"]);
+        const conta = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, i) => B.passa(v, i, c)).length; };
+        const nums = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, k) => B.passa(v, k, c)).map(v => String(v.numero).replace(/^0+/, "")).sort(); };
+        assert.strictEqual(conta(""), 5, "sem busca: todas");
+        assert.strictEqual(conta("racao"), 1, "termo do item");
+        assert.strictEqual(conta("-racao"), 4, "exclusão");
+        assert.strictEqual(conta(">100"), 1, "valor maior que");
+        assert.deepStrictEqual(nums("[proibidos]"), ["700", "701", "703", "704"], "[proibidos] oculta só a venda com item proibido");
+        assert.deepStrictEqual(nums("[-proibidos]"), ["702"], "[-proibidos] isola a venda com item proibido");
+        // Aguardando documento fiscal (703): aparece como Gerencial de R$ 99,00, não como recebimento.
+        const v703 = dados.vendas.find(v => /^0*703$/.test(String(v.numero)));
+        assert.ok(v703 && v703.tipo === "gerencial" && v703.total === 99, "703 é venda gerencial");
+        assert.deepStrictEqual(nums("[proibidos]", "Gerencial"), ["700", "703", "704"], "[proibidos] + Gerencial (o recebimento 704 continua no filtro Gerencial, como no clássico)");
+    } finally { srv.parar(); }
 });
 
 test("gerador: menu Tema com duas categorias — temas clássicos intactos e painéis de tela única", () => {

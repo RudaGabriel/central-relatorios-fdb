@@ -10,9 +10,9 @@ Versões em uso hoje:
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.27.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.33.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.8.4 |
-| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.15.2 |
-| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.2.0 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.0 |
+| [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
+| [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.3.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
 | [`launcher.vbs`](#launchervbs) | 1.0.2 |
 | [`remover-inicializacao.bat`](#remover-inicializacaobat) | 1.0.1 |
@@ -888,6 +888,22 @@ Cliente de linha de comando.
 
 Ícone da bandeja.
 
+### 1.9.0 — 2026-11-16
+
+**Diagnóstico da inicialização automática no `relatorio.log`.**
+
+Cerca de 30 segundos depois de abrir, a bandeja consulta o Agendador de Tarefas e a pasta Inicializar e grava no `relatorio.log` (linhas `[TRAY] Inicializacao automatica: ...`):
+
+- a tarefa encontrada, com o estado, o usuário, os gatilhos, a última execução e o resultado dela;
+- **avisos** quando o sistema não vai iniciar com o Windows para quem está usando o computador:
+  - a tarefa é de outro usuário;
+  - a tarefa abre o sistema de outra pasta;
+  - o `launcher.vbs` da tarefa não existe mais;
+  - a tarefa está desabilitada;
+  - não há tarefa nem atalho de inicialização.
+
+Somente leitura: nada é criado, alterado ou apagado.
+
 ### 1.8.4 — 2026-11-13
 
 **Novo nome do projeto: Central de Relatórios FDB.** *Ferramentas → Informações do sistema* termina com "Central de Relatórios FDB - criado e mantido por Ruda Gabriel". O arquivo continua 100% ASCII, com os acentos como `\uXXXX`.
@@ -1020,6 +1036,17 @@ a linha de comando de qualquer processo e' visivel a todos os usuarios da maquin
 
 Instalador da inicialização automática.
 
+### 1.16.0 — 2026-11-16
+
+**A tarefa passa a ser do usuário que usa o computador.**
+
+- **Problema:** o instalador roda como Administrador. Quando o pedido de permissão do Windows (UAC) era respondido com **outra conta** (por exemplo, um usuário comum digitando a senha de um administrador), a tarefa agendada ficava registrada para essa conta de administrador. No logon do usuário da loja ela não disparava, e o sistema precisava ser aberto manualmente.
+- **Correção:**
+  - a tarefa, completa ou básica, é registrada para o usuário da sessão aberta no computador (o dono do `explorer.exe` dessa sessão), com o auxílio do `_criar-tarefa.ps1` 1.3.0;
+  - sem o auxiliar, continua a conta da janela, como antes;
+  - o usuário escolhido aparece na tela e no `relatorio.log` (`[INSTALL] Usuario da tarefa: ...`).
+- Quem já instalou nessa situação precisa executar o instalador novamente.
+
 ### 1.15.2 — 2026-11-05
 
 **Bandeja aberta sem Administrador.**
@@ -1101,6 +1128,15 @@ o "!APP_NAME: =!" que so' deveria TESTAR se o nome estava vazio sobrescrevia a p
 ## `_criar-tarefa.ps1`
 
 Auxiliar do instalador (tarefa agendada).
+
+### 1.3.0 — 2026-11-16
+
+**Tarefa do usuário da sessão, e não da janela elevada.**
+
+- A tarefa usa o usuário informado em `-Usuario` ou, sem ele, o dono do `explorer.exe` da sessão em que o instalador está rodando. Só se nenhum dos dois for encontrado usa a conta da janela.
+- Quando a janela elevada é de outra conta, a tela avisa e informa para qual usuário a tarefa foi criada.
+- O resumo final mostra o usuário gravado na tarefa.
+- Novo parâmetro `-SoUsuario`: apenas informa o usuário da sessão. O instalador o usa também na tarefa básica do `schtasks`.
 
 ### 1.2.0 — 2026-11-05
 

@@ -1,5 +1,5 @@
 # =============================================================================
-# _criar-tarefa.ps1                                                   v1.2.0
+# _criar-tarefa.ps1                                                   v1.3.0
 # Autor: Ruda Gabriel
 # -----------------------------------------------------------------------------
 # Auxiliar do instalar-na-inicializacao.bat (nao precisa ser executado direto).
@@ -16,7 +16,7 @@
 #                  forcar a interrupcao se nao parar quando solicitado; nunca
 #                  excluir; se ja estiver rodando, nao iniciar outra instancia.
 #
-# Roda como o usuario que instalou, "somente quando conectado" (Interactive):
+# Roda como o usuario da sessao aberta, "somente quando conectado" (Interactive):
 # o icone da bandeja precisa da area de trabalho. Por isso o disparador "Ao
 # inicializar" so' consegue abrir o tray quando ja ha sessao (logon automatico);
 # sem sessao, o disparador "Ao fazer logon" cobre assim que alguem entrar. Os
@@ -42,21 +42,59 @@
 # Codigo de saida: 0 = criada e conferida, 1 = falhou (o .bat cai no schtasks).
 #
 # (Historico completo das versoes: CHANGELOG.md no repositorio.)
-# CHANGELOG 1.2.0 - 2026-11-05 - Inicializacao 100% silenciosa.
-#   - Pasta local: a tarefa abre o launcher.vbs direto pelo wscript (sem
-#     PowerShell, sem janela). Pasta de rede: a espera roda em
-#     "conhost.exe --headless", sem a janela preta piscando.
+# CHANGELOG 1.3.0 - 2026-11-16 - Tarefa do usuario da sessao, nao da janela elevada.
+#   - Quando o UAC era respondido com outra conta (usuario comum digitando a
+#     senha de um administrador), a tarefa ficava registrada para o
+#     administrador e nunca disparava no logon do usuario da loja. Agora usa
+#     o dono do explorer.exe desta sessao (ou o -Usuario informado) e avisa
+#     quando a janela elevada e' de outra conta. -SoUsuario so' informa o
+#     usuario (usado pelo instalador na tarefa basica do schtasks).
 # =============================================================================
 
 param(
-    [Parameter(Mandatory = $true)][string]$Nome,
-    [Parameter(Mandatory = $true)][string]$Launcher,
-    [string]$Usuario = ''
+    [string]$Nome = '',
+    [string]$Launcher = '',
+    [string]$Usuario = '',
+    # -SoUsuario: so' escreve o usuario da sessao (DOMINIO\usuario) e sai.
+    # Usado pelo instalador para a tarefa basica do schtasks.
+    [switch]$SoUsuario
 )
 
 $ErrorActionPreference = 'Stop'
 
+# Usuario da SESSAO aberta neste computador (v1.3.0) = dono do explorer.exe
+# desta mesma sessao do Windows. O instalador roda ELEVADO: quando o UAC e'
+# respondido com OUTRA conta (usuario comum digitando a senha de um
+# administrador), $env:USERNAME passa a ser o administrador, e a tarefa ficava
+# registrada para ele - no logon do usuario da loja ela nunca disparava e o
+# sistema precisava ser aberto manualmente. A janela elevada continua na mesma
+# sessao, entao o explorer.exe dela pertence a quem esta usando o computador.
+# Vazio quando nao for possivel descobrir (o chamador usa a conta da janela).
+function Get-UsuarioDaSessao {
+    try {
+        $sessao = [System.Diagnostics.Process]::GetCurrentProcess().SessionId
+        $exps = @(Get-CimInstance -ClassName Win32_Process -Filter "Name='explorer.exe' AND SessionId=$sessao" -ErrorAction Stop)
+        foreach ($p in $exps) {
+            $dono = Invoke-CimMethod -InputObject $p -MethodName GetOwner -ErrorAction Stop
+            if ($dono -and $dono.ReturnValue -eq 0 -and $dono.User) {
+                if ($dono.Domain) { return ($dono.Domain + '\' + $dono.User) }
+                return [string]$dono.User
+            }
+        }
+    } catch {}
+    return ''
+}
+$usuarioJanela = if ($env:USERDOMAIN) { "$env:USERDOMAIN\$env:USERNAME" } else { $env:USERNAME }
+
+if ($SoUsuario) {
+    $u = Get-UsuarioDaSessao
+    if (-not $u) { $u = $usuarioJanela }
+    Write-Output $u
+    exit 0
+}
+
 try {
+    if (-not $Nome) { throw 'nome da tarefa nao informado (-Nome)' }
     if (-not (Get-Command Register-ScheduledTask -ErrorAction SilentlyContinue)) {
         throw 'modulo ScheduledTasks indisponivel neste Windows'
     }
@@ -68,8 +106,12 @@ try {
     if (-not (Test-Path -LiteralPath $Launcher)) { Write-Output "  [AVISO] launcher.vbs ainda nao encontrado em $Launcher - a tarefa espera ate 30 min por ele no logon." }
     # "%" seria expandido pelo Agendador como variavel de ambiente.
     if ($Launcher.Contains('%')) { throw "o caminho do launcher nao pode conter '%': $Launcher" }
-    if (-not $Usuario) {
-        $Usuario = if ($env:USERDOMAIN) { "$env:USERDOMAIN\$env:USERNAME" } else { $env:USERNAME }
+    $Usuario = $Usuario.Trim()
+    if (-not $Usuario) { $Usuario = Get-UsuarioDaSessao }
+    if (-not $Usuario) { $Usuario = $usuarioJanela }
+    if ($Usuario -ne $usuarioJanela) {
+        Write-Output "  [AVISO] Esta janela foi elevada com outra conta ($usuarioJanela)."
+        Write-Output "          A tarefa sera do usuario que esta usando o computador: $Usuario."
     }
 
     # Comando sem aspas duplas internas (vai inteiro entre aspas duplas) e
@@ -148,6 +190,7 @@ try {
     Write-Output "  [OK] Tarefa '$Nome': ao fazer logon (qualquer usuario) e ao inicializar;"
     Write-Output '       sem condicoes; reinicia a cada 1 min (ate 99x); sem limite de tempo.'
     Write-Output "       Acao: $modo."
+    Write-Output "       Usuario da tarefa: $($t.Principal.UserId)."
     exit 0
 } catch {
     Write-Output "  [AVISO] Configuracao completa da tarefa falhou: $($_.Exception.Message)"

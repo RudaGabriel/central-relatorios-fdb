@@ -142,17 +142,17 @@ timeout /t 5 >nul
 :ja_elevado
 
 :: =========================================================
-:: instalar-na-inicializacao.bat                       v1.15.2
+:: instalar-na-inicializacao.bat                       v1.16.0
 ::  Autor: Ruda Gabriel
 :: Configura o servidor para iniciar automaticamente no logon.
 ::
 :: (Historico completo das versoes: CHANGELOG.md no repositorio.)
-:: CHANGELOG 1.15.2 - 2026-11-05 - Bandeja aberta SEM Administrador.
-::   - O instalador roda elevado e abria o launcher direto: a bandeja e o
-::     servidor herdavam o Administrador (o removedor sem UAC nao os via e o
-::     menu da bandeja rodava com privilegio a toa). Agora inicia pela tarefa
-::     agendada (roda como usuario comum); sem tarefa, pelo Explorer, que
-::     tambem abre sem elevacao.
+:: CHANGELOG 1.16.0 - 2026-11-16 - Tarefa do usuario que usa o computador.
+::   - Quando o UAC era respondido com OUTRA conta (usuario comum digitando a
+::     senha de um administrador), a tarefa ficava registrada para o
+::     administrador e nunca iniciava no logon do usuario da loja. Agora a
+::     tarefa (completa ou basica) e' do usuario da sessao aberta, informado
+::     na tela e no relatorio.log.
 ::
 :: =========================================================
 
@@ -394,13 +394,25 @@ echo.
 ::    - Se o auxiliar nao existir ou falhar: tarefa basica pelo schtasks
 ::      (so' no logon) + ajuste de bateria/limite, como na v1.12.0.
 :: ---------------------------------------------------------------------------
+:: v1.16.0: usuario da tarefa = quem esta usando o computador (dono do
+:: explorer.exe desta sessao), e nao a conta usada para responder ao UAC.
+:: Sem o auxiliar ou se ele falhar, fica a conta desta janela, como antes.
+set "USUARIO_TAREFA="
+if exist "%~dp0_criar-tarefa.ps1" for /f "usebackq delims=" %%U in (`powershell -NoProfile -ExecutionPolicy Bypass -NonInteractive -File "%~dp0_criar-tarefa.ps1" -SoUsuario 2^>nul`) do set "USUARIO_TAREFA=%%U"
+if not defined USUARIO_TAREFA set "USUARIO_TAREFA=%USERDOMAIN%\%USERNAME%"
+if "%USERDOMAIN%"=="" if "!USUARIO_TAREFA!"=="\%USERNAME%" set "USUARIO_TAREFA=%USERNAME%"
+echo Usuario da tarefa: !USUARIO_TAREFA!
+set "_LT=%TIME: =0%"
+set "_LT=!_LT:~0,8!"
+>>"%LOGF%" echo [!_LD!] [!_LT!] [INSTALL] Usuario da tarefa: !USUARIO_TAREFA! ^(conta desta janela: %USERDOMAIN%\%USERNAME%^)
+
 schtasks /delete /tn "!TASK_NAME!" /f >nul 2>&1
 if defined APP_NAME_LEGADO if not "!APP_NAME_LEGADO!"=="!APP_NAME!" schtasks /delete /tn "!APP_NAME_LEGADO! - Relatorios" /f >nul 2>&1
 
 set "TAREFA_OK="
 if not exist "%~dp0_criar-tarefa.ps1" goto :tarefa_schtasks
 echo Criando tarefa agendada...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_criar-tarefa.ps1" -Nome "!TASK_NAME!" -Launcher "!LAUNCHER_PATH!"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_criar-tarefa.ps1" -Nome "!TASK_NAME!" -Launcher "!LAUNCHER_PATH!" -Usuario "!USUARIO_TAREFA!"
 if errorlevel 1 goto :tarefa_schtasks
 set "TAREFA_OK=completa"
 set "_LT=%TIME: =0%"
@@ -415,7 +427,7 @@ echo   Criando tarefa basica pelo schtasks ^(somente no logon^)...
 :: estiver montada no logon, abra o relatorio pelo atalho uma vez.
 schtasks /create /tn "!TASK_NAME!" ^
     /tr "wscript.exe \"!LAUNCHER_PATH!\"" ^
-    /sc ONLOGON /ru "%USERNAME%" /rl LIMITED /f >nul 2>&1
+    /sc ONLOGON /ru "!USUARIO_TAREFA!" /it /rl LIMITED /f <nul >nul 2>&1
 if errorlevel 1 goto :tarefa_falhou
 call :ajustar_tarefa
 set "TAREFA_OK=basica"

@@ -1,9 +1,7 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.2.0
- *   1.2.0 - 2026-11-16 - Conversões em nota fiscal pela lista do gerador (inclui as gerenciais marcadas como
- *                        convertidas); itens sem a linha de desconto nas contagens e desconto no fim; indicador
- *                        do % de desconto na lista; detalhe alinhado (pagamento centralizado); dica do gráfico
- *                        de horas; logo próprio dos painéis (clique no logo ou Configurações → Sistema).
+ * @version 1.3.0
+ *   1.3.0 - 2026-11-16 - Coluna "Desc." na lista (ordenável pelo percentual de desconto) e dicas personalizadas:
+ *                        todo title dos painéis vira uma dica própria (mouse e teclado), no lugar da do navegador.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -50,7 +48,7 @@
   function lista(semFiltro){ ignora = semFiltro || null; try { return E().filtradas(); } finally { ignora = null; } }
 
   // ── Esqueletos (montados uma vez, antes do primeiro desenho) ────────────────
-  const COLS = [["hora", "Hora"], ["tipo", "Tipo"], ["numero", "Nº"], ["caixa", "Cx"], ["vendedor", "Vendedor"], ["cliente", "Cliente / natureza"], ["itens", "Itens"], ["pag", "Pagamento"], ["total", "Total"]];
+  const COLS = [["hora", "Hora"], ["tipo", "Tipo"], ["numero", "Nº"], ["caixa", "Cx"], ["vendedor", "Vendedor"], ["cliente", "Cliente / natureza"], ["itens", "Itens"], ["desc", "Desc."], ["pag", "Pagamento"], ["total", "Total"]];
   function esqueletos(){
     const k = $("#kpis");
     if (k) k.innerHTML = [
@@ -82,7 +80,8 @@
       `<span class="c-caixa mn">${es(x.cx || "—")}</span>` +
       `<span class="c-vendedor" title="${es(x.vend)}">${es(x.vend)}</span>` +
       `<span class="c-cliente${cli ? "" : " vz"}" title="${es(cli)}">${es(cli || "—")}</span>` +
-      `<span class="c-itens" title="${es(it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span>${dsc}</span>` +
+      `<span class="c-itens" title="${es(it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span></span>` +
+      `<span class="c-desc">${dsc}</span>` +
       `<span class="c-pag">${fs.map(f => `<i title="${es(f.k)}${f.v != null ? " · " + es(en.fmt(f.v)) : ""}">${es(f.k)}${f.v != null && fs.length > 1 ? " <em class='mn'>" + num(f.v) + "</em>" : ""}</i>`).join("")}</span>` +
       `<span class="c-total mn">${num(x.tot)}</span></div>`;
   }
@@ -233,6 +232,39 @@
   }
   function hrEsconder(){ if (hrTip) hrTip.classList.remove("on"); hrAtual = null; }
 
+  // ── Dicas personalizadas (v1.3.0) ───────────────────────────────────────────
+  // Todo atributo title dos painéis vira uma dica própria (mesmo visual da dica do gráfico de horas),
+  // no lugar da dica padrão do navegador: ao passar o mouse, o title passa para data-tip (o navegador não
+  // mostra mais a dele) e a caixa aparece junto do elemento, sempre dentro da tela. Teclado: aparece ao
+  // focar com Tab. Elementos só com ícone mantêm o texto como nome acessível (aria-label).
+  let dicaEl = null, dicaAlvo = null, dicaTm = 0;
+  function dicaPrep(el){
+    const t = el.getAttribute("title");
+    if (t !== null) {
+      if (t.trim()) { el.dataset.tip = t; if (!el.hasAttribute("aria-label") && !el.textContent.trim()) el.setAttribute("aria-label", t); }
+      el.removeAttribute("title");
+    }
+    return el.dataset.tip || "";
+  }
+  function dicaMostrar(el){
+    const txt = dicaPrep(el); if (!txt || !el.isConnected) return;
+    if (!dicaEl) { dicaEl = document.createElement("div"); dicaEl.id = "dica"; dicaEl.setAttribute("role", "tooltip"); document.body.appendChild(dicaEl); }
+    dicaEl.textContent = txt; dicaEl.classList.add("on");
+    const z = zLer(), r = el.getBoundingClientRect(), w = dicaEl.offsetWidth * z, a = dicaEl.offsetHeight * z;
+    let x = r.left + r.width / 2 - w / 2, y = r.bottom + 8;
+    if (y + a > innerHeight - 8) y = r.top - a - 8;
+    if (y < 8) y = 8;
+    x = Math.max(8, Math.min(x, innerWidth - w - 8));
+    dicaEl.style.left = Math.round(x / z) + "px"; dicaEl.style.top = Math.round(y / z) + "px";
+  }
+  function dicaEsconder(){ clearTimeout(dicaTm); dicaAlvo = null; if (dicaEl) dicaEl.classList.remove("on"); }
+  function dicaAgendar(el, ms){
+    if (el === dicaAlvo) return;
+    dicaEsconder();
+    if (!el || !dicaPrep(el)) return;
+    dicaAlvo = el; dicaTm = setTimeout(() => { if (dicaAlvo === el) dicaMostrar(el); }, ms);
+  }
+
   // ── Detalhe da venda ────────────────────────────────────────────────────────
   function detail(x){
     const en = E(), es = en.esc, fs = formasDe(x), q = qProd(x), nl = prods(x).length;
@@ -247,7 +279,7 @@
   // ── Ordenação e filtros extras ──────────────────────────────────────────────
   function ordenar(l){
     const k = ord.k, d = ord.d, nq = qProd;
-    const val = {hora: x => x.seg, total: x => x.tot, vendedor: x => x.vend, tipo: x => x.t, numero: x => Number(x.n) || 0, caixa: x => x.cx, cliente: x => x.cli || x.nat, itens: nq}[k] || (x => x.seg);
+    const val = {hora: x => x.seg, total: x => x.tot, vendedor: x => x.vend, tipo: x => x.t, numero: x => Number(x.n) || 0, caixa: x => x.cx, cliente: x => x.cli || x.nat, itens: nq, desc: x => x.dsc ? (x.dsc.pct != null ? x.dsc.pct : 0.0001) : 0}[k] || (x => x.seg);
     return l.sort((a, b) => { const A = val(a), B = val(b); const c = typeof A === "number" && typeof B === "number" ? A - B : String(A).localeCompare(String(B), "pt-BR"); return c ? c * d : (a.seg < b.seg ? 1 : -1); });
   }
   function filtroExtra(x){
@@ -342,6 +374,13 @@
     document.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else if (hrAtual) hrEsconder(); }, {passive: true});
     document.addEventListener("pointerdown", e => { if (e.pointerType !== "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else hrEsconder(); }, {passive: true});
     document.addEventListener("scroll", hrEsconder, {passive: true, capture: true});
+    // Dicas personalizadas no lugar do title do navegador (mouse e teclado).
+    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380); }, {passive: true});
+    document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120); });
+    document.addEventListener("focusout", dicaEsconder);
+    document.addEventListener("pointerdown", dicaEsconder, {passive: true});
+    document.addEventListener("keydown", e => { if (e.key === "Escape") dicaEsconder(); });
+    document.addEventListener("scroll", dicaEsconder, {passive: true, capture: true});
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
     document.addEventListener("keydown", e => {

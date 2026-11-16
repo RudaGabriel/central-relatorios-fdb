@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.27.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.33.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.28.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.34.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.0 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.1 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.3.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -24,23 +24,31 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.28.0 — 2026-11-16
+
+**Logo próprio dos painéis, sem alterar o ícone do sistema.**
+
+- Novo arquivo `logo-painel.png`, separado do `favicon.png`. O ícone do sistema (aba do navegador, relatório clássico e bandeja) nunca é alterado pela troca do logo.
+- `GET /logo-painel.png`: o logo próprio; sem ele, o `favicon.png`; sem nenhum dos dois, 404 (o painel mostra "FDB"). Sem cache longo: a troca aparece no próximo carregamento.
+- `POST /api/upload-logo`: grava o logo (PNG, ICO ou JPEG, até 2 MB, gravação atômica). `POST /api/remover-logo`: volta a usar o ícone do sistema. As duas rotas funcionam só no computador do servidor, como o envio do ícone.
 
 ### 2.27.0 — 2026-11-13
 
@@ -374,6 +382,14 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.34.0 — 2026-11-16
+
+**Conversões em nota fiscal.**
+
+- **Problema:** o painel "Conversões em nota fiscal" usava a lista de duplicatas, que só registra a gerencial que continua ativa na tabela. Numa conversão normal o PDV marca a gerencial como convertida (`CANC='T'`), e ela era descartada antes. A lista ficava vazia mesmo com a conversão feita.
+- **Correção:** nova lista `conversoes` nos dados do relatório, com cada NFC-e/NF-e válida cuja coluna GERENCIAL aponta para uma gerencial e as gerenciais marcadas como convertidas sem documento vinculado. Cada item traz a hora, o caixa, o vendedor e o total (o do documento ou, enquanto a SEFAZ não autoriza, o da gerencial).
+- Somente leitura dos dados já consultados: os totais, a supressão de duplicatas e o painel Duplicatas do relatório clássico não mudam.
 
 ### 3.33.0 — 2026-11-13
 
@@ -888,6 +904,10 @@ Cliente de linha de comando.
 
 Ícone da bandeja.
 
+### 1.9.1 — 2026-11-16
+
+**Diagnóstico da inicialização automática sem falso alarme.** A tarefa de outra pasta (por exemplo, outro sistema instalado no mesmo computador) só gera aviso quando nenhuma tarefa abre a pasta deste sistema. Quando a inicialização deste sistema está configurada, as demais tarefas aparecem apenas como informação, com a observação de que não interferem.
+
 ### 1.9.0 — 2026-11-16
 
 **Diagnóstico da inicialização automática no `relatorio.log`.**
@@ -1360,6 +1380,27 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.3.0 — 2026-11-16
+
+**Ajustes de uso nos painéis.** (1.3.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
+
+- **Logo próprio dos painéis** (`painel.js` 1.2.0, `base.css` 1.2.0, todos os temas 1.2.0):
+  - o logo preenche o quadro inteiro, sem bordas;
+  - clicar no logo (ou **⚙ Configurações → Sistema → Trocar o logo**) escolhe uma imagem PNG, JPEG ou ICO de até 2 MB;
+  - a troca vale **só para o logo dos painéis**, em todos os aparelhos. O ícone do sistema (`favicon.png`) não muda;
+  - **Logo padrão** volta a usar o ícone do sistema. Só no computador do servidor.
+- **Conversões em nota fiscal** (`painel.js` 1.2.0, com o gerador 3.34.0): passam a aparecer, inclusive as gerenciais que o PDV marca como convertidas; o texto ficou mais curto para não cortar o número da nota.
+- **Desconto** (`motor.js` 1.2.0, `painel.js` 1.2.0):
+  - a linha de desconto fica no fim dos itens e não entra na quantidade, nas linhas do detalhe nem em "Produtos mais vendidos";
+  - na lista, uma etiqueta mostra o percentual de desconto (ex.: −5%), com o valor ao passar o mouse;
+  - o detalhe da venda mostra o desconto (percentual e valor).
+- **Detalhe da venda:** o título "Pagamento" fica centralizado, cada forma de pagamento centralizada e com o valor à direita; o total fica à esquerda, com o valor à direita.
+- **Gráfico de horas:** dica personalizada ao passar o mouse ou tocar numa barra (vendas, total, ticket médio, parte do dia e divisão por tipo), sempre dentro da tela.
+- **Configurações:** Desempenho e Tamanho do texto ocupam a largura do menu, com os botões à esquerda, no centro e à direita.
+- **Busca** com toda a largura livre do cabeçalho.
+- **Vendedores com mais espaço** que os produtos mais vendidos (no celular, na aba Equipe, e no computador).
+- **Rodapé da lista:** sem espaço embaixo e com 7 px em cima. O espaço das laterais foi mantido porque, sem ele, o texto encostava na borda ou era cortado pelo canto arredondado da lista.
 
 ### 1.2.0 — 2026-11-13
 

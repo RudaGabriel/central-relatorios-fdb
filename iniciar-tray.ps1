@@ -3,13 +3,12 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.9.0
+# @version 1.9.1
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.9.0 - 2026-11-16 - Diagnostico da inicializacao automatica no relatorio.log (somente
-#     leitura), 30 s depois de abrir: tarefa agendada, usuario, pasta, ultimo resultado e
-#     avisos quando o sistema nao vai iniciar com o Windows para quem usa o computador.
+#   1.9.1 - 2026-11-16 - Diagnostico da inicializacao automatica: tarefa de outra pasta (outro
+#     sistema no mesmo computador) so' gera aviso quando nenhuma tarefa abre esta pasta.
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -1773,8 +1772,20 @@ function Write-DiagnosticoInicio {
             }
             return
         }
+        # v1.9.1: tarefa que abre OUTRA pasta (outro sistema instalado no mesmo computador) so' gera
+        # aviso quando nenhuma tarefa abre esta pasta - antes, ela era apontada como problema mesmo
+        # com a inicializacao deste sistema funcionando.
+        $abreAqui = {
+            param($tt)
+            $ac = (@($tt.Actions | ForEach-Object { ("" + $_.Execute + " " + $_.Arguments).Trim() }) -join " | ")
+            foreach ($a in $alvos) { if ($ac.IndexOf($a, [StringComparison]::OrdinalIgnoreCase) -ge 0) { return $true } }
+            return $false
+        }
+        $algumaAqui = $false
+        foreach ($t in $tarefas) { if (& $abreAqui $t) { $algumaAqui = $true } }
         foreach ($t in $tarefas) {
             $acao = (@($t.Actions | ForEach-Object { ("" + $_.Execute + " " + $_.Arguments).Trim() }) -join " | ")
+            $estaPasta = [bool](& $abreAqui $t)
             $usu  = "" + $t.Principal.UserId
             $gat  = (@($t.Triggers | ForEach-Object { $_.CimClass.CimClassName -replace '^MSFT_Task', '' -replace 'Trigger$', '' }) -join ", ")
             $info = $null
@@ -1787,6 +1798,10 @@ function Write-DiagnosticoInicio {
                 if ($n -lt 0) { $n += 4294967296 }
                 $res = "0x{0:X}" -f $n
             }
+            if ($algumaAqui -and -not $estaPasta) {
+                Write-TrayLog ("Inicializacao automatica: outra tarefa no computador, de outra pasta (nao interfere neste sistema): '" + $t.TaskName + "' - estado " + $t.State + ", ultima execucao " + $ult + " (resultado " + $res + "), acao: " + $acao)
+                continue
+            }
             Write-TrayLog ("Inicializacao automatica: tarefa '" + $t.TaskName + "' - estado " + $t.State + ", usuario " + $usu + ", gatilhos " + $gat + ", ultima execucao " + $ult + " (resultado " + $res + "), acao: " + $acao)
 
             if ([string]$t.State -eq "Disabled") {
@@ -1796,8 +1811,6 @@ function Write-DiagnosticoInicio {
             if ($usu -and $usu -notmatch '^S-1-' -and $nomeUsu -ne $env:USERNAME) {
                 Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' e' do usuario " + $usu + ", mas quem esta usando o computador e' " + $eu + " - ela nao dispara no logon deste usuario. Execute instalar-na-inicializacao.bat novamente (versao 1.16.0 ou mais nova).") "AVISO"
             }
-            $estaPasta = $false
-            foreach ($a in $alvos) { if ($acao.IndexOf($a, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $estaPasta = $true } }
             $m = [regex]::Match($acao, "[`"']([^`"']*launcher\.vbs)[`"']", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
             if ($m.Success -and -not (Test-Path -LiteralPath $m.Groups[1].Value)) {
                 Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' abre um launcher.vbs que nao existe mais (" + $m.Groups[1].Value + ") - o sistema nao inicia com o Windows. Execute instalar-na-inicializacao.bat nesta pasta ($DIR).") "AVISO"

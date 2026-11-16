@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- paineis/comando.html — Central de Relatórios FDB · painel de tela única "Central de comando (escuro e técnico)".
-     @version 1.1.0
-       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no título e no cabeçalho e avisos no padrão do relatório clássico, nas cores do tema.
+     @version 1.2.0
+       1.2.0 - 2026-11-16 - Logo próprio dos painéis (/logo-painel.png; sem ele, o ícone do sistema) e mais espaço para os vendedores do que para os produtos.
                             configurações do sistema). No celular de até 420 px, o relógio do cabeçalho se esconde.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/comando/: o marcador COMUM recebe comum.css + base.css, o
@@ -37,7 +37,7 @@ body{padding:10px 12px;gap:10px;background:radial-gradient(1200px 600px at 50% -
 .col>.pn:after,.cx-tab:after{content:"";position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-right:2px solid var(--cy);border-bottom:2px solid var(--cy)}
 .pn>h3{color:var(--cy);letter-spacing:.2em}.pn>h3:before{content:"▸";color:var(--cy)}.pn>h3 em{color:var(--mu);letter-spacing:.04em}
 .cx-tipos{flex:none}.cx-pag{flex:0 1 auto}.cx-cx{flex:0 1 auto}.cx-conv{flex:1 1 90px}
-.cx-vend{flex:1.5 1 0}.cx-hr{flex:0 0 150px}.cx-prod{flex:1 1 0}
+.cx-vend{flex:2 1 0}.cx-hr{flex:0 0 150px}.cx-prod{flex:1 1 0}
 .cx-tab{min-height:0}.cx-tab .tabela{border:1px solid var(--ln2)}
 #cab>*{letter-spacing:.16em}
 .lv{border-bottom-color:var(--ln2)}.lv:nth-child(even){background:rgba(34,211,238,.025)}
@@ -70,7 +70,7 @@ body{padding:10px 12px;gap:10px;background:radial-gradient(1200px 600px at 50% -
 .tst{border:1px solid var(--cy);border-radius:0;box-shadow:0 0 30px -10px rgba(34,211,238,.5)}.tst-x{border-radius:0}.tst b{color:var(--cy)}
 </style></head><body>
 <header class="top hud">
- <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="mtx"><b>__NOME_LOJA__ <em>// Comando</em></b><small><span class="vivo">ao vivo</span><span data-hoje class="mn"></span><span class="mn" id="relogio"></span></small></div></div>
+ <div class="marca"><span class="logo"><img src="/logo-painel.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="mtx"><b>__NOME_LOJA__ <em>// Comando</em></b><small><span class="vivo">ao vivo</span><span data-hoje class="mn"></span><span class="mn" id="relogio"></span></small></div></div>
  <label class="busca">&gt;<input id="q" placeholder="BUSCAR VENDEDOR, ITEM, NÚMERO, VALOR" autocomplete="off" spellcheck="false"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Ger</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

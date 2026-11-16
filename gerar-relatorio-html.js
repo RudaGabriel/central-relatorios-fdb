@@ -1,14 +1,13 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.33.0
+ * @version 3.34.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.33.0 - 2026-11-13 - Gerencial "Finalizada - Aguardando Documento Fiscal" (TOTAL 0 com pagamento e itens)
- *            volta a ser venda gerencial, com hora, caixa, vendedor e cliente da própria venda (antes saía como
- *            "Recebimento"). Trechos da busca e dos proibidos marcados com ==BUSCA-COMUM==, reaproveitados
- *            pelo servidor nos painéis de tela única (fonte única, sem cópia).
+ *   3.34.0 - 2026-11-16 - Lista de conversões gerencial → NFC-e/NF-e (dados.conversoes) para o painel
+ *            "Conversões em nota fiscal": pelo vínculo da coluna GERENCIAL e pelas gerenciais marcadas como
+ *            convertidas (antes só entravam as que continuavam ativas, e a lista ficava vazia).
  */
 
 (function() {
@@ -16,7 +15,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.33.0";
+    const SCRIPT_VERSION = "3.34.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -1045,6 +1044,55 @@
 					const _docNumero = validCols.map(c => String(n["VAL_" + c] || "").trim().replace(/^0+/, "")).find(v => v && v !== _gVal) || "?";
 					_gerenciaisAbsorvidasPorDocFiscal.set(_gVal, { docNumero: _docNumero, docModelo: _modeloDoc });
 				}
+			}
+
+			// CONVERSÕES GERENCIAL → DOCUMENTO FISCAL (v3.34.0), para o painel "Conversões em
+			// nota fiscal" dos painéis de tela única. As duplicatas acima só registram a
+			// gerencial que continua na tabela como ativa; numa conversão normal o PDV marca
+			// a gerencial como convertida (CANC='T') e ela é descartada antes — a lista ficava
+			// vazia mesmo com a conversão feita. Aqui entram: (1) cada NFC-e/NF-e válida cuja
+			// coluna GERENCIAL aponta para uma gerencial (vínculo do próprio banco) e (2) as
+			// gerenciais marcadas como convertidas sem documento vinculado. Só leitura dos
+			// dados já consultados; não muda totais, supressão nem duplicatas.
+			const _conversoes = [];
+			{
+				const _semZeros = v => String(v || "").trim().replace(/^0+/, "");
+				const _cxConv = v => { let s = String(v ?? "").trim(); if (/^\d{1,2}$/.test(s)) s = s.padStart(3, "0"); return s; };
+				const _gerPorId = new Map(); // "dt|id" -> linha da gerencial (modelo 99)
+				for (const n of rNfce.rows) {
+					if (Number(n.MODELO || 0) !== 99) continue;
+					for (const c of validCols) { const v = _semZeros(n["VAL_" + c]); const k = toISO(n.DATA) + "|" + v; if (v && !_gerPorId.has(k)) _gerPorId.set(k, n); }
+				}
+				const _vistas = new Set();
+				const _addConv = (gId, g, doc, docNumero, docModelo) => {
+					const dt = toISO((g || doc).DATA), ch = dt + "|" + gId;
+					if (_vistas.has(ch)) return; _vistas.add(ch);
+					const totD = doc ? Number(doc.TOTAL || 0) : 0, totG = g ? Number(g.TOTAL || 0) : 0;
+					_conversoes.push({
+						gerencial: gId, docNumero: docNumero || "", docModelo: docModelo || 0, dt,
+						hora: String((g && g.HORA) || (doc && doc.HORA) || "").trim(),
+						caixa: _cxConv(g ? g.CAIXA : doc.CAIXA),
+						vendedor: String((g && g.VENDEDOR_NFCE) || (doc && doc.VENDEDOR_NFCE) || "").trim(),
+						// O documento pode estar sem total enquanto a SEFAZ não autoriza: usa o da gerencial.
+						total: totD > 0 ? totD : (totG > 0 ? totG : null)
+					});
+				};
+				if (validCols.includes("GERENCIAL")) {
+					for (const n of rNfce.rows) {
+						const _m = Number(n.MODELO || 0);
+						if (_m !== 65 && _m !== 55) continue;
+						if (n.CANC === 'S' || n.CANC === 'T' || n.SIT === 'C' || n.EMI === 'C') continue;
+						const _g = _semZeros(n.VAL_GERENCIAL); if (!_g) continue;
+						const _num = validCols.map(c => _semZeros(n["VAL_" + c])).find(v => v && v !== _g) || "";
+						_addConv(_g, _gerPorId.get(toISO(n.DATA) + "|" + _g) || null, n, _num, _m);
+					}
+				}
+				for (const n of rNfce.rows) {
+					if (Number(n.MODELO || 0) !== 99 || n.CANC !== 'T') continue;
+					const _id = validCols.map(c => _semZeros(n["VAL_" + c])).find(Boolean); if (!_id) continue;
+					_addConv(_id, n, null, "", 0);
+				}
+				_conversoes.sort((a, b) => (b.dt + " " + b.hora).localeCompare(a.dt + " " + a.hora));
 			}
 
 			// SITUAÇÃO NO hora-fixada-cache.json (v3.8.0): a venda que já tinha hora
@@ -2278,6 +2326,8 @@
 				// (ver painel "Duplicatas" no HTML) — puramente informativo/auditoria,
 				// não afeta o cálculo já feito acima.
 				duplicatas: { confirmadas: _duplicatasConfirmadas, provaveis: _duplicatasProvaveis },
+				// Gerenciais convertidas em NFC-e/NF-e (v3.34.0) — painel "Conversões em nota fiscal".
+				conversoes: _conversoes,
 				// Resultado do auto-teste desta geração — o navegador mostra botão + caixa de mensagem se houver alerta.
 				autoteste: { versao: SCRIPT_VERSION, verificacoes: _resultadoAutoTeste.verificacoes, achados: _resultadoAutoTeste.achados }
 			};

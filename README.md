@@ -6,14 +6,14 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.27.0" src="https://img.shields.io/badge/servidor-v2.27.0-2563EB?style=flat">
-<img alt="gerador: v3.33.0" src="https://img.shields.io/badge/gerador-v3.33.0-2563EB?style=flat">
-<img alt="bandeja: v1.9.0" src="https://img.shields.io/badge/bandeja-v1.9.0-2563EB?style=flat">
+<img alt="servidor: v2.28.0" src="https://img.shields.io/badge/servidor-v2.28.0-2563EB?style=flat">
+<img alt="gerador: v3.34.0" src="https://img.shields.io/badge/gerador-v3.34.0-2563EB?style=flat">
+<img alt="bandeja: v1.9.1" src="https://img.shields.io/badge/bandeja-v1.9.1-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 36 passando" src="https://img.shields.io/badge/testes-36%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 37 passando" src="https://img.shields.io/badge/testes-37%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -300,7 +300,7 @@ A maior parte pode ser editada pela própria tela (**Configurações**), no comp
 | `teclasPersonalizadas` | `[]` | Atalhos: `{ "tecla": "F2", "comando": "[-proibidos]>150", "acao": "" }` — padrão; cada aparelho pode ter os seus |
 | `programas` | `[]` | Programas que a bandeja e o `api.ps1` podem abrir: `{ "nome": "Sistema do PDV", "caminho": "C:\\PDV\\PDV.exe", "args": "" }` (só editável neste arquivo) |
 
-> `hora-fixada-cache.json`, `preferencias-aparelhos.json`, `relatorio.log` e `favicon.png` são criados e mantidos pelo próprio sistema (nenhum deles vai para o banco).
+> `hora-fixada-cache.json`, `preferencias-aparelhos.json`, `relatorio.log`, `favicon.png` e `logo-painel.png` são criados e mantidos pelo próprio sistema (nenhum deles vai para o banco).
 
 ---
 
@@ -368,25 +368,31 @@ Em todos os painéis você encontra:
 - **Indicadores:** total vendido, ticket médio, itens vendidos, maior venda (vendedor e hora), média por hora, última venda ("há 3 min") e quanto saiu em documento fiscal.
 - **Tabela compacta de vendas:**
   - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
+  - nos itens, os produtos aparecem primeiro e a linha de desconto fica no fim; a quantidade não conta o desconto; uma etiqueta vermelha mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse;
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
-- **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque), produtos mais vendidos e conversões em nota fiscal.
+- **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque; ao passar o mouse ou tocar numa barra, aparece uma dica com as vendas, o total, o ticket médio, a parte do dia e a divisão por tipo), produtos mais vendidos (sem a linha de desconto) e **conversões em nota fiscal** (cada gerencial convertida em NFC-e ou NF-e, inclusive as que o PDV marca como convertidas).
 - **Busca igual à do relatório clássico:** a mesma caixa de busca, com todos os coringas da seção [Busca e filtros](#busca) e os mesmos resultados.
 - **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
 - **Botões no topo da lista de vendas:**
   - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
   - no celular aparecem só os ícones.
-- **Logo e nome da loja:** a logo é o `favicon.png` da pasta do sistema (sem o arquivo, aparece "FDB") e o nome declarado em `appName` aparece no cabeçalho e no título da aba.
+- **Logo e nome da loja:**
+  - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **⚙ Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;
+  - a troca vale **somente para o logo dos painéis**, para todos os aparelhos, e só pode ser feita no computador do servidor. O **ícone do sistema (`favicon.png`)**, usado na aba do navegador, no relatório clássico e na bandeja, **não é alterado**;
+  - **Logo padrão** volta a usar o ícone do sistema; sem nenhum dos dois, aparece "FDB";
+  - o nome declarado em `appName` aparece no cabeçalho e no título da aba.
 - **Avisos** no mesmo padrão do relatório clássico (botão fechar e barra de tempo, sem repetir o mesmo aviso), nas cores de cada painel, e barras de rolagem nas cores do tema.
-- **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, cada item com o valor e cada forma de pagamento.
+- **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, itens (sem contar a linha de desconto), o desconto (percentual e valor), cada item com o valor e, em **Pagamento** (título centralizado), cada forma centralizada com o valor à direita e o total à esquerda com o valor à direita.
 - **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
 - **⚙ Configurações** (no cabeçalho de cada painel):
-  - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve). No **Leve**, saem o desfoque e as animações contínuas.
+  - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve), com os três botões na largura do menu. No **Leve**, saem o desfoque e as animações contínuas.
   - **Nesta tela → Atualização:** ligada (padrão), a página é recarregada como no F5 a cada venda nova (a busca e os filtros são limpos); desligada, as vendas novas entram sem recarregar. É a mesma opção do relatório clássico.
   - **Nesta tela → Tamanho do texto:** de 80% a 140% (A− / Padrão / A+), separado para computador e celular, como no relatório clássico.
   - **Configurações do sistema:** abre a página de configurações e volta para o painel.
   - **Abrir o relatório clássico.**
+  - **Trocar o logo** e **Logo padrão** (logo dos painéis; o ícone do sistema não muda).
 
 **Atalhos úteis:**
 
@@ -432,6 +438,8 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/api/salvar-fdb` | POST | (Só no computador do servidor) define o banco: `{ "caminho": "C:\\...\\SMALL.FDB" }` ou `"IP:C:\\...\\SMALL.FDB"` |
 | `/api/abrir-picker-fdb` | GET | Abre o seletor de arquivos do Windows na máquina servidora |
 | `/api/upload-favicon` | POST | (Só no computador do servidor) envia um ícone PNG/ICO/JPEG (até 2 MB) |
+| `/logo-painel.png` | GET | Logo dos painéis (o logo próprio; sem ele, o ícone do sistema) |
+| `/api/upload-logo` · `/api/remover-logo` | POST | (Só no computador do servidor) troca ou remove o logo dos painéis (PNG/ICO/JPEG, até 2 MB); o ícone do sistema não muda |
 | `/api/navigate/hoje` · `/config` · `/selecionar-fdb` · `/periodo/INI/FIM` · `/hash/{config\|periodo}` · `/foco` · `/recarregar` | GET | Comandam as telas abertas via SSE |
 | `/api/navigate/tema/ID` · `/api/temas` | GET | Troca o tema das telas abertas (tema clássico ou painel de tela única) / lista os temas das duas categorias, cada um com o campo `categoria` (`classico` ou `painel`) |
 | `/api/navigate/aviso` | POST | Aviso nas telas abertas: `{ "msg": "texto", "segundos": 12 }` |
@@ -467,7 +475,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.27.0 | Gerador v3.33.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.28.0 | Gerador v3.34.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -500,7 +508,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 36 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 37 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento), as **conversões em nota fiscal**, o **logo próprio dos painéis** (sem alterar o ícone do sistema) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
@@ -532,6 +540,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 36 testes cobrem 
 | `_instalar-node.ps1` · `node-firebird.bat` | Instalam o Node.js e o `node-firebird` |
 | `config.json` | Configurações (padrão de todos) |
 | `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado automaticamente, não versionado) |
+| `logo-painel.png` | Logo dos painéis escolhido pelo logo ou por Configurações (criado automaticamente, não versionado; o `favicon.png` é outro arquivo) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |
 | `paineis/` | Painéis de tela única (categoria de temas própria): `temas.json` (lista), `motor.js` e `painel.js` (dados e tela), `base.css` e `comum.css`, `corpo.html` e um `.html` por painel. O servidor monta cada um em `/painel/ID/` |
@@ -567,6 +576,8 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 36 testes cobrem 
 | Antivírus (Microsoft Defender) acusa o `bootstrap.vbs` (ex.: `Trojan:Script/Sabsik.FL.A!ml`) | Era um falso positivo do antivírus com o arquivo de inicialização das versões antigas. Esse arquivo **não existe mais**: baixe o projeto de novo e rode `instalar-na-inicializacao.bat`, que apaga a cópia antiga. Se o aviso ainda aparecer para um `.zip` antigo, em *Segurança do Windows → Proteção contra vírus e ameaças → Histórico de proteção* escolha *Remover* — não faz falta |
 | "Erro ao gerar relatório — Falha ao iniciar node … ENOENT" | O Node.js foi atualizado com o servidor ligado. Na 2.24.0+ o servidor localiza o Node novamente e tenta outra vez automaticamente; se ainda aparecer, use *Reiniciar servidor* na bandeja ou rode o instalador |
 | Ao abrir um painel aparece "Painéis indisponíveis" ou "Painel incompleto" | Falta a pasta `paineis` (ou parte dela) na pasta do sistema. Baixe o projeto novamente e copie a pasta `paineis` inteira para o lado do `servidor-relatorio.js`. Enquanto isso, o relatório clássico continua em `http://localhost:7734/?classico=1` |
+| O painel "Conversões em nota fiscal" fica vazio mesmo depois de converter uma gerencial em NFC-e | Atualize o `gerar-relatorio-html.js` para a 3.34.0 ou mais nova: as gerenciais que o PDV marca como convertidas passaram a entrar na lista |
+| O log aponta a tarefa de outro sistema como problema da inicialização automática | Atualize o `iniciar-tray.ps1` para a 1.9.1 ou mais nova: a tarefa de outra pasta só gera aviso quando nenhuma tarefa abre a pasta deste sistema |
 | O relatório sempre abre num painel e eu quero o de sempre | Em **Tema**, escolha um tema em **Temas clássicos** (ou abra `/?classico=1` só desta vez) |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |
 

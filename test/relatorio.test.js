@@ -1165,7 +1165,7 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         const html = await (await fetch(srv.base + "/painel/relevo/")).text();
         assert.doesNotMatch(html, /__NOME_LOJA__/, "marcador do nome da loja substituído");
         assert.match(html, /<b>Loja &amp; &lt;Teste&gt;<\/b>/, "nome da loja declarado e escapado no cabeçalho");
-        assert.match(html, /<img src="\/favicon\.png"/, "logo usa o favicon da pasta do sistema");
+        assert.match(html, /<img src="\/logo-painel\.png"/, "logo dos painéis (logo próprio; sem ele, o ícone do sistema)");
         const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes("window.BUSCA = {"));
         assert.ok(js, "busca do relatório clássico embutida no painel");
         const vm = require("node:vm"), mem = {};
@@ -1246,4 +1246,60 @@ test("windows: inicialização automática registrada para o usuário da sessão
     // Bandeja: diagnóstico somente leitura (não cria, altera nem apaga tarefas).
     assert.match(tray, /function Write-DiagnosticoInicio/);
     assert.doesNotMatch(tray, /(Register|Set|Unregister|Enable|Disable)-ScheduledTask|schtasks/, "bandeja só consulta o Agendador");
+});
+
+test("conversões gerencial → NFC-e (inclusive as marcadas como convertidas pelo PDV) e logo próprio dos painéis sem alterar o favicon", { timeout: 60000 }, async () => {
+    const dir = montarPasta({}, {
+        nfce: [
+            // 500: o PDV marca a gerencial como convertida (CANC='T') e a NFC-e aponta para ela (coluna GERENCIAL)
+            { numero: "500", hora: "10:00:00", modelo: 99, total: 150, vendedor: "VENDEDOR A", canc: "T" },
+            { numero: "124500", hora: "10:02:00", modelo: 65, total: 150, vendedor: "VENDEDOR A", gerencial: "500" },
+            // 501: marcada como convertida, sem documento vinculado
+            { numero: "501", hora: "10:10:00", modelo: 99, total: 80, vendedor: "VENDEDOR B", canc: "T" },
+            // 502: gerencial comum (não é conversão)
+            { numero: "502", hora: "10:20:00", modelo: 99, total: 30, vendedor: "VENDEDOR B" }
+        ],
+        pagGer: [{ numero: "124500", forma: "03 PIX", valor: 150 }, { numero: "502", forma: "01 DINHEIRO", valor: 30 }]
+    });
+    const dados = JSON.parse(gerar(dir).match(/<script id="dados" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+    assert.ok(Array.isArray(dados.conversoes), "lista de conversões no relatório");
+    const c500 = dados.conversoes.find(c => c.gerencial === "500");
+    assert.ok(c500, "gerencial marcada como convertida entra na lista (antes ficava de fora)");
+    assert.strictEqual(c500.docNumero, "124500"); assert.strictEqual(c500.docModelo, 65);
+    assert.strictEqual(c500.total, 150); assert.strictEqual(c500.vendedor, "VENDEDOR A");
+    const c501 = dados.conversoes.find(c => c.gerencial === "501");
+    assert.ok(c501 && c501.docNumero === "", "convertida sem documento vinculado também aparece");
+    assert.ok(!dados.conversoes.some(c => c.gerencial === "502"), "gerencial comum não é conversão");
+
+    // Logo dos painéis: arquivo próprio; o favicon.png nunca é alterado.
+    const PNG_FAV = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 1, 1]);
+    const PNG_LOGO = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 2, 2, 2, 2]);
+    fs.writeFileSync(path.join(dir, "favicon.png"), PNG_FAV);
+    let srv = await iniciarServidor(dir);
+    try {
+        const bin = async u => { const r = await fetch(srv.base + u); return { s: r.status, b: Buffer.from(await r.arrayBuffer()) }; };
+        let r = await bin("/logo-painel.png");
+        assert.ok(r.s === 200 && r.b.equals(PNG_FAV), "sem logo próprio: mostra o ícone do sistema");
+        let j = await fetch(srv.base + "/api/upload-logo", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: PNG_LOGO }).then(x => x.json());
+        assert.strictEqual(j.ok, true);
+        r = await bin("/logo-painel.png");
+        assert.ok(r.s === 200 && r.b.equals(PNG_LOGO), "logo próprio servido");
+        assert.ok(fs.readFileSync(path.join(dir, "favicon.png")).equals(PNG_FAV), "favicon.png NÃO foi alterado");
+        assert.ok((await bin("/favicon.png")).b.equals(PNG_FAV), "o ícone do sistema continua o mesmo");
+        const inv = await fetch(srv.base + "/api/upload-logo", { method: "POST", body: "isto nao e imagem" });
+        assert.strictEqual(inv.status, 400, "arquivo que não é imagem é recusado");
+        assert.ok(fs.readFileSync(path.join(dir, "logo-painel.png")).equals(PNG_LOGO), "logo anterior preservado");
+        j = await fetch(srv.base + "/api/remover-logo", { method: "POST" }).then(x => x.json());
+        assert.strictEqual(j.ok, true); assert.ok(!fs.existsSync(path.join(dir, "logo-painel.png")));
+        assert.ok((await bin("/logo-painel.png")).b.equals(PNG_FAV), "sem o logo próprio, volta o ícone do sistema");
+        fs.unlinkSync(path.join(dir, "favicon.png"));
+        assert.strictEqual((await bin("/logo-painel.png")).s, 404, "sem logo nem ícone: 404 (o painel mostra FDB)");
+    } finally { srv.parar(); }
+    // Outro aparelho da rede não troca o logo.
+    srv = await iniciarServidor(dir, { RELATORIO_DISP_LOCAL: "1" });
+    try {
+        assert.strictEqual((await fetch(srv.base + "/api/upload-logo", { method: "POST", body: PNG_LOGO })).status, 403);
+        assert.strictEqual((await fetch(srv.base + "/api/remover-logo", { method: "POST" })).status, 403);
+        assert.ok(!fs.existsSync(path.join(dir, "logo-painel.png")));
+    } finally { srv.parar(); }
 });

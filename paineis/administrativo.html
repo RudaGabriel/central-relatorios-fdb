@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- paineis/administrativo.html — Central de Relatórios FDB · painel de tela única "Administrativo (neutro, com menu lateral e modo claro ou escuro)".
-     @version 1.1.0
-       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no menu lateral (no cabeçalho, com o menu recolhido) e no título e avisos no padrão do relatório clássico.
+     @version 1.2.0
+       1.2.0 - 2026-11-16 - Logo próprio dos painéis (/logo-painel.png; sem ele, o ícone do sistema), rodapé da lista sem espaço embaixo e opções do logo em Configurações.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/administrativo/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
@@ -103,14 +103,14 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
 .tg{border-radius:6px;font-weight:600;letter-spacing:0;font-size:11px}
 .c-pag i{border-radius:6px;background:var(--hv);border-color:transparent;font-weight:500}
 .c-itens b{border-radius:6px;background:var(--hv)}
-#rod{padding:8px 16px}
+#rod{padding:7px 16px 0}
 #filtros button{border-color:var(--ln);background:var(--hv);color:var(--tx);border-radius:8px}
 #ov{background:rgba(0,0,0,.5)}#ov .det{border:1px solid var(--ln);border-radius:12px;box-shadow:0 20px 50px -12px rgba(0,0,0,.35)}#ov .fechar{border-radius:8px}
 
 .tmMenu{border-radius:12px;box-shadow:0 16px 40px -12px rgba(0,0,0,.25)}
 .cfgMenu [data-perf-ctl]{background:var(--hv);border:0;border-radius:9px;padding:3px}.cfgMenu [data-perf-ctl] button{border-radius:6px;color:var(--mu)}
 .cfgMenu [data-perf-ctl] button[aria-pressed="true"]{background:var(--bg);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.cfgLinks a{border-radius:8px}.cfgLinks a:hover{border-color:var(--mu);color:var(--tx)}
+.cfgLinks a,.cfgLinks button{border-radius:8px}.cfgLinks a:hover,.cfgLinks button:hover{border-color:var(--mu);color:var(--tx)}
 @media (min-width:1600px){.grade{grid-template-columns:minmax(0,1fr) 330px 330px;grid-template-rows:260px minmax(0,1fr)}}
 @media (max-width:1599px){html:not([data-menu="aberto"]) .sb{width:64px}
  html:not([data-menu="aberto"]) .sbNm,html:not([data-menu="aberto"]) .sbGrp,html:not([data-menu="aberto"]) .sbIt span,html:not([data-menu="aberto"]) .sbIt em,html:not([data-menu="aberto"]) .sbPe div{display:none}
@@ -143,7 +143,7 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
 </style></head><body>
 <div class="shell">
  <aside class="sb" id="sb" aria-label="Menu lateral">
-  <div class="sbTop"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="sbNm"><b>__NOME_LOJA__</b><small>Central de Relatórios FDB</small></div></div>
+  <div class="sbTop"><span class="logo"><img src="/logo-painel.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div class="sbNm"><b>__NOME_LOJA__</b><small>Central de Relatórios FDB</small></div></div>
   <nav class="sbNav">
    <div class="sbGrp">Vendas</div>
    <button type="button" class="sbIt on" data-tipo="todos" title="Todas as vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Todas as vendas</span><em data-sbq="todos"></em></button>
@@ -164,7 +164,7 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
   <header class="top">
    <button type="button" class="ico" id="sbTgl" aria-label="Mostrar ou recolher o menu lateral" title="Mostrar ou recolher o menu lateral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
    <span class="sep"></span>
-   <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div><b>__NOME_LOJA__</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
+   <div class="marca"><span class="logo"><img src="/logo-painel.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><div><b>__NOME_LOJA__</b><small><span class="vivo">ao vivo</span>· <span data-hoje></span></small></div></div>
    <label class="busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
    <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
    <nav class="lk"><button type="button" id="btnModo" aria-label="Alternar entre modo claro e escuro" title="Alternar entre modo claro e escuro"><span class="ic-sol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span><span class="ic-lua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

@@ -1,8 +1,7 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.1.0
- *   1.1.0 - 2026-11-13 - Busca e proibidos iguais aos do relatório clássico (window.BUSCA); avisos no padrão
- *                        do clássico (sem repetição, botão fechar e barra de tempo); Atualização ligada recarrega
- *                        como F5 a cada venda nova (também pela conferência de reserva); preferências do aparelho.
+ * @version 1.2.0
+ *   1.2.0 - 2026-11-16 - Linhas de desconto e acréscimo marcadas (no fim dos itens e fora das contagens) e
+ *                        percentual de desconto de cada venda, pela mesma regra do relatório clássico.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -46,18 +45,34 @@
     return "/";
   })();
 
+  // Linha de ajuste (v1.2.0): desconto (valor negativo ou "DESCONTO") ou acréscimo. Não é produto:
+  // fica no fim da lista de itens e não entra nas contagens (itens, linhas, produtos mais vendidos).
+  const AJUSTE_RE = /\b(DESCONTO|ACRESCIMO|ACRÉSCIMO)\b/i;
   function itensDe(x){
     const det = Array.isArray(x.itensDetalhe) ? x.itensDetalhe.filter(i => i && !i.cancelado) : [];
-    if (det.length) return det.map(i => ({q: Number(i.qtd) || 1, d: String(i.desc || ""), tot: (i.total != null && isFinite(i.total)) ? Number(i.total) : null}));
-    return String(x.itens || "").split(/\n+/).map(s => s.replace(/^⤷\s*/, "").trim()).filter(Boolean).map(s => {
-      const m = /^(\d+(?:[.,]\d+)?)\s*x\s*(.+)$/i.exec(s); return m ? {q: Number(m[1].replace(",", ".")) || 1, d: m[2], tot: null} : {q: 1, d: s, tot: null};
-    });
+    const lista = det.length
+      ? det.map(i => { const tot = (i.total != null && i.total !== "" && isFinite(i.total)) ? Number(i.total) : null, d = String(i.desc || "");
+          return {q: Number(i.qtd) || 1, d, tot, aj: (tot !== null && tot < 0) || AJUSTE_RE.test(d)}; })
+      : String(x.itens || "").split(/\n+/).map(s => s.replace(/^⤷\s*/, "").trim()).filter(Boolean).map(s => {
+          const m = /^(\d+(?:[.,]\d+)?)\s*x\s*(.+)$/i.exec(s), d = m ? m[2] : s; return {q: m ? Number(m[1].replace(",", ".")) || 1 : 1, d, tot: null, aj: AJUSTE_RE.test(d)};
+        });
+    // Produtos primeiro (na ordem original), ajustes no fim.
+    return lista.filter(i => !i.aj).concat(lista.filter(i => i.aj));
+  }
+  // Desconto da venda — mesma regra do relatório clássico: soma dos itens com valor negativo sobre a
+  // soma dos positivos. Linha "DESCONTO" sem valor conta como desconto, sem percentual. null = sem desconto.
+  function descontoDe(itens){
+    const linhas = itens.filter(i => i.aj && (i.tot !== null ? i.tot < 0 : /\bDESCONTO\b/i.test(i.d)));
+    if (!linhas.length) return null;
+    const pos = itens.reduce((s, i) => i.tot !== null && i.tot > 0 ? s + i.tot : s, 0);
+    const valor = linhas.reduce((s, i) => i.tot !== null ? s + Math.abs(i.tot) : s, 0);
+    return {valor, pct: pos > 0 && valor > 0 ? valor / pos * 100 : null, base: pos};
   }
   function converter(d){
     return (Array.isArray(d && d.vendas) ? d.vendas : []).map((x, k) => {
-      const t = rotTipo(x.tipo), n = String(x.numero || ""), h = String(x.hora || "").slice(0, 5), dt = String(x._dtKey || "");
+      const t = rotTipo(x.tipo), n = String(x.numero || ""), h = String(x.hora || "").slice(0, 5), dt = String(x._dtKey || ""), itens = itensDe(x);
       return {id: t + "|" + n + "|" + (x.caixa || "") + "|" + dt + "|" + h, n, dt, vend: String(x.vendedor || "").trim() || "(sem vendedor)", t, h,
-        pg: String(x.pagamentos || ""), itens: itensDe(x), tot: Number(x.total) || 0, novo: false, cx: String(x.caixa || ""), cli: String(x.cliente || ""),
+        pg: String(x.pagamentos || ""), itens, dsc: descontoDe(itens), tot: Number(x.total) || 0, novo: false, cx: String(x.caixa || ""), cli: String(x.cliente || ""),
         seg: String(x.hora || "").slice(0, 8), nat: String(x.natureza || ""), rec: !!x.is_recebimento || t === "Recebimento", mod: Number(x.modelo) || 0,
         fv: (x.formasValores && typeof x.formasValores === "object") ? x.formasValores : {}, raw: x, ri: k};
     }).sort((a, b) => { const ka = a.dt + " " + a.seg, kb = b.dt + " " + b.seg; return kb > ka ? 1 : kb < ka ? -1 : 0; });

@@ -1,8 +1,9 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.1.0
- *   1.1.0 - 2026-11-13 - Botões Proibidos e Limpar filtros; Configurações com Atualização e Tamanho do texto
- *                        (mesmas chaves do clássico); caixas do maior para o menor; cliques nos filtros e nos chips
- *                        voltaram a funcionar (o clique era capturado pelo atributo data-aba do body).
+ * @version 1.2.0
+ *   1.2.0 - 2026-11-16 - Conversões em nota fiscal pela lista do gerador (inclui as gerenciais marcadas como
+ *                        convertidas); itens sem a linha de desconto nas contagens e desconto no fim; indicador
+ *                        do % de desconto na lista; detalhe alinhado (pagamento centralizado); dica do gráfico
+ *                        de horas; logo próprio dos painéis (clique no logo ou Configurações → Sistema).
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -21,6 +22,12 @@
   const pct = (a, b) => b ? (a / b * 100) : 0;
   const pctTxt = p => (Math.round(p * 10) / 10).toLocaleString("pt-BR", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "%";
   const qtd = q => (Math.round(Number(q) * 1000) / 1000).toLocaleString("pt-BR");
+  // v1.2.0: linhas de desconto/acréscimo (i.aj, marcadas pelo motor) não são produto: ficam fora das contagens.
+  const prods = x => x.itens.filter(i => !i.aj);
+  const qProd = x => prods(x).reduce((s, i) => s + (Number(i.q) || 0), 0);
+  // Percentual do desconto como no relatório clássico: inteiro a partir de 1%, uma casa abaixo disso.
+  const pctDesc = p => p >= 1 ? String(Math.round(p)) : (Math.round(p * 10) / 10 > 0 ? String(Math.round(p * 10) / 10).replace(".", ",") : "<0,1");
+  const descTxt = d => d.pct != null ? "Desconto de " + pctDesc(d.pct) + "% (−" + E().fmt(d.valor) + ")" : "Venda com desconto (valor não registrado no banco)";
 
   // ── Formas de pagamento (nomes padronizados) ────────────────────────────────
   const NOMES = {PIX: "Pix", DINHEIRO: "Dinheiro", CREDITO: "Crédito", DEBITO: "Débito", BOLETO: "Boleto", CHEQUE: "Cheque", PRAZO: "A prazo", CREDIARIO: "Crediário", VALE: "Vale"};
@@ -63,8 +70,9 @@
 
   // ── Linha da tabela ─────────────────────────────────────────────────────────
   function card(x){
-    const en = E(), es = en.esc, q = x.itens.reduce((s, i) => s + (Number(i.q) || 0), 0);
-    const it = x.itens.map(i => qtd(i.q) + "× " + i.d).join(" · ");
+    const en = E(), es = en.esc, q = qProd(x);
+    const it = x.itens.map(i => i.aj ? i.d + (i.tot != null ? " " + num(i.tot) : "") : qtd(i.q) + "× " + i.d).join(" · ");
+    const dsc = x.dsc ? `<em class="c-dsc mn" title="${es(descTxt(x.dsc))}">${x.dsc.pct != null ? "−" + pctDesc(x.dsc.pct) + "%" : "desc."}</em>` : "";
     const fs = formasDe(x);
     const cli = x.cli || x.nat || "";
     return `<div class="lv${x.novo ? " novo" : ""}${x.rec ? " rec" : ""}" style="--c:${COR[x.t] || "#94a3b8"}">` +
@@ -74,7 +82,7 @@
       `<span class="c-caixa mn">${es(x.cx || "—")}</span>` +
       `<span class="c-vendedor" title="${es(x.vend)}">${es(x.vend)}</span>` +
       `<span class="c-cliente${cli ? "" : " vz"}" title="${es(cli)}">${es(cli || "—")}</span>` +
-      `<span class="c-itens" title="${es(it)}"><b class="mn">${qtd(q)}</b>${es(it || "—")}</span>` +
+      `<span class="c-itens" title="${es(it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span>${dsc}</span>` +
       `<span class="c-pag">${fs.map(f => `<i title="${es(f.k)}${f.v != null ? " · " + es(en.fmt(f.v)) : ""}">${es(f.k)}${f.v != null && fs.length > 1 ? " <em class='mn'>" + num(f.v) + "</em>" : ""}</i>`).join("")}</span>` +
       `<span class="c-total mn">${num(x.tot)}</span></div>`;
   }
@@ -125,31 +133,41 @@
     const arr = Object.keys(g).map(k => ({k, ...g[k]})).sort((a, b) => b.t - a.t || b.q - a.q || String(a.k).localeCompare(String(b.k), "pt-BR"));
     el.innerHTML = arr.length ? arr.map(o => barraLinha(` data-cx="${E().esc(o.k)}" title="Filtrar: caixa ${E().esc(o.k)}"`, ext.cx === o.k, cfg.corCaixa || "#64748b", "Caixa " + E().esc(o.k), o.q, o.t, pct(o.t, tot))).join("") : `<div class="obs">Sem vendas.</div>`;
   }
+  // Dados do gráfico de horas guardados para a dica personalizada (v1.2.0).
+  let horasDados = {g: {}, tot: 0};
   function pHoras(l){
     const el = $("#horas"); if (!el) return; const en = E(), hs = en.resumo(en.vendas).horas, g = {};
-    l.forEach(x => { const h = x.h.slice(0, 2); const o = g[h] || (g[h] = {}); o[x.t] = (o[x.t] || 0) + x.tot; o._ = (o._ || 0) + x.tot; o.q = (o.q || 0) + 1; });
+    l.forEach(x => { const h = x.h.slice(0, 2); const o = g[h] || (g[h] = {}); o[x.t] = (o[x.t] || 0) + x.tot; o["q" + x.t] = (o["q" + x.t] || 0) + 1; o._ = (o._ || 0) + x.tot; o.q = (o.q || 0) + 1; });
+    horasDados = {g, tot: l.reduce((s, x) => s + x.tot, 0)}; hrAtual = null; // a próxima passada do mouse redesenha a dica
     const mx = Math.max(1, ...hs.map(h => (g[h] || {})._ || 0)), agora = String(new Date().getHours()).padStart(2, "0");
     let pico = null; hs.forEach(h => { if (g[h] && (!pico || g[h]._ > g[pico]._)) pico = h; });
     el.innerHTML = `<div class="hr-g">${hs.map(h => { const o = g[h] || {};
       const seg = en.T.concat(["Recebimento"]).filter(t => o[t]).map(t => `<i style="height:${(o[t] / mx * 100).toFixed(2)}%;background:${COR[t]}"></i>`).join("");
-      return `<div class="hr-c${h === agora ? " ag" : ""}${h === pico ? " pk" : ""}" title="${h}h · ${o.q || 0} venda(s) · ${en.esc(en.fmt(o._ || 0))}"><div class="hr-s">${seg}</div><small>${h}</small></div>`; }).join("")}</div>` +
+      return `<div class="hr-c${h === agora ? " ag" : ""}${h === pico ? " pk" : ""}" data-h="${h}" aria-label="${h}h · ${o.q || 0} venda(s) · ${en.esc(en.fmt(o._ || 0))}"><div class="hr-s">${seg}</div><small>${h}</small></div>`; }).join("")}</div>` +
       `<div class="hr-l">${pico ? `Pico: <b>${pico}h</b> · <b class="mn">${num(g[pico]._)}</b> em ${g[pico].q} venda(s)` : "Sem vendas no período."}</div>`;
   }
   function pProdutos(l){
     const el = $("#produtos"); if (!el) return; const g = new Map();
-    l.forEach(x => x.itens.forEach(i => { const k = String(i.d || "").trim() || "(sem descrição)"; const o = g.get(k) || {q: 0, t: 0, semT: false}; o.q += Number(i.q) || 0; if (i.tot != null) o.t += i.tot; else o.semT = true; g.set(k, o); }));
+    l.forEach(x => prods(x).forEach(i => { const k = String(i.d || "").trim() || "(sem descrição)"; const o = g.get(k) || {q: 0, t: 0, semT: false}; o.q += Number(i.q) || 0; if (i.tot != null) o.t += i.tot; else o.semT = true; g.set(k, o); }));
     const arr = Array.from(g, ([k, o]) => ({k, ...o})).sort((a, b) => b.t - a.t || b.q - a.q).slice(0, cfg.topProdutos || 12), mx = Math.max(1, ...arr.map(o => o.t || 0));
     el.innerHTML = arr.length ? arr.map((o, i) => `<div class="pd" title="${E().esc(o.k)}"><span class="pd-r mn">${i + 1}</span><span class="pd-n">${E().esc(o.k)}</span><span class="pd-q mn">${qtd(o.q)} un</span><span class="pd-t mn">${o.t ? num(o.t) : "—"}</span><span class="pd-b"><i style="width:${(o.t / mx * 100).toFixed(2)}%"></i></span></div>`).join("") : `<div class="obs">Sem itens.</div>`;
   }
   function pConv(){
-    const el = $("#conv"); if (!el) return; const en = E(), d = (en.dados && en.dados.duplicatas) || {}, cf = Array.isArray(d.confirmadas) ? d.confirmadas : [], pv = Array.isArray(d.provaveis) ? d.provaveis : [];
-    const lin = (o, tipo) => `<div class="cv ${tipo}"><span class="mn">${en.esc(String(o.hora || "").slice(0, 5) || "—")}</span><span>Gerencial <b class="mn">${en.esc(o.gerencial || "—")}</b> → ${o.docNumero ? (Number(o.docModelo) === 55 ? "NF-e" : "NFC-e") + ` <b class="mn">${en.esc(o.docNumero)}</b>` : "documento fiscal"}</span><span class="mn">${o.total != null ? num(o.total) : ""}</span><em>${tipo === "cf" ? "confirmada" : "provável"}</em></div>`;
+    const el = $("#conv"); if (!el) return; const en = E(), d = (en.dados && en.dados.duplicatas) || {};
+    // v1.2.0: conversões vinculadas pelo banco (gerador 3.34.0+), inclusive as gerenciais que o PDV marca como
+    // convertidas; as prováveis (reconciliação por valor) vêm das duplicatas. Gerador antigo: só as duplicatas.
+    const conv = en.dados && Array.isArray(en.dados.conversoes) ? en.dados.conversoes : null;
+    const semZ = v => String(v || "").replace(/^0+/, "");
+    const cf = conv || (Array.isArray(d.confirmadas) ? d.confirmadas : []);
+    const jaTem = new Set(cf.map(o => semZ(o.gerencial)));
+    const pv = (Array.isArray(d.provaveis) ? d.provaveis : []).filter(o => !jaTem.has(semZ(o.gerencial)));
+    const lin = (o, tipo) => `<div class="cv ${tipo}"><span class="mn">${en.esc(String(o.hora || "").slice(0, 5) || "—")}</span><span title="Gerencial ${en.esc(o.gerencial || "—")} convertida em ${o.docNumero ? (Number(o.docModelo) === 55 ? "NF-e" : "NFC-e") + " " + en.esc(o.docNumero) : "documento fiscal"}"><b class="mn">${en.esc(o.gerencial || "—")}</b> → ${o.docNumero ? (Number(o.docModelo) === 55 ? "NF-e" : "NFC-e") + ` <b class="mn">${en.esc(o.docNumero)}</b>` : "nota fiscal"}</span><span class="mn">${o.total != null ? num(o.total) : ""}</span><em>Gerencial · ${tipo === "cf" ? "confirmada" : "provável"}</em></div>`;
     const n = cf.length + pv.length, cont = $("#conv-n"); if (cont) cont.textContent = n ? String(n) : "";
     el.innerHTML = n ? cf.map(o => lin(o, "cf")).join("") + pv.map(o => lin(o, "pv")).join("") : `<div class="obs">Nenhuma gerencial convertida em nota hoje (nada contado em dobro).</div>`;
   }
   function pKpis(l){
     const en = E(); if (!$("#kpis")) return;
-    const it = l.reduce((s, x) => s + x.itens.reduce((a, i) => a + (Number(i.q) || 0), 0), 0), tot = l.reduce((s, x) => s + x.tot, 0);
+    const it = l.reduce((s, x) => s + qProd(x), 0), tot = l.reduce((s, x) => s + x.tot, 0);
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
     en.numero($("#k-it"), it, v => qtd(Math.round(v * 1000) / 1000)); set("#k-it2", l.length ? qtd(Math.round(it / l.length * 10) / 10) + " por venda" : "—");
     set("#k-tk2", l.length ? "em " + en.pl(l.length) : "—");
@@ -185,19 +203,50 @@
     const bp = $("#btnProib"); if (bp) bp.setAttribute("aria-pressed", PROIB_RE.test(en.st.q) ? "true" : "false");
   }
 
+  // ── Dica do gráfico de horas (v1.2.0) ───────────────────────────────────────
+  // Ao passar o mouse (ou tocar) numa barra: hora, vendas, total, parte do dia, ticket médio e a
+  // divisão por tipo. Uma só caixa, reaproveitada; posicionada dentro da tela (com o zoom do texto).
+  let hrTip = null, hrAtual = null;
+  function hrDica(h){
+    const en = E(), es = en.esc, o = horasDados.g[h] || {}, q = o.q || 0, t = o._ || 0;
+    const tipos = en.T.concat(["Recebimento"]).filter(k => o[k]);
+    return `<div class="ht-h"><b>${es(h)}h</b> às ${es(h)}h59</div>` +
+      `<div class="ht-l"><span>Vendas</span><b class="mn">${q}</b></div>` +
+      `<div class="ht-l"><span>Total</span><b class="mn">${es(en.fmt(t))}</b></div>` +
+      (q ? `<div class="ht-l"><span>Ticket médio</span><b class="mn">${es(en.fmt(t / q))}</b></div>` : "") +
+      (horasDados.tot > 0 && t > 0 ? `<div class="ht-l"><span>Parte do total</span><b class="mn">${pctTxt(pct(t, horasDados.tot))}</b></div>` : "") +
+      (tipos.length ? `<div class="ht-s">${tipos.map(k => `<div class="ht-t"><i style="background:${COR[k] || "#94a3b8"}"></i><span>${es(k)} <em>${o["q" + k] || 0}</em></span><b class="mn">${num(o[k])}</b></div>`).join("")}</div>` : `<div class="ht-v">Sem vendas nesta hora.</div>`);
+  }
+  function hrMostrar(c, cx, cy){
+    if (!hrTip) { hrTip = document.createElement("div"); hrTip.id = "hrTip"; hrTip.setAttribute("role", "tooltip"); document.body.appendChild(hrTip); }
+    const h = c.dataset.h; if (!h) return;
+    if (hrAtual !== h) { hrTip.innerHTML = hrDica(h); hrAtual = h; }
+    hrTip.classList.add("on");
+    // O texto pode estar com zoom (Tamanho do texto): as coordenadas da tela são divididas por ele.
+    const z = zLer(), w = hrTip.offsetWidth * z, a = hrTip.offsetHeight * z;
+    let x = cx + 14, y = cy - a - 12;
+    if (x + w > innerWidth - 8) x = cx - w - 14;
+    if (x < 8) x = 8;
+    if (y < 8) y = cy + 18;
+    if (y + a > innerHeight - 8) y = Math.max(8, innerHeight - a - 8);
+    hrTip.style.left = Math.round(x / z) + "px"; hrTip.style.top = Math.round(y / z) + "px";
+  }
+  function hrEsconder(){ if (hrTip) hrTip.classList.remove("on"); hrAtual = null; }
+
   // ── Detalhe da venda ────────────────────────────────────────────────────────
   function detail(x){
-    const en = E(), es = en.esc, fs = formasDe(x), q = x.itens.reduce((s, i) => s + (Number(i.q) || 0), 0);
-    const info = [["Tipo", x.t], ["Número", x.n], ["Caixa", x.cx || "—"], ["Hora", x.seg || x.h], ["Vendedor", x.vend], ["Cliente", x.cli || "—"], ["Natureza", x.nat || "—"], ["Itens", qtd(q) + " un em " + x.itens.length + " linha(s)"]];
+    const en = E(), es = en.esc, fs = formasDe(x), q = qProd(x), nl = prods(x).length;
+    const info = [["Tipo", x.t], ["Número", x.n], ["Caixa", x.cx || "—"], ["Hora", x.seg || x.h], ["Vendedor", x.vend], ["Cliente", x.cli || "—"], ["Natureza", x.nat || "—"], ["Itens", qtd(q) + " un em " + nl + " linha" + (nl === 1 ? "" : "s")]];
+    if (x.dsc) info.push(["Desconto", x.dsc.pct != null ? pctDesc(x.dsc.pct) + "% (−" + en.fmt(x.dsc.valor) + ")" : "sem valor registrado"]);
     return `<div class="dt-k" style="--c:${COR[x.t] || "#94a3b8"}"><i class="tg">${es(SIG[x.t] || x.t)}</i> Nº ${es(x.n)} · ${es(x.seg || x.h)}</div><h2 class="mn">${es(en.fmt(x.tot))}</h2>` +
       `<div class="dt-g">${info.map(([a, b]) => `<div><small>${a}</small><span>${es(b)}</span></div>`).join("")}</div>` +
-      `<div class="dt-s">Itens</div><div class="dt-t">${x.itens.length ? x.itens.map(i => `<div><span class="mn">${qtd(i.q)}×</span><span>${es(i.d)}</span><b class="mn">${i.tot != null ? num(i.tot) : "—"}</b></div>`).join("") : `<div><span></span><span>Sem itens.</span><b></b></div>`}</div>` +
-      `<div class="dt-s">Pagamento</div><div class="dt-t">${fs.map(f => `<div><span></span><span>${es(f.k)}</span><b class="mn">${f.v != null ? num(f.v) : "—"}</b></div>`).join("")}<div class="dt-tot"><span></span><span>Total</span><b class="mn">${num(x.tot)}</b></div></div>`;
+      `<div class="dt-s">Itens</div><div class="dt-t">${x.itens.length ? x.itens.map(i => i.aj ? `<div class="dt-p dt-aj"><span>${es(i.d)}</span><b class="mn">${i.tot != null ? num(i.tot) : "—"}</b></div>` : `<div><span class="mn">${qtd(i.q)}×</span><span>${es(i.d)}</span><b class="mn">${i.tot != null ? num(i.tot) : "—"}</b></div>`).join("") : `<div class="dt-p"><span>Sem itens.</span><b></b></div>`}</div>` +
+      `<div class="dt-s dt-sc">Pagamento</div><div class="dt-t">${fs.map(f => `<div class="dt-pg"><span>${es(f.k)}</span><b class="mn">${f.v != null ? num(f.v) : "—"}</b></div>`).join("")}<div class="dt-p dt-tot"><span>Total</span><b class="mn">${num(x.tot)}</b></div></div>`;
   }
 
   // ── Ordenação e filtros extras ──────────────────────────────────────────────
   function ordenar(l){
-    const k = ord.k, d = ord.d, nq = x => x.itens.reduce((s, i) => s + (Number(i.q) || 0), 0);
+    const k = ord.k, d = ord.d, nq = qProd;
     const val = {hora: x => x.seg, total: x => x.tot, vendedor: x => x.vend, tipo: x => x.t, numero: x => Number(x.n) || 0, caixa: x => x.cx, cliente: x => x.cli || x.nat, itens: nq}[k] || (x => x.seg);
     return l.sort((a, b) => { const A = val(a), B = val(b); const c = typeof A === "number" && typeof B === "number" ? A - B : String(A).localeCompare(String(B), "pt-BR"); return c ? c * d : (a.seg < b.seg ? 1 : -1); });
   }
@@ -219,12 +268,60 @@
     en.toast(PROIB_RE.test(q.value) ? "<b>Proibidos</b> · Vendas com itens proibidos ocultas." : "<b>Proibidos</b> · Filtro removido.");
   }
 
+  // ── Logo personalizado (v1.2.0) ─────────────────────────────────────────────
+  // Clicar no logo escolhe uma imagem (PNG, JPEG ou ICO, até 2 MB) que vira o logo DOS PAINÉIS
+  // (arquivo logo-painel.png, servido em /logo-painel.png). O favicon.png — ícone do sistema, da aba
+  // e da bandeja — NÃO é alterado. A troca vale para todos os aparelhos e só é aceita no computador
+  // do servidor; nos outros aparelhos o aviso explica o motivo. Configurações → Sistema também
+  // permite voltar a usar o ícone do sistema como logo.
+  let logoIn = null;
+  function escolherLogo(){
+    if (!logoIn) {
+      logoIn = document.createElement("input"); logoIn.type = "file"; logoIn.hidden = true;
+      logoIn.accept = "image/png,image/jpeg,image/x-icon,image/vnd.microsoft.icon,.png,.jpg,.jpeg,.ico";
+      logoIn.addEventListener("change", () => { const f = logoIn.files && logoIn.files[0]; logoIn.value = ""; if (f) enviarLogo(f); });
+      document.body.appendChild(logoIn);
+    }
+    logoIn.click();
+  }
+  async function enviarLogo(f){
+    const en = E();
+    if (!f.size) { en.toast("<b>Logo</b> · O arquivo escolhido está vazio."); return; }
+    if (f.size > 2 * 1024 * 1024) { en.toast("<b>Logo</b> · Arquivo muito grande (máximo de 2 MB)."); return; }
+    let r = null, j = null;
+    try { r = await fetch("/api/upload-logo", {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: f, credentials: "same-origin"}); } catch (e) { r = null; }
+    if (!r) { en.toast("<b>Logo</b> · Sem conexão com o servidor. Tente novamente."); return; }
+    try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc((j && j.erro) || "Não foi possível trocar o logo.")); return; }
+    atualizarLogos(); en.toast("<b>Logo</b> · Logo do painel atualizado. O ícone do sistema não foi alterado.");
+  }
+  async function logoPadrao(){
+    const en = E(); let r = null, j = null;
+    try { r = await fetch("/api/remover-logo", {method: "POST", credentials: "same-origin"}); } catch (e) { r = null; }
+    if (!r) { en.toast("<b>Logo</b> · Sem conexão com o servidor. Tente novamente."); return; }
+    try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc((j && j.erro) || "Não foi possível alterar o logo.")); return; }
+    atualizarLogos(); en.toast("<b>Logo</b> · O painel voltou a usar o ícone do sistema como logo.");
+  }
+  function atualizarLogos(){
+    const v = "/logo-painel.png?v=" + Date.now();
+    $$(".logo").forEach(l => {
+      let i = l.querySelector("img");
+      if (!i) { i = document.createElement("img"); i.alt = ""; l.appendChild(i); }
+      i.onerror = () => { l.classList.add("semImg"); i.remove(); };
+      l.classList.remove("semImg"); i.src = v;
+    });
+  }
+  function prepararLogos(){
+    $$(".logo").forEach(l => { l.setAttribute("role", "button"); l.tabIndex = 0; l.title = "Clique para trocar o logo"; l.setAttribute("aria-label", "Trocar o logo"); });
+  }
+
   // ── Interação ───────────────────────────────────────────────────────────────
   function aba(n){ document.body.dataset.aba = n; $$("button[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
   function intro(){
     esqueletos(); temaInit();
     let a = "vendas"; try { a = sessionStorage.getItem("fdb_aba") || "vendas"; } catch (e) {}
-    if (!["resumo", "vendas", "pagtos", "equipe"].includes(a)) a = "vendas"; aba(a);
+    if (!["resumo", "vendas", "pagtos", "equipe"].includes(a)) a = "vendas"; aba(a); prepararLogos();
     document.addEventListener("click", e => {
       const o = e.target.closest("[data-ord]"); if (o) { const k = o.dataset.ord; if (ord.k === k) ord.d = -ord.d; else { ord.k = k; ord.d = (k === "vendedor" || k === "tipo" || k === "cliente") ? 1 : -1; } marcaOrd(); E().render(); return; }
       const p = e.target.closest("[data-pg]"); if (p) { ext.pg = ext.pg === p.dataset.pg ? null : p.dataset.pg; E().render(); return; }
@@ -239,11 +336,17 @@
         if (k === "tudo") { ord.k = "hora"; ord.d = -1; marcaOrd(); if (q) q.focus({preventScroll: true}); }
         E().render(); return; }
       const pb = e.target.closest("#btnProib"); if (pb) { alternarProibidos(); return; }
+      if (e.target.closest(".logo")) { escolherLogo(); return; }
     });
+    // Dica do gráfico de horas: mouse (passar por cima) e toque (tocar na barra; tocar fora fecha).
+    document.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else if (hrAtual) hrEsconder(); }, {passive: true});
+    document.addEventListener("pointerdown", e => { if (e.pointerType !== "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else hrEsconder(); }, {passive: true});
+    document.addEventListener("scroll", hrEsconder, {passive: true, capture: true});
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
     document.addEventListener("keydown", e => {
       if ($("#ov.on") || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
+      if ((e.key === "Enter" || e.key === " ") && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("logo")) { e.preventDefault(); escolherLogo(); return; }
       if (e.key === "/" && document.activeElement !== q && q) { e.preventDefault(); q.focus(); q.select(); return; }
       if (e.key === "Escape" && document.activeElement === q && q.value) { q.value = ""; E().st.q = ""; E().render(); return; }
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter") return;
@@ -357,9 +460,12 @@
       `<div class="cfgLin"><div class="cfgRot"><b>Tamanho do texto</b><span class="cfgZEst"></span></div><div class="cfgZ" role="group" aria-label="Tamanho do texto"><button type="button" data-z="-1" aria-label="Diminuir o texto">A−</button><button type="button" data-z="0" aria-label="Tamanho padrão">Padrão</button><button type="button" data-z="1" aria-label="Aumentar o texto">A+</button></div>` +
       `<p class="cfgDica">Os mesmos ajustes do relatório clássico, válidos somente para este aparelho.</p></div></div>` +
       `<div class="tmSec"><div class="tmCab"><b>Sistema</b></div><div class="cfgLinks">` +
-      `<a href="/config?voltar=${voltar}">Configurações do sistema</a><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a></div></div>`;
+      `<a href="/config?voltar=${voltar}">Configurações do sistema</a><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a>` +
+      `<div class="cfgLogo" title="O logo vale só para os painéis e só pode ser trocado no computador do servidor. O ícone do sistema (aba e bandeja) não muda.">` +
+      `<button type="button" data-logo="trocar">Trocar o logo</button><button type="button" data-logo="padrao">Logo padrão</button></div></div></div>`;
     document.body.appendChild(cfgM);
-    cfgM.addEventListener("click", e => { const z = e.target.closest("[data-z]"); if (z) { e.stopPropagation(); zPasso(Number(z.dataset.z)); } });
+    cfgM.addEventListener("click", e => { const z = e.target.closest("[data-z]"); if (z) { e.stopPropagation(); zPasso(Number(z.dataset.z)); return; }
+      const lg = e.target.closest("[data-logo]"); if (lg) { e.stopPropagation(); fecharCfg(); if (lg.dataset.logo === "trocar") escolherLogo(); else logoPadrao(); } });
     cfgM.querySelector("#cfgRec").addEventListener("change", e => {
       try { localStorage.setItem("fdb_recarga_auto", e.target.checked ? "1" : "0"); } catch (er) {}
       cfgEstado(); E().toast(e.target.checked ? "<b>Atualização</b> · A cada nova venda, a página será recarregada e os filtros serão limpos (como no F5)." : "<b>Atualização</b> · As novas vendas continuarão sendo incluídas, sem recarregar a página.");

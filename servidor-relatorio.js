@@ -5,15 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.27.0
+ * @version 2.28.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.27.0 - 2026-11-13 - Painéis de tela única: recebem a mesma busca e os mesmos proibidos do relatório
- *     clássico (trechos ==BUSCA-COMUM== do gerador), as preferências do aparelho, o nome da loja
- *     declarado (appName) no título e no cabeçalho e a duração dos avisos (toastDuration).
+ *   2.28.0 - 2026-11-16 - Logo próprio dos painéis (logo-painel.png): /logo-painel.png (logo, senão o
+ *     favicon), /api/upload-logo e /api/remover-logo, só no computador do servidor. O favicon.png
+ *     (ícone do sistema, da aba e da bandeja) não é alterado.
  */
 
 
@@ -21,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.27.0";
+const SERVER_VERSION = "2.28.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -487,6 +487,18 @@ var USER   = pegar("--user");
 var PASS   = pegar("--pass");
 var SCRIPT = path.join(__dirname,"gerar-relatorio-html.js");
 var FAVICON= path.join(__dirname,"favicon.png");
+// Logo dos painéis de tela única (v2.28.0): arquivo próprio, separado do favicon. Trocar o logo
+// pelos painéis NUNCA altera o favicon.png (ícone do sistema, da aba e da bandeja). Sem o arquivo,
+// o painel mostra o favicon; sem nenhum dos dois, "FDB".
+var LOGO_PAINEL = path.join(__dirname, "logo-painel.png");
+// Tipo da imagem pelo conteúdo (os mesmos formatos aceitos para o ícone): PNG, ICO ou JPEG.
+var _tipoImagem = function(buf) {
+    if (!buf || buf.length < 4) return "";
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return "image/png";
+    if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0x01 && buf[3] === 0x00) return "image/x-icon";
+    if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) return "image/jpeg";
+    return "";
+};
 var CONFIG = path.join(__dirname,"config.json");
 var NO_BROWSER    = args.includes("--no-browser");
 var TMP_DIR       = os.tmpdir();
@@ -5225,6 +5237,18 @@ var _abrirPrograma = function(prog, cb) {
 
 var server=http.createServer(function(req,res){
     
+    // Logo dos painéis (v2.28.0): o logo próprio, se houver; senão, o favicon; senão, 404
+    // (o painel mostra "FDB"). Sem cache longo: a troca aparece no próximo carregamento.
+    if(/^\/logo-painel\.png(\?|$)/.test(req.url)){
+        var _lgArq = fs.existsSync(LOGO_PAINEL) ? LOGO_PAINEL : (fs.existsSync(FAVICON) ? FAVICON : "");
+        if (!_lgArq) { res.writeHead(404, {"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}); res.end("Sem logo."); return; }
+        fs.readFile(_lgArq, function(eLg, bufLg){
+            if (eLg) { logTs("WARN logo do painel: " + eLg.message); res.writeHead(404, {"Cache-Control":"no-cache"}); res.end(); return; }
+            res.writeHead(200, {"Content-Type": _tipoImagem(bufLg) || "image/png", "Cache-Control":"no-cache"});
+            res.end(bufLg);
+        });
+        return;
+    }
     if(/^\/(favicon\.(ico|png)|apple-touch-icon\.png)/.test(req.url)){
         if(fs.existsSync(FAVICON)){
             try{
@@ -6463,6 +6487,45 @@ var server=http.createServer(function(req,res){
         return;
     }
 
+    // /api/upload-logo POST (v2.28.0) — logo dos painéis de tela única. Grava SÓ o
+    // logo-painel.png: o favicon.png (ícone do sistema, da aba e da bandeja) não muda.
+    // Mesmas regras do ícone: só no computador do servidor, PNG/ICO/JPEG, até 2 MB.
+    if(rota==="/api/upload-logo" && req.method==="POST"){
+        if (!_ehComputadorServidor(req)) { sendJson({ok:false, erro:"O logo só pode ser trocado no computador do servidor (onde está o servidor-relatorio.js)."}, 403); return; }
+        var lgChunks=[], lgBytes=0, lgAbortado=false, LG_MAX = 2 * 1024 * 1024;
+        req.on("data", function(c){
+            if (lgAbortado) return;
+            lgBytes += c.length;
+            if (lgBytes > LG_MAX) { lgAbortado = true; try { req.destroy(); } catch(_) {} if (!res.headersSent) sendJson({ok:false, erro:"Imagem muito grande (máximo de 2 MB)."}, 413); return; }
+            lgChunks.push(c);
+        });
+        req.on("error", function(e){ if (lgAbortado) return; lgAbortado = true; logTs("ERRO /api/upload-logo (req): " + e.message); if (!res.headersSent) sendJson({ok:false, erro:e.message}, 500); });
+        req.on("end", function(){
+            if (lgAbortado) return;
+            try {
+                var bufL = Buffer.concat(lgChunks);
+                if (!_tipoImagem(bufL)) { sendJson({ok:false, erro:"Formato inválido. Use PNG, ICO ou JPEG."}, 400); return; }
+                // Gravação atômica (binário): arquivo temporário + rename; se o destino estiver
+                // travado (antivírus/indexador), grava direto.
+                var lgTmp = LOGO_PAINEL + ".tmp" + process.pid;
+                try { fs.writeFileSync(lgTmp, bufL); fs.renameSync(lgTmp, LOGO_PAINEL); }
+                catch (_eLg) { try { if (fs.existsSync(lgTmp)) fs.unlinkSync(lgTmp); } catch(_) {} fs.writeFileSync(LOGO_PAINEL, bufL); }
+                logTs("Logo dos painéis atualizado (" + bufL.length + " bytes). O ícone do sistema (favicon.png) não foi alterado.");
+                sendJson({ok:true});
+            } catch (e) {
+                logTs("ERRO /api/upload-logo: " + e.message);
+                if (!res.headersSent) sendJson({ok:false, erro:e.message}, 500);
+            }
+        });
+        return;
+    }
+    // /api/remover-logo POST (v2.28.0) — volta a mostrar o ícone do sistema no logo dos painéis.
+    if(rota==="/api/remover-logo" && req.method==="POST"){
+        if (!_ehComputadorServidor(req)) { sendJson({ok:false, erro:"O logo só pode ser alterado no computador do servidor (onde está o servidor-relatorio.js)."}, 403); return; }
+        try { if (fs.existsSync(LOGO_PAINEL)) fs.unlinkSync(LOGO_PAINEL); logTs("Logo dos painéis removido: volta a ser o ícone do sistema."); sendJson({ok:true}); }
+        catch (eRm) { logTs("ERRO /api/remover-logo: " + eRm.message); sendJson({ok:false, erro:eRm.message}, 500); }
+        return;
+    }
     // /api/upload-favicon POST
     if(rota==="/api/upload-favicon" && req.method==="POST"){
         // v2.19.0: o ícone vale para todos — só o computador do servidor troca.

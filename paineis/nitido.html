@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- paineis/nitido.html — Central de Relatórios FDB · painel de tela única "Nítido (claro, plano e preciso)".
-     @version 1.1.0
-       1.1.0 - 2026-11-13 - Logo com o favicon da pasta do sistema, nome da loja declarado no título e no cabeçalho e avisos no padrão do relatório clássico, nas cores do tema.
+     @version 1.2.0
+       1.2.0 - 2026-11-16 - Logo próprio dos painéis (/logo-painel.png; sem ele, o ícone do sistema) e mais espaço para os vendedores do que para os produtos.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/nitido/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
@@ -37,7 +37,7 @@ body{background:var(--bg)}
 .col>.pn{padding:12px 14px 10px;border-bottom:1px solid var(--ln)}.col>.pn:last-child{border-bottom:0}
 .pn>h3{letter-spacing:.02em;text-transform:none;font-size:12.5px;color:var(--tx);font-weight:700}.pn>h3 em{color:var(--mu);font-weight:500;font-size:11.5px}
 .cx-tipos{flex:none}.cx-pag{flex:0 1 auto}.cx-cx{flex:0 1 auto}.cx-conv{flex:1 1 90px}
-.cx-vend{flex:1.5 1 0}.cx-hr{flex:0 0 150px}.cx-prod{flex:1 1 0}
+.cx-vend{flex:2 1 0}.cx-hr{flex:0 0 150px}.cx-prod{flex:1 1 0}
 .cx-tab{min-height:0;background:#fff;padding:12px 0 0}.cx-tab>h3{padding:0 14px 8px}
 .cx-tab .tabela{border-top:1px solid var(--ln)}
 #cab>*{letter-spacing:.02em;text-transform:none;font-size:11.5px;font-weight:600}
@@ -67,7 +67,7 @@ body{background:var(--bg)}
 .tst{border-radius:8px;box-shadow:0 12px 30px -12px rgba(15,23,42,.3)}
 </style></head><body>
 <header class="top">
- <div class="marca"><span class="logo"><img src="/favicon.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><b>__NOME_LOJA__</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
+ <div class="marca"><span class="logo"><img src="/logo-painel.png" alt="" onerror="this.parentNode.classList.add('semImg');this.remove()"></span><b>__NOME_LOJA__</b><span class="sep"></span><small><span class="vivo">Ao vivo</span><span data-hoje></span></small></div>
  <label class="busca">⌕<input id="q" placeholder="Buscar vendedor, item, número, valor…" autocomplete="off"><kbd>/</kbd></label>
  <div class="seg"><button type="button" class="on" data-tipo="todos">Todos</button><button type="button" data-tipo="Gerencial">Gerencial</button><button type="button" data-tipo="NFC-e">NFC-e</button><button type="button" data-tipo="NF-e">NF-e</button></div>
  <nav class="lk"><button type="button" id="btnTema" aria-haspopup="menu" aria-expanded="false" title="Escolher o tema (painéis de tela única ou temas clássicos)">Tema<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><button type="button" id="btnCfg" aria-haspopup="dialog" aria-expanded="false" title="Configurações (desempenho desta tela e do sistema)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lkTxt">Configurações</span></button></nav>

@@ -227,10 +227,13 @@ test("padrão de fábrica: config.json do repositório sem dados de loja e sem p
 });
 
 test("gerador: gerencial sem total (aguardando documento fiscal) com pagamento e itens é venda gerencial, não recebimento", () => {
-    const dir = montarPasta({}, {
+    // Hora 30 min atrás com janela de correção de 5 min: a correção automática de horário
+    // (gerencial recente passa a usar a hora atual) não interfere, a qualquer hora do dia.
+    const horaA = horaHaMin(30);
+    const dir = montarPasta({ janelaCorrecaoHoraMin: 5 }, {
         nfce: [
             // A: "Finalizada - Aguardando Documento Fiscal" — o PDV grava TOTAL = 0 até emitir a nota
-            { numero: "900", hora: "11:05:00", modelo: 99, total: 0, vendedor: "VENDEDOR A", caixa: "64", cliente: "FULANO" },
+            { numero: "900", hora: horaA, modelo: 99, total: 0, vendedor: "VENDEDOR A", caixa: "64", cliente: "FULANO" },
             // B: total 0 com pagamento, mas sem itens — continua recebimento
             { numero: "901", hora: "11:10:00", modelo: 99, total: 0, vendedor: "VENDEDOR B" },
             // C: total 0 sem pagamento (venda aberta) — não aparece
@@ -257,7 +260,7 @@ test("gerador: gerencial sem total (aguardando documento fiscal) com pagamento e
     assert.strictEqual(a.is_recebimento, false);
     assert.strictEqual(a.total, 99);
     assert.strictEqual(a.caixa, "064", "caixa da própria linha");
-    assert.match(String(a.hora), /^11:05/, "hora da própria linha");
+    assert.strictEqual(String(a.hora).slice(0, 5), horaA.slice(0, 5), "hora da própria linha");
     assert.strictEqual(a.cliente, "FULANO");
     assert.ok(Array.isArray(a.itensDetalhe) && a.itensDetalhe.length === 1, "itens da venda");
     assert.doesNotMatch(String(a.itens), /Recebimento/);
@@ -1222,4 +1225,25 @@ test("paineis: catálogo completo e prévias dos temas clássicos iguais às cor
             assert.strictEqual(String(prev[k]).toLowerCase(), String(achado || "").trim().toLowerCase(), id + " " + v);
         }
     }
+});
+
+test("windows: inicialização automática registrada para o usuário da sessão (não para a conta usada no UAC)", () => {
+    const ler = f => fs.readFileSync(path.join(RAIZ_PROJETO, f), "utf8");
+    for (const f of ["iniciar-tray.ps1", "_criar-tarefa.ps1", "instalar-na-inicializacao.bat", "launcher.vbs", "api.ps1"]) {
+        assert.ok(!/[^\x00-\x7F]/.test(ler(f)), f + " deve ser 100% ASCII");
+    }
+    const bat = ler("instalar-na-inicializacao.bat"), tarefa = ler("_criar-tarefa.ps1"), tray = ler("iniciar-tray.ps1");
+    assert.ok(!/[^\r]\n/.test(bat), "instalar-na-inicializacao.bat em CRLF");
+    // -SoUsuario é chamado sem -Nome/-Launcher: parâmetro obrigatório faria o PowerShell pedir digitação.
+    assert.doesNotMatch(tarefa, /Mandatory\s*=\s*\$true/, "_criar-tarefa.ps1 sem parâmetros obrigatórios");
+    assert.match(tarefa, /function Get-UsuarioDaSessao/);
+    assert.match(tarefa, /Name='explorer\.exe' AND SessionId=\$sessao/, "dono do explorer.exe da mesma sessão");
+    assert.match(tarefa, /\[switch\]\$SoUsuario/);
+    assert.match(bat, /_criar-tarefa\.ps1" -SoUsuario/, "instalador descobre o usuário da sessão");
+    assert.match(bat, /-Launcher "!LAUNCHER_PATH!" -Usuario "!USUARIO_TAREFA!"/, "tarefa completa com o usuário da sessão");
+    assert.match(bat, /\/ru "!USUARIO_TAREFA!"/, "tarefa básica com o usuário da sessão");
+    assert.doesNotMatch(bat, /\/ru "%USERNAME%"/, "nunca a conta da janela elevada");
+    // Bandeja: diagnóstico somente leitura (não cria, altera nem apaga tarefas).
+    assert.match(tray, /function Write-DiagnosticoInicio/);
+    assert.doesNotMatch(tray, /(Register|Set|Unregister|Enable|Disable)-ScheduledTask|schtasks/, "bandeja só consulta o Agendador");
 });

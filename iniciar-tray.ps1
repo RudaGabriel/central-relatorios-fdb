@@ -3,12 +3,13 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.8.4
+# @version 1.9.0
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.8.4 - 2026-11-13 - Novo nome do projeto, "Central de Relatorios FDB", no credito de
-#     Ferramentas > Informacoes do sistema.
+#   1.9.0 - 2026-11-16 - Diagnostico da inicializacao automatica no relatorio.log (somente
+#     leitura), 30 s depois de abrir: tarefa agendada, usuario, pasta, ultimo resultado e
+#     avisos quando o sistema nao vai iniciar com o Windows para quem usa o computador.
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -1732,6 +1733,91 @@ $dbTimer.Add_Tick({
 $dbTimer.Start()
 
 # ---------------------------------------------------------------------------
+# Timer 3 (v1.9.0): diagnostico da inicializacao automatica, uma vez apos 30s.
+# SOMENTE LEITURA: so' consulta o Agendador de Tarefas e a pasta Inicializar e
+# grava o resultado no relatorio.log - nao cria, altera nem apaga nada. Mostra
+# se o sistema realmente inicia com o Windows para quem esta usando o
+# computador: tarefa de outro usuario (UAC respondido com outra conta), tarefa
+# apontando para outra pasta (sistema movido ou baixado de novo em outro lugar),
+# launcher.vbs inexistente, tarefa desabilitada ou nenhuma inicializacao.
+# ---------------------------------------------------------------------------
+function Write-DiagnosticoInicio {
+    try {
+        if (-not (Get-Command Get-ScheduledTask -ErrorAction SilentlyContinue)) {
+            Write-TrayLog "Inicializacao automatica: nao foi possivel conferir (modulo ScheduledTasks indisponivel neste Windows)." "AVISO"
+            return
+        }
+        $launcher = Join-Path $DIR "launcher.vbs"
+        $eu = if ($env:USERDOMAIN) { "$env:USERDOMAIN\$env:USERNAME" } else { $env:USERNAME }
+        # Caminhos aceitos para "esta pasta": o local e, numa unidade mapeada
+        # (H:\...), o mesmo caminho em UNC, que e' o que o instalador grava.
+        $alvos = @($launcher)
+        try {
+            if ($launcher -match '^([A-Za-z]):\\(.*)$') {
+                $resto = $Matches[2]
+                $ld = Get-CimInstance -ClassName Win32_LogicalDisk -Filter ("DeviceID='" + $Matches[1] + ":'") -ErrorAction Stop
+                if ($ld -and $ld.ProviderName) { $alvos += ($ld.ProviderName.TrimEnd('\') + '\' + $resto) }
+            }
+        } catch {}
+
+        $tarefas = @(Get-ScheduledTask -TaskPath "\" -ErrorAction Stop | Where-Object {
+            (@($_.Actions | ForEach-Object { "" + $_.Execute + " " + $_.Arguments }) -join " ") -match 'launcher\.vbs'
+        })
+        if ($tarefas.Count -eq 0) {
+            $lnks = @()
+            try { $lnks = @(Get-ChildItem -LiteralPath ([Environment]::GetFolderPath("Startup")) -Filter "*Relatorios.lnk" -ErrorAction Stop) } catch {}
+            if ($lnks.Count -gt 0) {
+                Write-TrayLog ("Inicializacao automatica: sem tarefa agendada; atalho na pasta Inicializar: " + (($lnks | ForEach-Object { $_.Name }) -join ", ") + ".")
+            } else {
+                Write-TrayLog "Inicializacao automatica: nenhuma tarefa agendada visivel para $eu e nenhum atalho na pasta Inicializar - o sistema NAO inicia com o Windows. Execute instalar-na-inicializacao.bat nesta pasta ($DIR)." "AVISO"
+            }
+            return
+        }
+        foreach ($t in $tarefas) {
+            $acao = (@($t.Actions | ForEach-Object { ("" + $_.Execute + " " + $_.Arguments).Trim() }) -join " | ")
+            $usu  = "" + $t.Principal.UserId
+            $gat  = (@($t.Triggers | ForEach-Object { $_.CimClass.CimClassName -replace '^MSFT_Task', '' -replace 'Trigger$', '' }) -join ", ")
+            $info = $null
+            try { $info = Get-ScheduledTaskInfo -InputObject $t -ErrorAction Stop } catch {}
+            $ult = "nunca"
+            $res = "?"
+            if ($info) {
+                if ($info.LastRunTime -and $info.LastRunTime.Year -gt 2000) { $ult = $info.LastRunTime.ToString("dd-MM-yyyy HH:mm:ss") }
+                $n = [int64]$info.LastTaskResult
+                if ($n -lt 0) { $n += 4294967296 }
+                $res = "0x{0:X}" -f $n
+            }
+            Write-TrayLog ("Inicializacao automatica: tarefa '" + $t.TaskName + "' - estado " + $t.State + ", usuario " + $usu + ", gatilhos " + $gat + ", ultima execucao " + $ult + " (resultado " + $res + "), acao: " + $acao)
+
+            if ([string]$t.State -eq "Disabled") {
+                Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' esta DESABILITADA - o sistema nao inicia com o Windows. Habilite-a no Agendador de Tarefas ou execute instalar-na-inicializacao.bat novamente.") "AVISO"
+            }
+            $nomeUsu = ($usu -split '\\')[-1]
+            if ($usu -and $usu -notmatch '^S-1-' -and $nomeUsu -ne $env:USERNAME) {
+                Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' e' do usuario " + $usu + ", mas quem esta usando o computador e' " + $eu + " - ela nao dispara no logon deste usuario. Execute instalar-na-inicializacao.bat novamente (versao 1.16.0 ou mais nova).") "AVISO"
+            }
+            $estaPasta = $false
+            foreach ($a in $alvos) { if ($acao.IndexOf($a, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $estaPasta = $true } }
+            $m = [regex]::Match($acao, "[`"']([^`"']*launcher\.vbs)[`"']", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+            if ($m.Success -and -not (Test-Path -LiteralPath $m.Groups[1].Value)) {
+                Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' abre um launcher.vbs que nao existe mais (" + $m.Groups[1].Value + ") - o sistema nao inicia com o Windows. Execute instalar-na-inicializacao.bat nesta pasta ($DIR).") "AVISO"
+            } elseif (-not $estaPasta) {
+                Write-TrayLog ("Inicializacao automatica: a tarefa '" + $t.TaskName + "' abre o sistema de outra pasta, nao desta ($DIR). Se esta e' a pasta em uso, execute instalar-na-inicializacao.bat nela.") "AVISO"
+            }
+        }
+    } catch {
+        Write-TrayLog ("Inicializacao automatica: nao foi possivel conferir (" + $_.Exception.Message + ").") "AVISO"
+    }
+}
+$diagTimer = New-Object System.Windows.Forms.Timer
+$diagTimer.Interval = 30000
+$diagTimer.Add_Tick({
+    $diagTimer.Stop()
+    Write-DiagnosticoInicio
+})
+$diagTimer.Start()
+
+# ---------------------------------------------------------------------------
 # Notificacao inicial
 # ---------------------------------------------------------------------------
 $tray.BalloonTipTitle = $APP_NAME
@@ -1748,6 +1834,6 @@ $tray.ShowBalloonTip(3500)
 # ---------------------------------------------------------------------------
 [System.Windows.Forms.Application]::Run()
 
-$watchTimer.Stop(); $dbTimer.Stop()
+$watchTimer.Stop(); $dbTimer.Stop(); $diagTimer.Stop()
 $tray.Visible = $false; $tray.Dispose()
 try { $mutex.ReleaseMutex() } catch {}

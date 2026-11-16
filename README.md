@@ -361,14 +361,17 @@ Uma categoria de temas própria, **separada dos temas clássicos**. Em vez de mu
 | **Central de comando** | Escuro e técnico: linhas finas, cantos de mira e números em destaque |
 | **Vidro** | Painéis de vidro fosco sobre um fundo de luzes suaves |
 | **Nítido** | Claro e plano: linhas finas e tipografia precisa, com o máximo de linhas na tela |
-| **Administrativo** | Neutro e moderno: menu lateral (que recolhe), cartões discretos com ícones, vendedores com avatar e modo **claro ou escuro** (botão ☀/☾; sem escolha, segue o modo do aparelho) |
+| **Administrativo** | Neutro e moderno: menu lateral (que recolhe), cartões discretos com ícones, vendedores com avatar e modo **claro ou escuro** (botão ☀/☾; sem escolha, segue o modo do aparelho). Caixas fica ao lado de "Vendas por hora", e a coluna da direita reúne Por tipo, Formas de pagamento e Conversões em nota fiscal |
 
 Em todos os painéis você encontra:
 
 - **Indicadores:** total vendido, ticket médio, itens vendidos, maior venda (vendedor e hora), média por hora, última venda ("há 3 min") e quanto saiu em documento fiscal.
 - **Tabela compacta de vendas:**
   - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
-  - nos itens, os produtos aparecem primeiro e a linha de desconto fica no fim; a quantidade não conta o desconto; uma etiqueta vermelha mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse;
+  - nos itens, os produtos aparecem primeiro e a linha de desconto fica no fim; a quantidade não conta o desconto;
+  - a coluna **Desc.**, entre Itens e Pagamento, mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse; clique no título para ordenar pelo desconto;
+  - a coluna Pagamento é centralizada;
+  - ao passar o mouse sobre um nome, item, pagamento ou botão, aparece uma **dica própria do painel**, nas cores do tema (também ao navegar com Tab);
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
 - **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque; ao passar o mouse ou tocar numa barra, aparece uma dica com as vendas, o total, o ticket médio, a parte do dia e a divisão por tipo), produtos mais vendidos (sem a linha de desconto) e **conversões em nota fiscal** (cada gerencial convertida em NFC-e ou NF-e, inclusive as que o PDV marca como convertidas).

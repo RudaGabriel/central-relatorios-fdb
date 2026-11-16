@@ -25,8 +25,8 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
@@ -34,7 +34,7 @@ Versões em uso hoje:
 | [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 
 ---
 
@@ -1380,6 +1380,20 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.4.0 — 2026-11-16
+
+**Coluna de desconto, dicas personalizadas e nova disposição do Administrativo.** (1.4.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
+
+- **Coluna "Desc."** (`painel.js` 1.3.0, `base.css` 1.3.0): o percentual de desconto sai do fim dos itens e ganha coluna própria, centralizada, entre Itens e Pagamento. Clicar no título ordena pelo desconto.
+- **Pagamento centralizado** na lista (título e etiquetas).
+- **Dicas personalizadas** (`painel.js` 1.3.0, `base.css` 1.3.0): todas as dicas que usavam a dica padrão do navegador (atributo `title`) passam a aparecer numa caixa própria, nas cores do tema, sempre dentro da tela. Também aparecem ao focar com Tab; botões só com ícone mantêm o texto como nome acessível.
+- **Administrativo** (`administrativo.html` 1.3.0):
+  - **Caixas** fica ao lado de "Vendas por hora", na linha de cima (o gráfico ficou mais estreito); cada caixa mostra nome e total na 1ª linha e vendas e percentual na 2ª;
+  - **Vendedores** mais alto e **Produtos mais vendidos** menor;
+  - coluna da direita: **Por tipo**, **Formas de pagamento** (todas as formas, sem rolagem) e **Conversões em nota fiscal**, que fica com toda a altura que sobra. Em telas baixas, a coluna rola em vez de espremer os painéis;
+  - rodapé da lista só com 7 px em cima (sem espaço nas laterais nem embaixo).
+- **Rodapé da lista nos demais temas** volta ao espaçamento original (6 px em cima e embaixo, 10 px nas laterais): o ajuste da versão anterior era só para o Administrativo.
 
 ### 1.3.0 — 2026-11-16
 

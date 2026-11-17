@@ -1426,7 +1426,7 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 
 ### 1.11.0 — 2026-11-17
 
-**Lista de vendas alinhada.** (1.11.0 é a versão da pasta.) Hora, tipo, número e caixa passam a ficar centralizados (título e conteúdo), como desconto e pagamento; o total fica à direita e vendedor, cliente e itens à esquerda (`base.css` 1.8.0). No celular, a hora continua à esquerda.
+**Lista de vendas alinhada.** (1.11.0 é a versão da pasta.) Hora, tipo, número e caixa passam a ficar centralizados (título e conteúdo), como desconto e pagamento; o título Itens também fica centralizado sobre a coluna; o total fica à direita e vendedor, cliente e itens à esquerda (`base.css` 1.8.0). No celular, a hora continua à esquerda.
 
 **Correção:** a foto ampliada do vendedor aparecia com a dica do navegador ("Clique para trocar ou remover a foto") por cima; o texto fica só dentro da caixa da foto (`painel.js` 1.7.1).
 

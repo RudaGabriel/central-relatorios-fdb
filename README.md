@@ -6,14 +6,14 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.30.0" src="https://img.shields.io/badge/servidor-v2.30.0-2563EB?style=flat">
+<img alt="servidor: v2.31.0" src="https://img.shields.io/badge/servidor-v2.31.0-2563EB?style=flat">
 <img alt="gerador: v3.35.0" src="https://img.shields.io/badge/gerador-v3.35.0-2563EB?style=flat">
 <img alt="bandeja: v1.9.2" src="https://img.shields.io/badge/bandeja-v1.9.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 39 passando" src="https://img.shields.io/badge/testes-39%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 40 passando" src="https://img.shields.io/badge/testes-40%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -370,17 +370,19 @@ Em todos os painéis você encontra:
   - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
   - nos itens, os produtos aparecem primeiro e a linha de desconto fica no fim; a quantidade não conta o desconto;
   - a coluna **Desc.**, entre Itens e Pagamento, mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse; clique no título para ordenar pelo desconto;
-  - a coluna Pagamento é centralizada;
+  - a coluna Pagamento é centralizada e fica perto do Total; com mais de uma forma, aparece a primeira e "+1" (todas, com os valores, ficam na dica);
+  - as dicas dos itens e dos pagamentos mostram um por linha;
   - ao passar o mouse sobre um nome, item, pagamento ou botão, aparece uma **dica própria do painel**, nas cores do tema (também ao navegar com Tab);
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
 - **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque; ao passar o mouse ou tocar numa barra, aparece uma dica com as vendas, o total, o ticket médio, a parte do dia e a divisão por tipo), produtos mais vendidos (sem a linha de desconto) e **conversões em nota fiscal** (cada gerencial convertida em NFC-e ou NF-e, inclusive as que o PDV marca como convertidas).
-- **Busca igual à do relatório clássico:** a mesma caixa de busca, com todos os coringas da seção [Busca e filtros](#busca) e os mesmos resultados.
+- **Busca igual à do relatório clássico:** a mesma caixa de busca, com todos os coringas da seção [Busca e filtros](#busca) e os mesmos resultados. Com texto no campo, um **X** limpa a busca.
 - **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
 - **Botões no topo da lista de vendas:**
   - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
   - no celular aparecem só os ícones.
+- **Fotos dos vendedores** (no Administrativo, onde aparecem as iniciais): clique no avatar e escolha uma foto do computador ou do celular. O sistema recorta em quadrado, centraliza o rosto e reduz a imagem automaticamente. Com foto, o clique oferece **Trocar foto** ou **Remover foto**. Vale para todos os aparelhos e só pode ser feito no computador do servidor.
 - **Logo e nome da loja:**
   - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;
   - a troca vale **somente para o logo dos painéis**, para todos os aparelhos, e só pode ser feita no computador do servidor. O **ícone do sistema (`favicon.png`)**, usado na aba do navegador, no relatório clássico e na bandeja, **não é alterado**;
@@ -442,6 +444,9 @@ Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell
 | `/api/abrir-picker-fdb` | GET | Abre o seletor de arquivos do Windows na máquina servidora |
 | `/api/upload-favicon` | POST | (Só no computador do servidor) envia um ícone PNG/ICO/JPEG (até 2 MB) |
 | `/logo-painel.png` | GET | Logo dos painéis (o logo próprio; sem ele, o ícone do sistema) |
+| `/api/fotos-vendedores` | GET | Lista das fotos dos vendedores (nome do vendedor e endereço da foto) |
+| `/foto-vendedor/ID.jpg` | GET | Foto de um vendedor |
+| `/api/foto-vendedor?nome=...` · `/api/remover-foto-vendedor?nome=...` | POST | (Só no computador do servidor) salva (JPEG/PNG, até 1 MB) ou remove a foto de um vendedor |
 | `/api/upload-logo` · `/api/remover-logo` | POST | (Só no computador do servidor) troca ou remove o logo dos painéis (PNG/ICO/JPEG, até 2 MB); o ícone do sistema não muda |
 | `/api/navigate/hoje` · `/config` · `/selecionar-fdb` · `/periodo/INI/FIM` · `/hash/{config\|periodo}` · `/foco` · `/recarregar` | GET | Comandam as telas abertas via SSE |
 | `/api/navigate/tema/ID` · `/api/temas` | GET | Troca o tema das telas abertas (tema clássico ou painel de tela única) / lista os temas das duas categorias, cada um com o campo `categoria` (`classico` ou `painel`) |
@@ -478,7 +483,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.30.0 | Gerador v3.35.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.31.0 | Gerador v3.35.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -511,7 +516,7 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 39 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento), as **conversões em nota fiscal**, o **logo próprio dos painéis** (sem alterar o ícone do sistema), a ausência de **emojis** (todos os ícones são SVG), a **tela com os últimos dados** quando a pasta de rede fica inacessível por alguns segundos e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 40 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento), as **conversões em nota fiscal**, o **logo próprio dos painéis** (sem alterar o ícone do sistema), a ausência de **emojis** (todos os ícones são SVG), a **tela com os últimos dados** quando a pasta de rede fica inacessível por alguns segundos, as **fotos dos vendedores** e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
@@ -543,6 +548,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 39 testes cobrem 
 | `_instalar-node.ps1` · `node-firebird.bat` | Instalam o Node.js e o `node-firebird` |
 | `config.json` | Configurações (padrão de todos) |
 | `preferencias-aparelhos.json` | Preferências e apelido de cada aparelho (criado automaticamente, não versionado) |
+| `fotos-vendedores/` | Fotos dos vendedores escolhidas nos painéis e o índice delas (criada automaticamente, não versionada) |
 | `logo-painel.png` | Logo dos painéis escolhido pelo logo ou por Configurações (criado automaticamente, não versionado; o `favicon.png` é outro arquivo) |
 | `package.json` · `test/` | Testes automáticos (`npm test`, `executar-testes.bat`, Firebird simulado) |
 | `CHANGELOG.md` | Histórico completo de versões de cada arquivo (o cabeçalho de cada arquivo traz só a versão atual) |

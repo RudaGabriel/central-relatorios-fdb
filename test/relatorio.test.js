@@ -1365,3 +1365,30 @@ test("servidor: gerador ilegível por alguns segundos (pasta de rede) — a tela
         assert.ok(rastros <= 2, "o erro completo do Node não se repete a cada tentativa (" + rastros + ")");
     } finally { srv.parar(); }
 });
+
+test("servidor: fotos dos vendedores — salva, lista, serve, recusa formato inválido, remove e só no computador do servidor", { timeout: 60000 }, async () => {
+    const dir = montarPasta();
+    const JPG = Buffer.concat([Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]), Buffer.alloc(64, 7)]);
+    let srv = await iniciarServidor(dir);
+    try {
+        const nome = "Vendedor Ação  Teste";
+        let j = await fetch(srv.base + "/api/foto-vendedor?nome=" + encodeURIComponent(nome), { method: "POST", body: JPG }).then(r => r.json());
+        assert.strictEqual(j.ok, true); assert.match(j.foto, /^\/foto-vendedor\/[a-f0-9]{16}\.jpg\?v=\d+$/);
+        const lista = await fetch(srv.base + "/api/fotos-vendedores").then(r => r.json());
+        assert.strictEqual(lista.fotos["VENDEDOR ACAO TESTE"], j.foto, "nome normalizado (sem acento, maiúsculas, espaços únicos)");
+        const r = await fetch(srv.base + j.foto);
+        assert.strictEqual(r.status, 200); assert.ok(Buffer.from(await r.arrayBuffer()).equals(JPG));
+        assert.strictEqual((await fetch(srv.base + "/api/foto-vendedor?nome=X", { method: "POST", body: "nao e imagem" })).status, 400);
+        assert.strictEqual((await fetch(srv.base + "/api/foto-vendedor", { method: "POST", body: JPG })).status, 400, "sem o nome do vendedor");
+        assert.strictEqual((await fetch(srv.base + "/foto-vendedor/../../config.json")).status !== 200, true, "nada fora da pasta das fotos");
+        j = await fetch(srv.base + "/api/remover-foto-vendedor?nome=" + encodeURIComponent("VENDEDOR ACAO TESTE"), { method: "POST" }).then(x => x.json());
+        assert.strictEqual(j.ok, true);
+        assert.deepStrictEqual((await fetch(srv.base + "/api/fotos-vendedores").then(x => x.json())).fotos, {});
+        assert.ok(!fs.readdirSync(path.join(dir, "fotos-vendedores")).some(f => f.endsWith(".jpg")), "arquivo apagado");
+    } finally { srv.parar(); }
+    srv = await iniciarServidor(dir, { RELATORIO_DISP_LOCAL: "1" });
+    try {
+        assert.strictEqual((await fetch(srv.base + "/api/foto-vendedor?nome=X", { method: "POST", body: JPG })).status, 403);
+        assert.strictEqual((await fetch(srv.base + "/api/remover-foto-vendedor?nome=X", { method: "POST" })).status, 403);
+    } finally { srv.parar(); }
+});

@@ -1,7 +1,6 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.2.0
- *   1.2.0 - 2026-11-16 - Linhas de desconto e acréscimo marcadas (no fim dos itens e fora das contagens) e
- *                        percentual de desconto de cada venda, pela mesma regra do relatório clássico.
+ * @version 1.3.0
+ *   1.3.0 - 2026-11-17 - Evento "fotos" do servidor: as fotos dos vendedores são atualizadas nas telas abertas.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -286,6 +285,7 @@
         else if (d.type === "navigate") { let u = String(d.url || "/"); if (u.charAt(0) !== "/" || u.charAt(1) === "/") u = "/"; location.assign(u); }
         else if (d.type === "aviso" && d.msg) toast("<b>Aviso</b> · " + esc(String(d.msg).slice(0, 300)));
         else if (d.type === "prefs") aplicarPrefs();
+        else if (d.type === "fotos") { if (window.PAINEL && PAINEL.fotosMudaram) PAINEL.fotosMudaram(); }
         else if (d.type === "encerrando") aviso(d.reiniciando ? "O servidor está reiniciando — reconectando…" : "O servidor de relatórios foi encerrado.");
       } catch (e) {} };
       es.onopen = () => { tent = 0; const a = $("#estado"); if (a && /^O servidor/.test(a.textContent)) aviso(""); };

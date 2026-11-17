@@ -5,15 +5,16 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.30.0
+ * @version 2.31.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.30.0 - 2026-11-17 - Falha do gerador não derruba a tela: o relatório de hoje continua com os
- *     últimos dados e o servidor tenta de novo (2, 5, 10, 20 e 30 s). Mensagem clara quando a pasta
- *     do sistema (pasta de rede) está inacessível, sem culpar o banco, e sem repetir o erro no log.
+ *   2.31.0 - 2026-11-17 - Fotos dos vendedores nos painéis (pasta fotos-vendedores, rotas
+ *     /api/fotos-vendedores, /api/foto-vendedor, /api/remover-foto-vendedor e /foto-vendedor/...), só no
+ *     computador do servidor; página de configurações com os campos lado a lado alinhados e sem as
+ *     setas dos campos numéricos.
  */
 
 
@@ -21,7 +22,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.30.0";
+const SERVER_VERSION = "2.31.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -491,6 +492,20 @@ var FAVICON= path.join(__dirname,"favicon.png");
 // pelos painéis NUNCA altera o favicon.png (ícone do sistema, da aba e da bandeja). Sem o arquivo,
 // o painel mostra o favicon; sem nenhum dos dois, "FDB".
 var LOGO_PAINEL = path.join(__dirname, "logo-painel.png");
+// Fotos dos vendedores nos painéis (v2.31.0): pasta própria na pasta do sistema, com um índice
+// (nome do vendedor normalizado -> arquivo). Só imagens; nada vai para o banco.
+var FOTOS_DIR = path.join(__dirname, "fotos-vendedores");
+var FOTOS_INDICE = path.join(FOTOS_DIR, "indice.json");
+var _normVendedor = function(nome) {
+    return String(nome || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim().slice(0, 120);
+};
+var _idFoto = function(norm) { return require("crypto").createHash("sha1").update(norm, "utf8").digest("hex").slice(0, 16); };
+var _lerIndiceFotos = function() {
+    try {
+        var o = JSON.parse(fs.readFileSync(FOTOS_INDICE, "utf8").replace(/^\uFEFF/, ""));
+        return (o && typeof o === "object" && !Array.isArray(o)) ? o : {};
+    } catch (_) { return {}; }
+};
 // Tipo da imagem pelo conteúdo (os mesmos formatos aceitos para o ícone): PNG, ICO ou JPEG.
 var _tipoImagem = function(buf) {
     if (!buf || buf.length < 4) return "";
@@ -5291,6 +5306,16 @@ var server=http.createServer(function(req,res){
     
     // Logo dos painéis (v2.28.0): o logo próprio, se houver; senão, o favicon; senão, 404
     // (o painel mostra "FDB"). Sem cache longo: a troca aparece no próximo carregamento.
+    // Foto de um vendedor (v2.31.0): /foto-vendedor/<id>.jpg — id com 16 dígitos hexadecimais.
+    var _mFoto = /^\/foto-vendedor\/([a-f0-9]{16})\.jpg(\?|$)/.exec(req.url);
+    if (_mFoto) {
+        fs.readFile(path.join(FOTOS_DIR, _mFoto[1] + ".jpg"), function(eF, bufF) {
+            if (eF || !_tipoImagem(bufF)) { res.writeHead(404, {"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}); res.end("Sem foto."); return; }
+            res.writeHead(200, {"Content-Type": _tipoImagem(bufF), "Cache-Control":"no-cache"});
+            res.end(bufF);
+        });
+        return;
+    }
     if(/^\/logo-painel\.png(\?|$)/.test(req.url)){
         var _lgArq = fs.existsSync(LOGO_PAINEL) ? LOGO_PAINEL : (fs.existsSync(FAVICON) ? FAVICON : "");
         if (!_lgArq) { res.writeHead(404, {"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}); res.end("Sem logo."); return; }
@@ -5948,7 +5973,11 @@ var server=http.createServer(function(req,res){
             "input:focus{border-color:#0ea5e9}"+
             "textarea{display:block;width:100%;background:#000;color:#ededed;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 14px;font-size:13px;font-family:monospace;outline:none;resize:vertical;min-height:90px}"+
             "textarea:focus{border-color:#0ea5e9}"+
-            ".row{display:flex;gap:12px}.row .field{flex:1}"+
+            ".row{display:flex;gap:12px}.row .field{flex:1;min-width:0}"+
+            // v2.31.0: rótulos de alturas diferentes (um quebra em duas linhas) não desalinham os campos lado a lado.
+            ".row .field label{min-height:2.7em;display:flex;align-items:flex-end}"+
+            // Sem as setas do navegador nos campos numéricos (apareciam só em um deles, ao passar o mouse).
+            "input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}"+
             ".btn{width:100%;padding:14px;background:#0ea5e9;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}"+
             ".btn:hover{background:#0284c7}.btn:disabled{opacity:.5;cursor:not-allowed}"+
             ".btn-sec{background:rgba(255,255,255,.07);color:#ededed}.btn-sec:hover{background:rgba(255,255,255,.13)}"+
@@ -5959,7 +5988,7 @@ var server=http.createServer(function(req,res){
             "</style></head><body><div class=\"box\">"+
             "<h2>Configurações</h2><p class=\"sub\">Somente os campos editáveis pelo painel. As demais opções devem ser alteradas diretamente no arquivo config.json.</p>"+
             "<div id=\"msg\"></div>"+
-            "<div class=\"field\"><label>Nome do sistema (appName)</label><input type=\"text\" id=\"appName\" value=\""+_pn+"\"><p class=\"hint\">Exibido no título da página e no ícone da bandeja.</p></div>"+
+            "<div class=\"field\"><label>Nome do sistema (appName)</label><input type=\"text\" id=\"appName\" value=\""+_pn+"\"><p class=\"hint\">Exibido no título da página, no cabeçalho dos painéis e no ícone da bandeja.</p></div>"+
             "<div class=\"row\">"+
             "<div class=\"field\"><label>Intervalo de verificação (ms)</label><input type=\"number\" id=\"pollInterval\" value=\""+_pi+"\" min=\"100\" max=\"60000\" step=\"50\"><p class=\"hint\">De 100 ms a 60.000 ms.</p></div>"+
             "<div class=\"field\"><label>Máximo de linhas do log</label><input type=\"number\" id=\"maxLogLines\" value=\""+_ml+"\" min=\"100\" max=\"100000\" step=\"100\"><p class=\"hint\">De 100 a 100.000 linhas.</p></div>"+
@@ -6539,6 +6568,64 @@ var server=http.createServer(function(req,res){
         return;
     }
 
+    // Fotos dos vendedores (v2.31.0). GET /api/fotos-vendedores: {nome normalizado: endereço da foto}.
+    // POST /api/foto-vendedor?nome=... (imagem JPEG/PNG, até 1 MB; o painel já envia recortada e
+    // reduzida) e POST /api/remover-foto-vendedor?nome=... — só no computador do servidor, como o logo.
+    if (rota === "/api/fotos-vendedores" && req.method === "GET") {
+        var _ix = _lerIndiceFotos(), _fotos = {};
+        Object.keys(_ix).forEach(function(k) { var e = _ix[k]; if (e && /^[a-f0-9]{16}$/.test(String(e.id))) _fotos[k] = "/foto-vendedor/" + e.id + ".jpg?v=" + (Number(e.ts) || 0); });
+        sendJson({ok: true, fotos: _fotos});
+        return;
+    }
+    if ((rota === "/api/foto-vendedor" || rota === "/api/remover-foto-vendedor") && req.method === "POST") {
+        if (!_ehComputadorServidor(req)) { sendJson({ok:false, erro:"A foto do vendedor só pode ser alterada no computador do servidor (onde está o servidor-relatorio.js)."}, 403); return; }
+        var _nomeF = _normVendedor(parsed.searchParams.get("nome") || "");
+        if (!_nomeF) { sendJson({ok:false, erro:"Vendedor não informado."}, 400); return; }
+        var _idF = _idFoto(_nomeF), _arqF = path.join(FOTOS_DIR, _idF + ".jpg");
+        var _salvarIndice = function(ix) {
+            try { if (!fs.existsSync(FOTOS_DIR)) fs.mkdirSync(FOTOS_DIR, {recursive: true}); } catch (_) {}
+            return _gravarArquivoAtomico(FOTOS_INDICE, JSON.stringify(ix, null, 2));
+        };
+        if (rota === "/api/remover-foto-vendedor") {
+            try {
+                var _ixR = _lerIndiceFotos(); delete _ixR[_nomeF];
+                if (fs.existsSync(_arqF)) fs.unlinkSync(_arqF);
+                _salvarIndice(_ixR);
+                logTs("Foto do vendedor removida: " + _textoSeguroLog(_nomeF, 60) + ".");
+                broadcastSSE({type: "fotos"});
+                sendJson({ok: true});
+            } catch (eRmF) { logTs("ERRO /api/remover-foto-vendedor: " + eRmF.message); sendJson({ok:false, erro:eRmF.message}, 500); }
+            return;
+        }
+        var fChunks = [], fBytes = 0, fAbort = false, F_MAX = 1024 * 1024;
+        req.on("data", function(c) {
+            if (fAbort) return;
+            fBytes += c.length;
+            if (fBytes > F_MAX) { fAbort = true; try { req.destroy(); } catch(_) {} if (!res.headersSent) sendJson({ok:false, erro:"Imagem muito grande (máximo de 1 MB)."}, 413); return; }
+            fChunks.push(c);
+        });
+        req.on("error", function(e) { if (fAbort) return; fAbort = true; if (!res.headersSent) sendJson({ok:false, erro:e.message}, 500); });
+        req.on("end", function() {
+            if (fAbort) return;
+            try {
+                var bufF = Buffer.concat(fChunks), tipoF = _tipoImagem(bufF);
+                if (tipoF !== "image/jpeg" && tipoF !== "image/png") { sendJson({ok:false, erro:"Formato inválido. Use uma foto JPEG ou PNG."}, 400); return; }
+                if (!fs.existsSync(FOTOS_DIR)) fs.mkdirSync(FOTOS_DIR, {recursive: true});
+                var tmpF = _arqF + ".tmp" + process.pid;
+                try { fs.writeFileSync(tmpF, bufF); fs.renameSync(tmpF, _arqF); }
+                catch (_eF) { try { if (fs.existsSync(tmpF)) fs.unlinkSync(tmpF); } catch(_) {} fs.writeFileSync(_arqF, bufF); }
+                var _ixS = _lerIndiceFotos(); _ixS[_nomeF] = {id: _idF, ts: Date.now()};
+                if (!_salvarIndice(_ixS)) logTs("AVISO /api/foto-vendedor: o índice das fotos não pôde ser gravado.");
+                logTs("Foto do vendedor atualizada: " + _textoSeguroLog(_nomeF, 60) + " (" + bufF.length + " bytes).");
+                broadcastSSE({type: "fotos"});
+                sendJson({ok: true, foto: "/foto-vendedor/" + _idF + ".jpg?v=" + _ixS[_nomeF].ts});
+            } catch (eF) {
+                logTs("ERRO /api/foto-vendedor: " + eF.message);
+                if (!res.headersSent) sendJson({ok:false, erro:eF.message}, 500);
+            }
+        });
+        return;
+    }
     // /api/upload-logo POST (v2.28.0) — logo dos painéis de tela única. Grava SÓ o
     // logo-painel.png: o favicon.png (ícone do sistema, da aba e da bandeja) não muda.
     // Mesmas regras do ícone: só no computador do servidor, PNG/ICO/JPEG, até 2 MB.

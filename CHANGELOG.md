@@ -7,7 +7,7 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.30.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.31.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.35.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
@@ -24,9 +24,9 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -41,6 +41,16 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.31.0 — 2026-11-17
+
+**Fotos dos vendedores e ajustes na página de configurações.**
+
+- **Fotos dos vendedores** (usadas pelos painéis):
+  - ficam na pasta `fotos-vendedores`, com um índice por nome do vendedor (sem acentos e em maiúsculas);
+  - rotas: `GET /api/fotos-vendedores` (lista), `GET /foto-vendedor/<id>.jpg` (a foto), `POST /api/foto-vendedor?nome=...` (JPEG ou PNG, até 1 MB) e `POST /api/remover-foto-vendedor?nome=...`;
+  - a troca e a remoção funcionam só no computador do servidor, como o logo; as telas abertas recebem o aviso e atualizam as fotos.
+- **Página de configurações:** os campos lado a lado ficam alinhados mesmo quando um rótulo ocupa duas linhas, e os campos numéricos não mostram mais as setas do navegador (apareciam só em um deles). O texto do nome do sistema cita também o cabeçalho dos painéis.
 
 ### 2.30.0 — 2026-11-17
 
@@ -1409,6 +1419,17 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.7.0 — 2026-11-17
+
+**Busca com botão de limpar, Pagamento mais perto do Total e fotos dos vendedores.** (1.7.0 é a versão da pasta.)
+
+- **Fotos dos vendedores** (`painel.js` 1.5.0, `base.css` 1.5.0, `motor.js` 1.3.0): clicar no avatar (as iniciais) escolhe uma foto. O navegador recorta em quadrado, com o enquadramento puxado para cima (onde costuma estar o rosto), reduz para 256×256 e salva como JPEG leve. Com foto, o clique oferece Trocar foto ou Remover foto. Clicar no nome continua filtrando pelo vendedor.
+- **Dicas de itens e de pagamento** com um item (ou uma forma) por linha, com o valor.
+- **Várias formas de pagamento** aparecem como a primeira e "+1", "+2"… (todas, com os valores, ficam na dica), sem cortar as etiquetas.
+
+- **Botão X na busca** (`painel.js` 1.5.0, `base.css` 1.5.0): com texto no campo, aparece um X no lugar do atalho "/". Ele limpa a busca e a lista. Também aparece e some quando a busca muda por Proibidos, Limpar filtros ou Esc.
+- **Coluna Pagamento mais estreita** (`base.css` 1.5.0): fica mais perto do Total, e os Itens ganham o espaço.
 
 ### 1.6.0 — 2026-11-17
 

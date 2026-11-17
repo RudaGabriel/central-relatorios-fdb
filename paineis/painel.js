@@ -1,6 +1,8 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.4.0
- *   1.4.0 - 2026-11-17 - Ícones SVG no lugar de símbolos de texto: ordenação da tabela e "Todos" dos vendedores.
+ * @version 1.5.0
+ *   1.5.0 - 2026-11-17 - Botão X na busca (limpa o campo) quando há texto, no lugar do atalho "/"; foto do vendedor
+ *                        (clique no avatar: recorte e redução automáticos); dicas de itens e pagamentos com um por
+ *                        linha; várias formas de pagamento como "Pix +1".
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -72,7 +74,11 @@
   // ── Linha da tabela ─────────────────────────────────────────────────────────
   function card(x){
     const en = E(), es = en.esc, q = qProd(x);
-    const it = x.itens.map(i => i.aj ? i.d + (i.tot != null ? " " + num(i.tot) : "") : qtd(i.q) + "× " + i.d).join(" · ");
+    const itTxt = i => i.aj ? i.d + (i.tot != null ? " " + num(i.tot) : "") : qtd(i.q) + "× " + i.d;
+    const it = x.itens.map(itTxt).join(" · ");
+    // Dica dos itens e do pagamento (v1.5.0): um item (ou uma forma de pagamento) por linha.
+    const itDica = x.itens.map(i => itTxt(i) + (!i.aj && i.tot != null ? " — " + num(i.tot) : "")).join("\n");
+    const pgDica = formasDe(x).map(f => f.k + (f.v != null ? " — " + en.fmt(f.v) : "")).join("\n");
     const dsc = x.dsc ? `<em class="c-dsc mn" title="${es(descTxt(x.dsc))}">${x.dsc.pct != null ? "−" + pctDesc(x.dsc.pct) + "%" : "desc."}</em>` : "";
     const fs = formasDe(x);
     const cli = x.cli || x.nat || "";
@@ -83,15 +89,105 @@
       `<span class="c-caixa mn">${es(x.cx || "—")}</span>` +
       `<span class="c-vendedor" title="${es(x.vend)}">${es(x.vend)}</span>` +
       `<span class="c-cliente${cli ? "" : " vz"}" title="${es(cli)}">${es(cli || "—")}</span>` +
-      `<span class="c-itens" title="${es(it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span></span>` +
+      `<span class="c-itens" title="${es(itDica || it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span></span>` +
       `<span class="c-desc">${dsc}</span>` +
-      `<span class="c-pag">${fs.map(f => `<i title="${es(f.k)}${f.v != null ? " · " + es(en.fmt(f.v)) : ""}">${es(f.k)}${f.v != null && fs.length > 1 ? " <em class='mn'>" + num(f.v) + "</em>" : ""}</i>`).join("")}</span>` +
+      // Várias formas: a primeira e "+N" (todas, com os valores, ficam na dica), para caberem sem corte.
+      `<span class="c-pag" title="${es(pgDica)}">${fs.length ? `<i>${es(fs[0].k)}</i>` + (fs.length > 1 ? `<i class="pgMais mn">+${fs.length - 1}</i>` : "") : ""}</span>` +
       `<span class="c-total mn">${num(x.tot)}</span></div>`;
   }
 
   // ── Vendedor (linha do ranking) ─────────────────────────────────────────────
   const AV = ["#e542a3", "#1f7aec", "#d16b00", "#00a884", "#7f66ff", "#c4532c", "#027eb5", "#a62c71", "#0f766e", "#b45309"];
   const corAv = s => { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV[h % AV.length]; };
+  // ── Fotos dos vendedores (v1.5.0) ──────────────────────────────────────────
+  // Clicar no avatar (as iniciais) escolhe uma foto. O navegador já converte: recorta em quadrado
+  // (com o enquadramento puxado para cima, onde costuma estar o rosto), reduz para 256×256 e envia
+  // como JPEG leve. As fotos valem para todos os aparelhos e só são trocadas no computador do servidor.
+  let fotos = {}, fotoIn = null, fotoAlvo = "", fotoMenu = null;
+  const normVend = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim().slice(0, 120);
+  function avatar(nome){
+    const es = E().esc;
+    if (!nome) return `<span class="vd-av" style="--av:var(--ac)">${ICO_SOMA}</span>`;
+    const url = fotos[normVend(nome)];
+    const dica = url ? "Clique para trocar ou remover a foto" : "Clique para colocar a foto do vendedor";
+    return `<span class="vd-av${url ? " comFoto" : ""}" data-foto-vend="${es(nome)}" role="button" tabindex="0" title="${dica}" style="--av:${corAv(nome)}">` +
+      (url ? `<img src="${es(url)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.remove('comFoto');this.remove()">` : "") +
+      `<b>${es(iniciais(nome))}</b></span>`;
+  }
+  async function carregarFotos(){
+    try { const r = await fetch("/api/fotos-vendedores", {cache: "no-store", credentials: "same-origin"}); const j = await r.json(); fotos = (j && j.ok && j.fotos && typeof j.fotos === "object") ? j.fotos : {}; }
+    catch (e) { return; }
+    try { E().render(); } catch (e) {}
+  }
+  function fecharFotoMenu(){ if (fotoMenu) { fotoMenu.remove(); fotoMenu = null; } }
+  function abrirFotoMenu(av, nome){
+    fecharFotoMenu();
+    fotoMenu = document.createElement("div"); fotoMenu.className = "fotoMenu"; fotoMenu.setAttribute("role", "menu");
+    fotoMenu.innerHTML = `<button type="button" data-fm="trocar" role="menuitem">Trocar foto</button><button type="button" data-fm="remover" role="menuitem">Remover foto</button>`;
+    document.body.appendChild(fotoMenu);
+    const z = zLer(), r = av.getBoundingClientRect(), w = fotoMenu.offsetWidth * z, a = fotoMenu.offsetHeight * z;
+    let x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6; if (y + a > innerHeight - 8) y = Math.max(8, r.top - a - 6);
+    fotoMenu.style.left = Math.round(x / z) + "px"; fotoMenu.style.top = Math.round(y / z) + "px";
+    fotoMenu.addEventListener("click", e => { const b = e.target.closest("[data-fm]"); if (!b) return; e.stopPropagation(); fecharFotoMenu(); if (b.dataset.fm === "trocar") escolherFoto(nome); else removerFoto(nome); });
+    const f = fotoMenu.querySelector("button"); if (f) f.focus({preventScroll: true});
+  }
+  function escolherFoto(nome){
+    fotoAlvo = nome;
+    if (!fotoIn) {
+      fotoIn = document.createElement("input"); fotoIn.type = "file"; fotoIn.accept = "image/*"; fotoIn.hidden = true;
+      fotoIn.addEventListener("change", () => { const f = fotoIn.files && fotoIn.files[0]; fotoIn.value = ""; if (f && fotoAlvo) enviarFoto(fotoAlvo, f); });
+      document.body.appendChild(fotoIn);
+    }
+    fotoIn.click();
+  }
+  // Recorta em quadrado (puxado para cima) e reduz para 256×256 em JPEG. Devolve um Blob ou null.
+  function converterFoto(arq){
+    return new Promise(ok => {
+      const url = URL.createObjectURL(arq), img = new Image();
+      img.onload = () => {
+        try {
+          const L = 256, w = img.naturalWidth, h = img.naturalHeight, lado = Math.min(w, h);
+          if (!lado) { URL.revokeObjectURL(url); ok(null); return; }
+          const sx = (w - lado) / 2, sy = h > w ? (h - lado) * 0.3 : 0;
+          const c = document.createElement("canvas"); c.width = L; c.height = L;
+          const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, L, L);
+          g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+          g.drawImage(img, sx, sy, lado, lado, 0, 0, L, L);
+          URL.revokeObjectURL(url);
+          c.toBlob(b => ok(b && b.size ? b : null), "image/jpeg", 0.86);
+        } catch (e) { URL.revokeObjectURL(url); ok(null); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); ok(null); };
+      img.src = url;
+    });
+  }
+  async function enviarFoto(nome, arq){
+    const en = E();
+    if (!/^image\//.test(arq.type || "image/")) { en.toast("<b>Foto</b> · Escolha um arquivo de imagem."); return; }
+    if (arq.size > 25 * 1024 * 1024) { en.toast("<b>Foto</b> · Imagem muito grande (máximo de 25 MB)."); return; }
+    const blob = await converterFoto(arq);
+    if (!blob) { en.toast("<b>Foto</b> · Não foi possível abrir esta imagem. Use uma foto JPEG ou PNG."); return; }
+    let r = null, j = null;
+    try { r = await fetch("/api/foto-vendedor?nome=" + encodeURIComponent(nome), {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: blob, credentials: "same-origin"}); } catch (e) { r = null; }
+    if (!r) { en.toast("<b>Foto</b> · Sem conexão com o servidor. Tente novamente."); return; }
+    try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc((j && j.erro) || "Não foi possível salvar a foto.")); return; }
+    if (j.foto) fotos[normVend(nome)] = j.foto;
+    en.render(); en.toast("<b>Foto</b> · Foto de " + en.esc(nome) + " atualizada.");
+  }
+  async function removerFoto(nome){
+    const en = E(); let r = null, j = null;
+    try { r = await fetch("/api/remover-foto-vendedor?nome=" + encodeURIComponent(nome), {method: "POST", credentials: "same-origin"}); } catch (e) { r = null; }
+    if (!r) { en.toast("<b>Foto</b> · Sem conexão com o servidor. Tente novamente."); return; }
+    try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc((j && j.erro) || "Não foi possível remover a foto.")); return; }
+    delete fotos[normVend(nome)]; en.render(); en.toast("<b>Foto</b> · Foto de " + en.esc(nome) + " removida.");
+  }
+  function cliqueAvatar(av){
+    const nome = av.dataset.fotoVend || ""; if (!nome) return;
+    if (fotos[normVend(nome)]) abrirFotoMenu(av, nome); else escolherFoto(nome);
+  }
+
   const iniciais = s => { const p = String(s || "").replace(/[^\p{L}\p{N}\s]/gu, "").split(/\s+/).filter(Boolean); return (p.length > 1 ? p[0][0] + p[p.length - 1][0] : (p[0] || "?").slice(0, 2)).toUpperCase(); };
   let porVend = {};
   function calcVend(){
@@ -105,7 +201,7 @@
     const sp = v.v ? (porVend[v.v] || {}) : null;
     const barra = sp ? en.T.concat(["Recebimento"]).filter(t => sp[t]).map(t => `<i style="width:${pct(sp[t], v.tot || 1).toFixed(2)}%;background:${COR[t]}" title="${t}: ${es(en.fmt(sp[t]))}"></i>`).join("") : `<i style="width:100%"></i>`;
     return `<div class="vd${on ? " on" : ""}" data-vend="${v.v ? es(v.v) : ""}" title="${v.v ? es(v.v) : "Todos os vendedores"}">` +
-      `<span class="vd-r mn">${v.v ? k + 1 : ICO_SOMA}</span><span class="vd-av" style="--av:${v.v ? corAv(v.v) : "var(--ac)"}">${v.v ? es(iniciais(v.v)) : ICO_SOMA}</span><span class="vd-n">${v.v ? es(v.v) : "Todos"}</span>` +
+      `<span class="vd-r mn">${v.v ? k + 1 : ICO_SOMA}</span>${avatar(v.v)}<span class="vd-n">${v.v ? es(v.v) : "Todos"}</span>` +
       `<span class="vd-t mn">${num(v.tot)}</span><span class="vd-p mn">${v.v ? pctTxt(p) : "100%"}</span>` +
       `<span class="vd-s">${en.pl(v.q)} · ticket <b class="mn">${num(tk)}</b></span><span class="vd-b">${barra}</span></div>`;
   }
@@ -203,6 +299,7 @@
     f.classList.toggle("vazio", !ch.length);
     const bl = $("#btnLimpar"); if (bl) { bl.disabled = !ch.length && ord.k === "hora" && ord.d === -1; }
     const bp = $("#btnProib"); if (bp) bp.setAttribute("aria-pressed", PROIB_RE.test(en.st.q) ? "true" : "false");
+    buscaX();
   }
 
   // ── Dica do gráfico de horas (v1.2.0) ───────────────────────────────────────
@@ -351,12 +448,34 @@
     $$(".logo").forEach(l => { l.setAttribute("role", "button"); l.tabIndex = 0; l.title = "Clique para trocar o logo"; l.setAttribute("aria-label", "Trocar o logo"); });
   }
 
+  // ── Botão de limpar a busca (v1.5.0) ────────────────────────────────────────
+  // Com texto na busca, aparece um X (no lugar do atalho "/") que limpa o campo e a lista. Também
+  // acompanha as mudanças feitas por Proibidos, Limpar filtros e Esc (pRodape chama buscaX()).
+  function buscaX(){
+    const q = $("#q"); if (!q) return;
+    const lb = q.closest(".busca") || q.parentNode; if (lb) lb.classList.toggle("temQ", !!q.value);
+  }
+  function prepararBusca(){
+    const q = $("#q"); if (!q) return;
+    const lb = q.closest(".busca") || q.parentNode; if (!lb || lb.querySelector(".buscaX")) return;
+    const x = document.createElement("button");
+    x.type = "button"; x.className = "buscaX"; x.title = "Limpar a busca"; x.setAttribute("aria-label", "Limpar a busca");
+    x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+    const kbd = lb.querySelector("kbd"); if (kbd) lb.insertBefore(x, kbd); else lb.appendChild(x);
+    x.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      q.value = ""; E().st.q = ""; E().render(); buscaX(); q.focus({preventScroll: true});
+    });
+    q.addEventListener("input", buscaX);
+    buscaX();
+  }
+
   // ── Interação ───────────────────────────────────────────────────────────────
   function aba(n){ document.body.dataset.aba = n; $$("button[data-aba]").forEach(b => b.classList.toggle("on", b.dataset.aba === n)); try { sessionStorage.setItem("fdb_aba", n); } catch (e) {} }
   function intro(){
     esqueletos(); temaInit();
     let a = "vendas"; try { a = sessionStorage.getItem("fdb_aba") || "vendas"; } catch (e) {}
-    if (!["resumo", "vendas", "pagtos", "equipe"].includes(a)) a = "vendas"; aba(a); prepararLogos();
+    if (!["resumo", "vendas", "pagtos", "equipe"].includes(a)) a = "vendas"; aba(a); prepararLogos(); prepararBusca();
     document.addEventListener("click", e => {
       const o = e.target.closest("[data-ord]"); if (o) { const k = o.dataset.ord; if (ord.k === k) ord.d = -ord.d; else { ord.k = k; ord.d = (k === "vendedor" || k === "tipo" || k === "cliente") ? 1 : -1; } marcaOrd(); E().render(); return; }
       const p = e.target.closest("[data-pg]"); if (p) { ext.pg = ext.pg === p.dataset.pg ? null : p.dataset.pg; E().render(); return; }
@@ -377,6 +496,18 @@
     document.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else if (hrAtual) hrEsconder(); }, {passive: true});
     document.addEventListener("pointerdown", e => { if (e.pointerType !== "touch") return; const c = e.target.closest && e.target.closest(".hr-c"); if (c) hrMostrar(c, e.clientX, e.clientY); else hrEsconder(); }, {passive: true});
     document.addEventListener("scroll", hrEsconder, {passive: true, capture: true});
+    // Avatar do vendedor: escolhe a foto sem filtrar pela pessoa (captura, antes do clique da linha).
+    document.addEventListener("click", e => {
+      const av = e.target.closest && e.target.closest(".vd-av[data-foto-vend]");
+      if (av) { e.preventDefault(); e.stopPropagation(); cliqueAvatar(av); return; }
+      if (fotoMenu && !fotoMenu.contains(e.target)) fecharFotoMenu();
+    }, true);
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && fotoMenu) { fecharFotoMenu(); return; }
+      const av = document.activeElement && document.activeElement.closest && document.activeElement.closest(".vd-av[data-foto-vend]");
+      if (av && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); e.stopPropagation(); cliqueAvatar(av); }
+    }, true);
+    carregarFotos();
     // Dicas personalizadas no lugar do title do navegador (mouse e teclado).
     document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380); }, {passive: true});
     document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120); });
@@ -546,5 +677,5 @@
     addEventListener("resize", fecharMenu);
   }
 
-  window.PAINEL = {recarregar: recLigada, limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
+  window.PAINEL = {fotosMudaram: carregarFotos, recarregar: recLigada, limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
 })();

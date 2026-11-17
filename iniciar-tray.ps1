@@ -3,12 +3,12 @@
 # Instancia unica via mutex global.
 # Abrir Relatorio: se ja tem aba aberta (SSE), foca ela. Se nao, abre browser.
 #
-# @version 1.9.1
+# @version 1.9.2
 # @author Ruda Gabriel
 # @changelog
 #   (Historico completo das versoes: CHANGELOG.md no repositorio.)
-#   1.9.1 - 2026-11-16 - Diagnostico da inicializacao automatica: tarefa de outra pasta (outro
-#     sistema no mesmo computador) so' gera aviso quando nenhuma tarefa abre esta pasta.
+#   1.9.2 - 2026-11-17 - Status do cabecalho do menu sem o simbolo de bolinha (a cor do texto indica
+#     o estado).
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -1283,14 +1283,14 @@ function Update-Cabecalho {
     try {
         $db = Invoke-Api "/api/db-status" -Timeout 1
         if ($null -eq $db) {
-            $cabStatus.Text = L "\u25cf Servidor fora do ar"
+            $cabStatus.Text = L "Servidor fora do ar"
             $cabStatus.ForeColor = [System.Drawing.Color]::FromArgb(220, 38, 38)
             $cabContagem.Visible = $false
         } else {
             $telas = 0; $sc = Invoke-Api "/api/sse-clients" -Timeout 1; if ($sc) { $telas = [int]$sc.clients }
             $aparelhos = 0; $dv = Invoke-Api "/api/dispositivos" -Timeout 1; if ($dv) { $aparelhos = [int]$dv.total }
             $bancoTxt = if ($db.ok) { L "banco conectado" } elseif ($db.scanning) { L "procurando o banco..." } else { L "banco sem conex\u00e3o" }
-            $cabStatus.Text = (L "\u25cf No ar \u00b7 ") + $bancoTxt
+            $cabStatus.Text = (L "No ar \u00b7 ") + $bancoTxt
             $cabStatus.ForeColor = if ($db.ok) { [System.Drawing.Color]::FromArgb(22, 163, 74) } else { [System.Drawing.Color]::FromArgb(217, 119, 6) }
             $cabContagem.Text = [string]$telas + $(if ($telas -eq 1) { L " tela aberta" } else { L " telas abertas" }) + (L " \u00b7 ") + [string]$aparelhos + $(if ($aparelhos -eq 1) { L " aparelho na rede" } else { L " aparelhos na rede" })
             $cabContagem.Visible = $true

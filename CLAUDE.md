@@ -35,6 +35,13 @@
   "dá pra", "de novo", "sozinho" no sentido de "automaticamente"). O que não estiver
   formal é reescrito formalmente no mesmo PR. Nos arquivos ASCII do Windows, os acentos
   vão como `\uXXXX` (tray) — nunca texto sem acento na tela.
+- **Sem emojis — ícones em SVG:** nenhum emoji, emoticon ou símbolo de texto usado como
+  ícone (lupa, engrenagem, marca de confirmação, bolinha, setas de menu, sol e lua, três
+  barras, somatório, triângulos de ordenação etc.) no projeto — tela, avisos, menus, README, CHANGELOG,
+  commits e PRs. Na tela, use ícones SVG no padrão do projeto (traço, `viewBox="0 0 24 24"`,
+  `stroke="currentColor"`, traço 2, pontas arredondadas; no CSS, máscara com SVG). Onde SVG
+  não é possível (`<option>`, bandeja do Windows, log), use só texto. Setas em frases
+  ("Configurações → Nesta tela") e no log continuam permitidas.
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII
   (acentos no tray como `\uXXXX`, convertidos por `L()`); preservar BOM/CRLF onde existir.
 - **Antes de entregar:** `npm test` verde; validar no navegador (Playwright) o que

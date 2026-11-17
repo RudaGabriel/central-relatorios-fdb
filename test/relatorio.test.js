@@ -226,10 +226,12 @@ test("padrão de fábrica: config.json do repositório sem dados de loja e sem p
     assert.ok(html.includes("const proibidosPadrao=[];"), "a lista padrão de proibidos deveria vir vazia");
 });
 
-test("gerador: gerencial sem total (aguardando documento fiscal) com pagamento e itens é venda gerencial, não recebimento", () => {
-    // Hora 30 min atrás com janela de correção de 5 min: a correção automática de horário
-    // (gerencial recente passa a usar a hora atual) não interfere, a qualquer hora do dia.
-    const horaA = horaHaMin(30);
+const _minDoDia = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+test("gerador: gerencial sem total (aguardando documento fiscal) com pagamento e itens é venda gerencial, não recebimento",
+    { skip: _minDoDia() < 8 ? "logo depois da meia-noite (precisa de uma hora de hoje fora da janela de correção)" : false }, () => {
+    // Hora de hoje até 30 min atrás (logo depois da meia-noite, menos) com janela de correção de 5 min:
+    // a correção automática de horário (gerencial recente passa a usar a hora atual) não interfere.
+    const horaA = horaHaMin(Math.min(30, _minDoDia() - 6));
     const dir = montarPasta({ janelaCorrecaoHoraMin: 5 }, {
         nfce: [
             // A: "Finalizada - Aguardando Documento Fiscal" — o PDV grava TOTAL = 0 até emitir a nota
@@ -1302,4 +1304,21 @@ test("conversões gerencial → NFC-e (inclusive as marcadas como convertidas pe
         assert.strictEqual((await fetch(srv.base + "/api/remover-logo", { method: "POST" })).status, 403);
         assert.ok(!fs.existsSync(path.join(dir, "logo-painel.png")));
     } finally { srv.parar(); }
+});
+
+test("sem emojis nem símbolos de texto como ícone (os ícones da tela são SVG)", () => {
+    const arqs = ["gerar-relatorio-html.js", "servidor-relatorio.js", "iniciar-tray.ps1", "api.ps1", "README.md", "CHANGELOG.md", "CLAUDE.md"]
+        .concat(fs.readdirSync(path.join(RAIZ_PROJETO, "paineis")).map(f => "paineis/" + f));
+    // Emojis, símbolos diversos (sol, lua, engrenagem, marcas), formas geométricas (bolinhas, triângulos, setas de
+    // menu), seletor de variação e o somatório; também escritos como \uXXXX (bandeja e trechos injetados).
+    const proibido = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{25A0}-\u{25FF}\u{2300}-\u{23FF}\u{FE0F}\u{2211}]|\\u(?:25[a-f][0-9a-f]|2[67][0-9a-f]{2}|21bb|2211)/iu;
+    const achados = [];
+    for (const f of arqs) {
+        fs.readFileSync(path.join(RAIZ_PROJETO, f), "utf8").split("\n").forEach((l, i) => {
+            // Exceção: expressão regular que reconhece marcadores de lista em texto colado (não aparece na tela).
+            if (/semMarc=/.test(l)) return;
+            if (proibido.test(l)) achados.push(f + ":" + (i + 1) + ": " + l.trim().slice(0, 100));
+        });
+    }
+    assert.deepStrictEqual(achados, [], "emoji ou símbolo de texto encontrado");
 });

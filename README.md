@@ -1,19 +1,19 @@
 <div align="center">
 
-# 📊 Central de Relatórios FDB
+# Central de Relatórios FDB
 
 ### Relatórios de vendas do PDV em tempo real, para lojas com banco Firebird
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.28.0" src="https://img.shields.io/badge/servidor-v2.28.0-2563EB?style=flat">
-<img alt="gerador: v3.34.0" src="https://img.shields.io/badge/gerador-v3.34.0-2563EB?style=flat">
-<img alt="bandeja: v1.9.1" src="https://img.shields.io/badge/bandeja-v1.9.1-2563EB?style=flat">
+<img alt="servidor: v2.29.0" src="https://img.shields.io/badge/servidor-v2.29.0-2563EB?style=flat">
+<img alt="gerador: v3.35.0" src="https://img.shields.io/badge/gerador-v3.35.0-2563EB?style=flat">
+<img alt="bandeja: v1.9.2" src="https://img.shields.io/badge/bandeja-v1.9.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
 <img alt="banco: somente leitura" src="https://img.shields.io/badge/banco-somente%20leitura-DC2626?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTEyIDIyczgtNCA4LTEwVjVsLTgtMy04IDN2N2MwIDYgOCAxMCA4IDEweicvPjxwYXRoIGQ9J205IDEyIDIgMiA0LTQnLz48L3N2Zz4%3D&logoColor=white">
 <img alt="funciona: sem internet" src="https://img.shields.io/badge/funciona-sem%20internet-0891B2?style=flat">
-<img alt="testes: 37 passando" src="https://img.shields.io/badge/testes-37%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
+<img alt="testes: 38 passando" src="https://img.shields.io/badge/testes-38%20passando-22C55E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScyLjInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc%2BPHBhdGggZD0nTTkgMnY2TDQgMTlhMiAyIDAgMCAwIDEuOCAzaDEyLjRhMiAyIDAgMCAwIDEuOC0zTDE1IDhWMicvPjxwYXRoIGQ9J004IDJoOCcvPjxwYXRoIGQ9J003IDE1aDEwJy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="licença: proprietária" src="https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-6B7280?style=flat">
 <img alt="autor: Ruda Gabriel" src="https://img.shields.io/badge/autor-Ruda%20Gabriel-7C3AED?style=flat">
 
@@ -48,18 +48,18 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 
 | | |
 |---|---|
-| ⚡ **Tempo real** | Venda nova aparece em ~0,3 s, sem apertar nada — com ou sem recarregar a página |
-| 📱 **Computador e celular** | Layout próprio para cada tela; abre no celular por QR code |
-| 🌍 **De qualquer lugar** | Pelo Tailscale (grátis): 4G ou outro Wi-Fi, sem abrir porta no roteador e sem expor nada na internet |
-| 👤 **Cada aparelho do seu jeito** | Avisos, proibidos, teclas, apelido e opções de tela por aparelho — só o computador do servidor muda para todos |
-| 🔒 **Somente leitura** | Nenhum `INSERT`, `UPDATE` ou `DELETE` — o banco do caixa nunca é alterado |
-| 🌐 **Sem internet** | Tudo local: gráficos, ícones e QR code são gerados pelo próprio sistema |
-| 🛟 **Recuperação automática** | Watchdog, reconexão automática com o banco e aviso na tela quando o servidor cai |
+| **Tempo real** | Venda nova aparece em ~0,3 s, sem apertar nada — com ou sem recarregar a página |
+| **Computador e celular** | Layout próprio para cada tela; abre no celular por QR code |
+| **De qualquer lugar** | Pelo Tailscale (grátis): 4G ou outro Wi-Fi, sem abrir porta no roteador e sem expor nada na internet |
+| **Cada aparelho do seu jeito** | Avisos, proibidos, teclas, apelido e opções de tela por aparelho — só o computador do servidor muda para todos |
+| **Somente leitura** | Nenhum `INSERT`, `UPDATE` ou `DELETE` — o banco do caixa nunca é alterado |
+| **Sem internet** | Tudo local: gráficos, ícones e QR code são gerados pelo próprio sistema |
+| **Recuperação automática** | Watchdog, reconexão automática com o banco e aviso na tela quando o servidor cai |
 
 ---
 
 <a id="instalacao"></a>
-## 🚀 Instalação em 3 passos
+## Instalação em 3 passos
 
 > **Requisitos:** Windows 10 ou 11 · acesso ao Firebird do PDV (local ou na rede, porta 3050). O Node.js 18+ e o módulo `node-firebird` são instalados automaticamente.
 
@@ -67,7 +67,7 @@ Roda em segundo plano no Windows, com ícone na bandeja: inicia com o logon, se 
 2. **Execute `instalar-na-inicializacao.bat`.** Ele pede permissão de administrador, instala o que faltar, pergunta o nome da loja, libera a porta 7734 no firewall, cria a inicialização automática e já liga o servidor.
 3. **Abra o relatório:** duplo clique no ícone da bandeja ou `http://localhost:7734`.
 
-> 💡 Banco com senha própria? Defina `fbUser` e `fbPass` no `config.json`.
+> **Dica:** banco com senha própria? Defina `fbUser` e `fbPass` no `config.json`.
 > Só quer testar, sem inicialização automática? Execute `gerar_relatorio_do_dia.bat`.
 
 <details>
@@ -99,7 +99,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 ---
 
 <a id="uso"></a>
-## 🖥️ Uso no dia a dia
+## Uso no dia a dia
 
 | Quero… | Como |
 |---|---|
@@ -112,8 +112,8 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Forçar atualização | Botão **Atualizar** · bandeja → *Atualizar dados de hoje* |
 | Mudar o tema de cores | Botão **Tema** |
 | Usar um painel de tela única (tudo em uma tela) | Botão **Tema** → **Painéis de tela única** (veja [Painéis](#paineis)); para voltar, **Tema** → **Temas clássicos** |
-| Abrir o relatório clássico sem trocar o painel escolhido | No painel, **⚙ Configurações → Abrir o relatório clássico** · `http://IP:7734/?classico=1` |
-| Desempenho, atualização ou tamanho do texto num painel | **⚙ Configurações → Nesta tela** (os mesmos ajustes do relatório clássico) |
+| Abrir o relatório clássico sem trocar o painel escolhido | No painel, **Configurações → Abrir o relatório clássico** · `http://IP:7734/?classico=1` |
+| Desempenho, atualização ou tamanho do texto num painel | **Configurações → Nesta tela** (os mesmos ajustes do relatório clássico) |
 | Ocultar as vendas com itens proibidos num painel | Botão **Proibidos**, no topo da lista de vendas (clique de novo para mostrar) |
 | Tirar todos os filtros de um painel | Botão **Limpar filtros**, no topo da lista de vendas |
 | Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
@@ -138,16 +138,16 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 ---
 
 <a id="recursos"></a>
-## ✨ Recursos
+## Recursos
 
-### 🧾 Relatório
+### Relatório
 - **Hoje, uma data ou um período**, unindo as tabelas `NFCE` (Gerencial 99, NFC-e 65 e NF-e 55), `VENDAS` (NF-e) e `PAGAMENT` (formas de pagamento).
 - **Totais por tipo e por vendedor**, com quantidade e valor.
 - **Detalhe da venda:** itens, quantidades, preços, descontos, pagamentos, cliente, natureza da operação e hora.
 - **Reconciliação automática:** gerencial convertida em NFC-e ou NF-e não conta duas vezes; NF-e rejeitada pela SEFAZ é descartada; vendas aguardando autorização aparecem na hora, com rótulo próprio.
 - **Painel "Duplicatas"** para as gerenciais suprimidas, com *Manter todas*, *Perguntar depois* ou *Não perguntar mais*.
 
-### 🎨 Interface
+### Interface
 - **Duas categorias de tema**, separadas no menu **Tema**:
   - **Temas clássicos (7):** Escuro e Claro, mais 5 de estilo (HUD Ciano, Índigo Neon, Executivo, Âmbar Vidro e Brasa Noturna), que mudam também cantos, bordas, brilho e fundo do relatório de sempre.
   - **Painéis de tela única (6):** Relevo, Relevo escuro, Central de comando, Vidro, Nítido e Administrativo. São layouts próprios em que tudo cabe na tela e só a lista de vendas rola (veja [Painéis de tela única](#paineis)).
@@ -161,14 +161,14 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 - **Recarregamento sem piscar:** quando a página recarrega, ela volta no mesmo ponto da lista e com os mesmos filtros.
 - **Celular:** botão **voltar ao topo** depois de descer bastante; modo detalhado com a lista indo até o fim da tela no computador.
 
-### 🛠️ Operação
+### Operação
 - **Bandeja do Windows** com menu completo e ícones: status ao vivo, abrir, atualizar, período, telas abertas (trazer para frente, recarregar, enviar aviso, tema), dispositivos conectados, configurações, ferramentas (informações, copiar endereço, pasta, log, log ao vivo, `api.ps1`, programas), reiniciar e sair (ao sair, uma notificação perto do relógio confirma o encerramento, sem caixa para clicar em OK).
 - **Watchdog:** reinicia o servidor se cair ou se ficar ~60 s sem responder. Tolerante a máquina lenta (não reinicia à toa), registra no log o motivo de cada falha e o código de saída, e espera 1 min se o servidor cair várias vezes logo ao iniciar.
 - **Detecção do banco:** caminhos conhecidos → `config.json` → varredura da rede na porta 3050 → página para escolher o `SMALL.FDB`. Reconecta automaticamente quando o banco volta.
 - **Instalação automática de dependências** (Node.js com verificação de integridade e `node-firebird`).
 
 <details>
-<summary><b>⚡ Como a detecção em tempo real funciona por dentro</b></summary>
+<summary><b>Como a detecção em tempo real funciona por dentro</b></summary>
 
 - **Fast-poll** a partir de 15 ms numa conexão persistente, adaptativo (nunca ocupa mais de 1/3 do tempo do banco do caixa), separado por tipo (Gerencial, NFC-e e NF-e, inclusive a NF-e gravada só em `VENDAS`). Detecta venda nova e cancelamento; total que sobe ou desce; venda que muda de tipo; troca de vendedor, de número ou de forma de pagamento; NFC-e autorizada.
 - **Dividido pelos índices:** as tabelas com índice na data vão para a consulta rápida; as sem índice, para uma complementar mais espaçada. Ex.: `FastPoll: consulta rápida (NFCE, com índice) ~13 ms → a cada ~52 ms | complementar (PAGAMENT, VENDAS, sem índice) ~269 ms → a cada ~3228 ms`.
@@ -183,7 +183,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 ---
 
 <a id="celular"></a>
-## 📱 Celular e rede da loja
+## Celular e rede da loja
 
 - **Abrir no celular:** clique em **Celular** no topo do relatório (ou na bandeja → *Abrir no celular*) e aponte a câmera para o QR code. O celular precisa estar no **mesmo Wi-Fi**. O endereço é sempre o IP da máquina na rede (`http://IP:7734/`), e o QR code é gerado pelo próprio sistema, sem internet.
 - **Layout próprio:** a página rola inteira, cartões compactos, badges em pares "nome: valor", barra fixa com **Copiar** (todas as opções de cópia), **Vendas** (vai para a lista) e **Mais**.
@@ -208,7 +208,7 @@ O navegador não envia o nome de "Ajustes → Geral → Sobre"; o servidor pergu
 ---
 
 <a id="fora"></a>
-## 🌍 Acesso fora da loja (Tailscale)
+## Acesso fora da loja (Tailscale)
 
 Para abrir o relatório no 4G ou em outro Wi-Fi, use o **Tailscale** (gratuito). Ele cria uma rede **privada e criptografada** só entre os seus aparelhos: não abre porta no roteador e o relatório não fica exposto na internet. Só os seus aparelhos e quem você liberar acessam.
 
@@ -222,7 +222,7 @@ Para abrir o relatório no 4G ou em outro Wi-Fi, use o **Tailscale** (gratuito).
 Não precisa reiniciar o servidor nem mexer no roteador: o sistema detecta o Tailscale automaticamente, e a regra de firewall do instalador já vale para essa rede.
 
 <a id="compartilhar"></a>
-### 🤝 Liberar o acesso para outra pessoa (sem passar o seu e-mail)
+### Liberar o acesso para outra pessoa (sem passar o seu e-mail)
 
 Use o **compartilhamento de máquina** do Tailscale: a pessoa entra com a conta **dela** e você libera **só o computador da loja**. Ela não entra na sua conta, não vê seus outros aparelhos e você pode tirar o acesso quando quiser.
 
@@ -236,12 +236,12 @@ Use o **compartilhamento de máquina** do Tailscale: a pessoa entra com a conta 
 - O compartilhamento libera o computador inteiro para o aparelho dela (não só o relatório). O instalador do relatório só abre a porta 7734 no firewall do Windows; se você usa compartilhamento de pastas ou acesso remoto nesse computador, confira se eles não ficam liberados para a rede do Tailscale.
 - **Não use** "Invite users" (<https://login.tailscale.com/admin/users>) para isso: o convidado entra na **sua** rede e pode ver todos os seus aparelhos.
 
-> ⚠️ Túneis públicos (cloudflared, ngrok) deixam o endereço aberto na internet e não são recomendados. Se usar um, quem chega por ele é tratado como aparelho externo: não muda configurações do sistema, não troca o banco nem o ícone, não reinicia o servidor.
+> **Atenção:** túneis públicos (cloudflared, ngrok) deixam o endereço aberto na internet e não são recomendados. Se usar um, quem chega por ele é tratado como aparelho externo: não muda configurações do sistema, não troca o banco nem o ícone, não reinicia o servidor.
 
 ---
 
 <a id="aparelhos"></a>
-## 👤 Preferências de cada aparelho
+## Preferências de cada aparelho
 
 Cada celular ou computador tem as **suas** preferências. Quando um muda, os outros não são afetados:
 
@@ -258,7 +258,7 @@ Cada celular ou computador tem as **suas** preferências. Quando um muda, os out
 ---
 
 <a id="busca"></a>
-## 🔎 Busca e filtros
+## Busca e filtros
 
 A caixa de busca aceita filtros combináveis; a ajuda completa fica no botão **Ajuda**. Os botões **Todos / Gerencial / NFC-e / NF-e** restringem o tipo. A busca dos [painéis de tela única](#paineis) é a mesma, com os mesmos resultados.
 
@@ -279,7 +279,7 @@ A caixa de busca aceita filtros combináveis; a ajuda completa fica no botão **
 ---
 
 <a id="configuracao"></a>
-## ⚙️ Configuração (`config.json`)
+## Configuração (`config.json`)
 
 A maior parte pode ser editada pela própria tela (**Configurações**), no computador do servidor. Os outros aparelhos só mudam as **próprias** preferências (avisos, proibidos, teclas; veja [Celular](#celular)). As chaves:
 
@@ -305,7 +305,7 @@ A maior parte pode ser editada pela própria tela (**Configurações**), no comp
 ---
 
 <a id="leitura"></a>
-## 🔒 Somente leitura e segurança
+## Somente leitura e segurança
 
 O sistema **nunca escreve no banco do PDV** — nenhum `UPDATE`, `INSERT`, `DELETE` ou alteração de estrutura. Duas travas, no servidor e no gerador:
 
@@ -331,7 +331,7 @@ Verificado num Firebird 3 em uso: milhares de transações observadas em `MON$TR
 
 <a id="horario"></a>
 <details>
-<summary><b>🕐 Correção automática de horário (só na tela)</b></summary>
+<summary><b>Correção automática de horário (só na tela)</b></summary>
 
 Relógios de PDV adiantados ou atrasados embaralham a ordem do relatório. O sistema corrige **só na tela** — o banco nunca é alterado.
 
@@ -348,7 +348,7 @@ A janela fica em *Configurações → Janela de correção de horário* ou em `j
 ---
 
 <a id="paineis"></a>
-## 🖥️ Painéis de tela única
+## Painéis de tela única
 
 Uma categoria de temas própria, **separada dos temas clássicos**. Em vez de mudar só as cores, cada painel muda o layout inteiro. Tudo cabe em uma tela e **só a lista de vendas rola**. As informações são as mesmas do relatório, com as vendas reais, atualizadas ao vivo e somente leitura.
 
@@ -361,7 +361,7 @@ Uma categoria de temas própria, **separada dos temas clássicos**. Em vez de mu
 | **Central de comando** | Escuro e técnico: linhas finas, cantos de mira e números em destaque |
 | **Vidro** | Painéis de vidro fosco sobre um fundo de luzes suaves |
 | **Nítido** | Claro e plano: linhas finas e tipografia precisa, com o máximo de linhas na tela |
-| **Administrativo** | Neutro e moderno: menu lateral (que recolhe), cartões discretos com ícones, vendedores com avatar e modo **claro ou escuro** (botão ☀/☾; sem escolha, segue o modo do aparelho). Caixas fica ao lado de "Vendas por hora", e a coluna da direita reúne Por tipo, Formas de pagamento e Conversões em nota fiscal |
+| **Administrativo** | Neutro e moderno: menu lateral (que recolhe), cartões discretos com ícones, vendedores com avatar e modo **claro ou escuro** (botão de sol e lua; sem escolha, segue o modo do aparelho). Caixas fica ao lado de "Vendas por hora", e a coluna da direita reúne Por tipo, Formas de pagamento e Conversões em nota fiscal |
 
 Em todos os painéis você encontra:
 
@@ -382,14 +382,14 @@ Em todos os painéis você encontra:
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
   - no celular aparecem só os ícones.
 - **Logo e nome da loja:**
-  - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **⚙ Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;
+  - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;
   - a troca vale **somente para o logo dos painéis**, para todos os aparelhos, e só pode ser feita no computador do servidor. O **ícone do sistema (`favicon.png`)**, usado na aba do navegador, no relatório clássico e na bandeja, **não é alterado**;
   - **Logo padrão** volta a usar o ícone do sistema; sem nenhum dos dois, aparece "FDB";
   - o nome declarado em `appName` aparece no cabeçalho e no título da aba.
 - **Avisos** no mesmo padrão do relatório clássico (botão fechar e barra de tempo, sem repetir o mesmo aviso), nas cores de cada painel, e barras de rolagem nas cores do tema.
 - **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, itens (sem contar a linha de desconto), o desconto (percentual e valor), cada item com o valor e, em **Pagamento** (título centralizado), cada forma centralizada com o valor à direita e o total à esquerda com o valor à direita.
 - **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
-- **⚙ Configurações** (no cabeçalho de cada painel):
+- **Configurações** (no cabeçalho de cada painel):
   - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve), com os três botões na largura do menu. No **Leve**, saem o desfoque e as animações contínuas.
   - **Nesta tela → Atualização:** ligada (padrão), a página é recarregada como no F5 a cada venda nova (a busca e os filtros são limpos); desligada, as vendas novas entram sem recarregar. É a mesma opção do relatório clássico.
   - **Nesta tela → Tamanho do texto:** de 80% a 140% (A− / Padrão / A+), separado para computador e celular, como no relatório clássico.
@@ -399,14 +399,14 @@ Em todos os painéis você encontra:
 
 **Atalhos úteis:**
 
-- **⚙ Configurações → Abrir o relatório clássico** (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para o **QR code** e as demais opções do relatório clássico.
+- **Configurações → Abrir o relatório clássico** (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para o **QR code** e as demais opções do relatório clássico.
 - Endereço direto de cada painel: `http://localhost:7734/painel/relevo/` (troque `relevo` por `relevo-escuro`, `comando`, `vidro`, `nitido` ou `administrativo`). Para um período, acrescente `?i=2026-11-01&f=2026-11-13`.
 - O controle remoto também troca para um painel, por exemplo `.\api.ps1 -Endpoint tema -Payload vidro` (veja [API](#api)).
 
 > Os painéis abrem pelo servidor do relatório. O arquivo de relatório aberto direto do disco (gerado pelos `.bat`) continua sempre no layout clássico.
 
 <a id="api"></a>
-## 🔌 API e linha de comando
+## API e linha de comando
 
 Tudo responde na porta configurada (padrão `7734`). O **`api.ps1`** (PowerShell) dá acesso a todas as rotas, com menu interativo — use na própria máquina ou em outro computador da rede:
 
@@ -460,7 +460,7 @@ No `status`, `-1` significa "ainda não lido do banco"; a resposta traz `obs` ex
 
 ---
 
-## 📜 Logs e diagnóstico
+## Logs e diagnóstico
 
 Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA] [HH:MM:SS] [CATEGORIA] mensagem`. Pela bandeja: *Ferramentas → Abrir o log* ou *Acompanhar o log ao vivo*.
 
@@ -478,14 +478,14 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.28.0 | Gerador v3.34.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.29.0 | Gerador v3.35.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
 
 ---
 
-## 🧰 Tecnologias e bibliotecas
+## Tecnologias e bibliotecas
 
 Uma única biblioteca externa — o resto é do próprio Node.js, do Windows ou feito aqui mesmo (por isso funciona sem internet).
 
@@ -503,7 +503,7 @@ Uma única biblioteca externa — o resto é do próprio Node.js, do Windows ou 
 
 ---
 
-## 🧪 Testes
+## Testes
 
 Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` responde às consultas.
 
@@ -511,20 +511,20 @@ Rodam **sem Firebird real** — um banco simulado em `test/mock-firebird` respon
 npm test
 ```
 
-No Windows: duplo clique em **`test\executar-testes.bat`**. Os 37 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento), as **conversões em nota fiscal**, o **logo próprio dos painéis** (sem alterar o ícone do sistema) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
+No Windows: duplo clique em **`test\executar-testes.bat`**. Os 38 testes cobrem a garantia de **somente leitura**, a atualização numa rajada de vendas, XSS, o cache de horas, o painel de duplicatas, a correção de horário, os dispositivos conectados, o controle remoto, a validação das rotas, as **preferências por aparelho** (isolamento, apelido, edição pelo servidor, aplicar a todos), a proteção contra **túnel/proxy**, o botão "Voltar" da página de configurações (só dentro deste servidor), a recarga automática com o **relógio do aparelho atrasado** (sem recarregar sem parar), a **inicialização automática** registrada para o usuário que usa o computador, a venda gerencial **aguardando documento fiscal** (continua gerencial, não vira recebimento), as **conversões em nota fiscal**, o **logo próprio dos painéis** (sem alterar o ícone do sistema), a ausência de **emojis** (todos os ícones são SVG) e os **painéis de tela única** (rotas só da lista, temas clássicos intactos, menu com as duas categorias, prévias com as cores reais dos temas, a mesma busca e os mesmos proibidos do relatório clássico e o nome da loja). Alguns testes de horário são pulados de propósito logo depois da meia-noite.
 
 ---
 
-## 🗂️ Como é organizado
+## Como é organizado
 
 ```
  Windows (logon)
-   └─ Tarefa agendada (espera a rede) ─▶ launcher.vbs ─▶ iniciar-tray.ps1   (bandeja + watchdog)
-                                                            └─▶ node servidor-relatorio.js
+   └─ Tarefa agendada (espera a rede) ──> launcher.vbs ──> iniciar-tray.ps1   (bandeja + watchdog)
+                                                            └──> node servidor-relatorio.js
                                                                   ├─ fast-poll ──────┐
-                                                                  ├─ verificação     ├─▶ Firebird (SMALL.FDB) — SOMENTE LEITURA
+                                                                  ├─ verificação     ├──> Firebird (SMALL.FDB) — SOMENTE LEITURA
                                                                   └─ node gerar-relatorio-html.js ─┘
- Navegador (computador ou celular da rede ou via Tailscale) ◀── HTTP :7734 + SSE
+ Navegador (computador ou celular da rede ou via Tailscale) <── HTTP :7734 + SSE
 ```
 
 <details>
@@ -555,7 +555,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 37 testes cobrem 
 ---
 
 <a id="problemas"></a>
-## 🩺 Solução de problemas
+## Solução de problemas
 
 | Sintoma | O que fazer |
 |---|---|
@@ -588,7 +588,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 37 testes cobrem 
 
 <div align="center">
 
-## 👤 Autoria e créditos
+## Autoria e créditos
 
 **A Central de Relatórios FDB foi criada, desenvolvida e é mantida por Ruda Gabriel** — concepção, regras de negócio, código, testes e manutenção.
 

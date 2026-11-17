@@ -26,7 +26,7 @@ Versões em uso hoje:
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -1419,6 +1419,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.9.0 — 2026-11-17
+
+**Rodapé da lista igual em todos os painéis.** (1.9.0 é a versão da pasta.) O espaçamento do rodapé da lista de vendas do Administrativo (7 px em cima, 16 px nas laterais e 5 px embaixo) passa a valer em todos os painéis (`base.css` 1.6.0).
 
 ### 1.8.0 — 2026-11-17
 

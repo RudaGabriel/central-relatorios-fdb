@@ -8,7 +8,7 @@ Versões em uso hoje:
 | Arquivo | Versão |
 |---|---|
 | [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.32.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.35.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.36.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
@@ -412,6 +412,12 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.36.0 — 2026-11-17
+
+**Janela "Gerar por período" centralizada no celular.**
+
+- No celular, a janela de escolha do período deixa de ficar presa à parte de baixo da tela e passa a aparecer centralizada, como no computador.
 
 ### 3.35.0 — 2026-11-17
 

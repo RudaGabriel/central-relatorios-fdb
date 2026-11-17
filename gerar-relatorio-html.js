@@ -1,12 +1,11 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.35.0
+ * @version 3.36.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.35.0 - 2026-11-17 - Ícones em SVG no lugar de emojis e símbolos de texto (Duplicatas, Auto-teste, item novo em Configurações) e
- *            título "Gerar por período" com acento; ações das teclas de atalho sem marcadores.
+ *   3.36.0 - 2026-11-17 - Janela "Gerar por período" centralizada na tela também no celular.
  */
 
 (function() {
@@ -14,7 +13,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.35.0";
+    const SCRIPT_VERSION = "3.36.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -7389,7 +7388,9 @@ var __abrirModalPeriodo = function() {
     var _p = function(n) { return String(n).padStart(2, "0"); };
     var _hojeISO = _hoje.getFullYear() + "-" + _p(_hoje.getMonth()+1) + "-" + _p(_hoje.getDate());
     var _bg = document.createElement("div");
-    _bg.className = "ov sheet";
+    // Sem a classe "sheet": no celular a janela fica centralizada na tela,
+    // e não presa à parte de baixo.
+    _bg.className = "ov";
     _bg.id = "ovPeriodo";
     _bg.setAttribute("aria-hidden", "false");
     _bg.innerHTML =

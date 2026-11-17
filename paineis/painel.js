@@ -1,7 +1,6 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.7.0
- *   1.7.0 - 2026-11-17 - Foto do vendedor ampliada ao passar o mouse; foto e logo avisam quando o servidor ainda
- *                        está na versão anterior (é preciso reiniciá-lo), em vez de uma falha genérica.
+ * @version 1.7.1
+ *   1.7.1 - 2026-11-17 - Foto ampliada sem a dica do navegador por cima (o title do avatar com foto é retirado).
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -194,6 +193,7 @@
   // Foto ampliada ao passar o mouse sobre um avatar com foto (v1.7.0), junto da seta, com o nome.
   let fotoZoom = null, fotoZoomAlvo = null;
   function zoomFoto(av, cx, cy){
+    dicaPrep(av); // tira o title: sem a dica do navegador por cima da foto ampliada
     const img = av.querySelector("img"); if (!img || !img.complete || !img.naturalWidth) return;
     if (!fotoZoom) { fotoZoom = document.createElement("div"); fotoZoom.id = "fotoZoom"; fotoZoom.setAttribute("aria-hidden", "true"); fotoZoom.innerHTML = "<img alt=''><b></b><small>Clique para trocar ou remover a foto</small>"; document.body.appendChild(fotoZoom); }
     if (fotoZoomAlvo !== av) { fotoZoom.querySelector("img").src = img.src; fotoZoom.querySelector("b").textContent = av.dataset.fotoVend || ""; fotoZoomAlvo = av; }
@@ -554,7 +554,7 @@
       if (av) { dicaEsconder(); zoomFoto(av, e.clientX, e.clientY); } else if (fotoZoomAlvo) zoomFotoFechar();
     }, {passive: true});
     document.addEventListener("scroll", zoomFotoFechar, {passive: true, capture: true});
-    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; if (e.target.closest && e.target.closest(".vd-av.comFoto")) return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380, {x: e.clientX, y: e.clientY}); }, {passive: true});
+    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; const avF = e.target.closest && e.target.closest(".vd-av.comFoto"); if (avF) { dicaPrep(avF); return; } dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380, {x: e.clientX, y: e.clientY}); }, {passive: true});
     // A seta continua andando até a dica abrir: ela abre onde a seta estiver nesse momento.
     document.addEventListener("pointermove", e => { if (e.pointerType !== "touch" && dicaAlvo && dicaPonteiro && !(dicaEl && dicaEl.classList.contains("on"))) dicaPonteiro = {x: e.clientX, y: e.clientY}; }, {passive: true});
     document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120, null); });

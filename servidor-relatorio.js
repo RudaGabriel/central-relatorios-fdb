@@ -5,14 +5,15 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.29.0
+ * @version 2.30.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.29.0 - 2026-11-17 - Selo de recarga e aviso "Há vendas novas" do relatório clássico com ícones
- *     SVG; aviso de correção de horário sem emoji.
+ *   2.30.0 - 2026-11-17 - Falha do gerador não derruba a tela: o relatório de hoje continua com os
+ *     últimos dados e o servidor tenta de novo (2, 5, 10, 20 e 30 s). Mensagem clara quando a pasta
+ *     do sistema (pasta de rede) está inacessível, sem culpar o banco, e sem repetir o erro no log.
  */
 
 
@@ -20,7 +21,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.29.0";
+const SERVER_VERSION = "2.30.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -1921,6 +1922,51 @@ var _registrarCorrecoesHora = function(json) {
     });
 };
 
+// FALHA DE GERAÇÃO SEM DERRUBAR A TELA (v2.30.0). Antes, qualquer falha do gerador trocava o
+// relatório guardado pela mensagem de erro: uma pasta de rede inacessível por alguns segundos
+// (o Node não consegue ler o gerar-relatorio-html.js e informa "Cannot find module") fazia toda
+// tela que recarregasse mostrar "Erro ao gerar o relatório", e cada nova venda gerava mais uma
+// falha no log. Agora, no relatório de hoje, a tela continua com os últimos dados bons e o
+// servidor tenta de novo após 2, 5, 10, 20 e depois a cada 30 s (mais as gerações das vendas
+// novas). Sem relatório bom guardado (primeira geração do dia ou período), mostra o erro.
+var _ultimoBom = {};        // só a chave de hoje -> {html, qt, tot, geradoEm}
+var _falhasSeguidas = {};   // chave -> falhas seguidas
+var _retryGeracao = {};     // chave -> timer da nova tentativa
+var _ESPERAS_FALHA_MS = [2000, 5000, 10000, 20000, 30000];
+var _falhaGeracao = function(chave, msg) {
+    var n = (_falhasSeguidas[chave] || 0) + 1; _falhasSeguidas[chave] = n;
+    var bom = (chave === hoje()) ? _ultimoBom[chave] : null;
+    var espera = _ESPERAS_FALHA_MS[Math.min(n - 1, _ESPERAS_FALHA_MS.length - 1)];
+    // No log: a 1ª falha e, se continuar, uma linha a cada 10 (sem repetir o mesmo erro sem parar).
+    var registrar = (n === 1 || n % 10 === 0);
+    if (bom) {
+        cache[chave] = {html: bom.html, gerando: false, erro: null, qt: bom.qt, tot: bom.tot, geradoEm: bom.geradoEm, falhaRecente: msg};
+        if (registrar) logTs("AVISO: " + msg + " A tela continua com os últimos dados (gerados às " +
+            new Date(bom.geradoEm).toLocaleTimeString("pt-BR") + "); nova tentativa em " + (espera / 1000) + " s" +
+            (n > 1 ? " (" + n + " falhas seguidas)" : "") + ".");
+        clearTimeout(_retryGeracao[chave]);
+        _retryGeracao[chave] = setTimeout(function() {
+            delete _retryGeracao[chave];
+            if (_encerrando || chave !== hoje()) return;
+            var e = cache[chave];
+            if (e && (e.gerando || e.matando)) return;
+            gerarEmBackground(chave, chave, chave);
+        }, espera);
+        return;
+    }
+    if (registrar) logTs("ERRO: " + msg + (n > 1 ? " (" + n + " falhas seguidas)" : ""));
+    cache[chave] = {html: null, gerando: false, erro: msg};
+};
+var _geracaoOk = function(chave, ent) {
+    var n = _falhasSeguidas[chave] || 0;
+    if (n) logTs("Geração do relatório voltou a funcionar depois de " + n + " falha" + (n > 1 ? "s seguidas" : "") + ".");
+    _falhasSeguidas[chave] = 0;
+    clearTimeout(_retryGeracao[chave]); delete _retryGeracao[chave];
+    if (chave === hoje()) { _ultimoBom = {}; _ultimoBom[chave] = {html: ent.html, qt: ent.qt, tot: ent.tot, geradoEm: ent.geradoEm}; }
+};
+// Erro do Node ao ler o gerador na pasta do sistema (pasta de rede indisponível, arquivo travado ou removido).
+var _RE_GERADOR_ILEGIVEL = /Cannot find module[^\n]*gerar-relatorio-html\.js|MODULE_NOT_FOUND/;
+
 var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
     var ent=cache[chave];
     if(ent&&ent.gerando)return;
@@ -2103,8 +2149,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
                     gerarEmBackground(inicio, fim, chave, _pollTriggered);
                 }, 3200);
             } else {
-                logTs("ERRO: "+MAX_TENTATIVAS+" tentativas falharam para "+label+". Abortando.");
-                cache[chave] = {html:null, gerando:false, erro:"Geração falhou após "+MAX_TENTATIVAS+" tentativas (timeout de "+(_SPAWN_TIMEOUT_MS/1000)+"s cada)."};
+                _falhaGeracao(chave, "A geração do relatório de " + label + " falhou após " + MAX_TENTATIVAS + " tentativas (tempo limite de " + (_SPAWN_TIMEOUT_MS/1000) + " s cada).");
                 _gerarTentativas[chave] = 0;
                 // LEAK/BUG FIX: sem isso a função kill deste processo (já morto)
                 // permanecia registrada. Se o SO reciclasse o PID, um kill futuro
@@ -2155,9 +2200,13 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
     // CORREÇÃO: stderr do filho passava direto para process.stderr sem ser gravado no
     // relatorio.log — erros do gerar-relatorio-html.js (ex: query timeout interno,
     // unhandledRejection) ficavam invisíveis no log. Agora passam por logToFile().
+    var _stderrTxt = "";
     if (proc.stderr) proc.stderr.on("data", function(d) {
         var msg = d.toString().trim();
-        if (msg) logTs("[filho stderr] " + msg);
+        if (_stderrTxt.length < 8000) _stderrTxt += msg + "\n";
+        // v2.30.0: com o gerador ilegível (pasta de rede), o rastro completo do Node só vai para o
+        // log na 1ª falha da sequência — as seguintes viram uma linha só (ver _falhaGeracao).
+        if (msg && !(_RE_GERADOR_ILEGIVEL.test(_stderrTxt) && (_falhasSeguidas[chave] || 0) > 0)) logTs("[filho stderr] " + msg);
         try { process.stderr.write(d); } catch(_) {}
     });
 
@@ -2183,9 +2232,9 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             }, 3000);
             return;
         }
-        cache[chave]={html:null,gerando:false,erro:(e && e.code === "ENOENT")
+        _falhaGeracao(chave, (e && e.code === "ENOENT")
             ? "O Node.js não foi encontrado (ele pode ter sido atualizado ou removido com o servidor em execução). Reinicie o servidor pela bandeja (Reiniciar servidor) ou execute o instalador novamente. Detalhe: " + e.message
-            : "Falha ao iniciar node: "+e.message};
+            : "Falha ao iniciar o Node.js: "+e.message);
         _gerarTentativas[chave] = 0;
     });
     // CONCLUSÃO ANTECIPADA (v2.13.0): o gerador imprime "@@RELATORIO_PRONTO@@"
@@ -2230,8 +2279,10 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
         _gerarTentativas[chave] = 0; // sucesso ou erro definitivo — zera contador
         try {
         if(code!==0){
-            var msg="Script terminou com codigo "+code+". Verifique se o Firebird esta rodando.";
-            logTs("ERRO: "+msg);cache[chave]={html:null,gerando:false,erro:msg};return;
+            var msg = _RE_GERADOR_ILEGIVEL.test(_stderrTxt)
+                ? "Não foi possível ler o gerador (gerar-relatorio-html.js) na pasta do sistema (" + __dirname + "): a pasta pode estar momentaneamente inacessível (pasta de rede) ou o arquivo foi movido."
+                : "O gerador terminou com o código " + code + ". Verifique se o Firebird está rodando (detalhes nas linhas [GERADOR] do log).";
+            _falhaGeracao(chave, msg);return;
         }
         if(!fs.existsSync(_tmpFile)){
             cache[chave]={html:null,gerando:false,erro:"O arquivo do relatório não foi criado."};return;
@@ -2558,6 +2609,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             (statusAtual.qt !== qt || Math.abs(statusAtual.total - tot) > 0.005);
 
         cache[chave]={html:html,gerando:false,erro:null,qt:qt,tot:tot,geradoEm:Date.now()};
+        _geracaoOk(chave, cache[chave]);
 
         if (ehHje) {
             if (!_statusAtualizadoDurante) {

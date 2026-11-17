@@ -1322,3 +1322,46 @@ test("sem emojis nem símbolos de texto como ícone (os ícones da tela são SVG
     }
     assert.deepStrictEqual(achados, [], "emoji ou símbolo de texto encontrado");
 });
+
+test("servidor: gerador ilegível por alguns segundos (pasta de rede) — a tela continua com os últimos dados e a geração se recupera", { timeout: 90000 }, async () => {
+    const dir = montarPasta({}, {
+        nfce: [{ numero: "800", hora: horaHaMin(20), modelo: 99, total: 40, vendedor: "VENDEDOR A" }],
+        pagGer: [{ numero: "800", forma: "03 PIX", valor: 40 }]
+    });
+    const srv = await iniciarServidor(dir);
+    const lerLog = () => { try { return fs.readFileSync(path.join(dir, "relatorio.log"), "utf8"); } catch (_) { return ""; } };
+    const dadosDe = html => { const m = html.match(/<script id="dados" type="application\/json">([\s\S]*?)<\/script>/); return m ? JSON.parse(m[1]) : null; };
+    const pagina = async () => { const r = await fetch(srv.base + "/"); return { status: r.status, html: await r.text() }; };
+    try {
+        let d = null;
+        for (let i = 0; i < 120 && !d; i++) { d = dadosDe((await pagina()).html); if (!d) await esperar(250); }
+        assert.ok(d && d.totais.qtd === 1, "relatório inicial com 1 venda");
+        // A pasta "some": o Node não consegue ler o gerador. Uma venda nova pede outra geração.
+        const gerador = path.join(dir, "gerar-relatorio-html.js"), fora = gerador + ".fora";
+        fs.renameSync(gerador, fora);
+        const st = JSON.parse(fs.readFileSync(path.join(dir, "estado.json"), "utf8"));
+        st.nfce.push({ numero: "801", hora: horaHaMin(1), modelo: 99, total: 25, vendedor: "VENDEDOR B" });
+        st.pagGer.push({ numero: "801", forma: "01 DINHEIRO", valor: 25 });
+        gravarEstado(dir, st);
+        for (let i = 0; i < 120 && !/Não foi possível ler o gerador/.test(lerLog()); i++) await esperar(250);
+        assert.match(lerLog(), /Não foi possível ler o gerador \(gerar-relatorio-html\.js\) na pasta do sistema/, "mensagem clara no log");
+        assert.doesNotMatch(lerLog(), /Verifique se o Firebird está rodando/, "não culpa o banco");
+        for (let i = 0; i < 3; i++) {
+            const p = await pagina();
+            assert.strictEqual(p.status, 200, "a tela não mostra a página de erro");
+            const dd = dadosDe(p.html);
+            if (dd) assert.strictEqual(dd.totais.qtd, 1, "últimos dados bons");
+            await esperar(300);
+        }
+        // A pasta volta: a nova tentativa gera de novo, com a venda nova.
+        fs.renameSync(fora, gerador);
+        let d2 = null;
+        for (let i = 0; i < 200; i++) { const dd = dadosDe((await pagina()).html); if (dd && dd.totais.qtd === 2) { d2 = dd; break; } await esperar(250); }
+        assert.ok(d2, "a geração voltou a funcionar e trouxe a venda nova");
+        // O servidor grava o log em lotes: espera a linha da recuperação chegar ao arquivo.
+        for (let i = 0; i < 40 && !/Geração do relatório voltou a funcionar/.test(lerLog()); i++) await esperar(250);
+        assert.match(lerLog(), /Geração do relatório voltou a funcionar depois de \d+ falha/);
+        const rastros = (lerLog().match(/Cannot find module/g) || []).length;
+        assert.ok(rastros <= 2, "o erro completo do Node não se repete a cada tentativa (" + rastros + ")");
+    } finally { srv.parar(); }
+});

@@ -7,7 +7,7 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.29.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.30.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.35.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
@@ -34,13 +34,25 @@ Versões em uso hoje:
 | [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.30.0 — 2026-11-17
+
+**Falha do gerador não derruba a tela.**
+
+- **Problema (visto numa instalação em pasta de rede):** por cerca de 30 segundos, o Node não conseguiu ler o `gerar-relatorio-html.js` na pasta de rede ("Cannot find module"). Cada falha trocava o relatório guardado pela mensagem de erro, então as telas que recarregavam mostravam "Erro ao gerar o relatório". A mensagem ainda dizia "Verifique se o Firebird está rodando", embora o banco estivesse normal. O log recebeu 24 cópias do mesmo erro.
+- **Agora:**
+  - no relatório de hoje, a tela continua com os **últimos dados bons** e o servidor tenta de novo após 2, 5, 10, 20 e depois a cada 30 segundos, além das gerações pedidas pelas vendas novas;
+  - quando o problema é a pasta do sistema, o log diz exatamente isso ("Não foi possível ler o gerador… a pasta pode estar momentaneamente inacessível"), sem culpar o banco;
+  - o erro completo do Node aparece só na primeira falha da sequência; depois, uma linha a cada 10 falhas;
+  - quando volta a funcionar, o log registra "Geração do relatório voltou a funcionar depois de N falhas".
+- Sem relatório bom guardado (primeira geração do dia ou relatório de período), a página de erro continua aparecendo, agora com a mensagem correta.
 
 ### 2.29.0 — 2026-11-17
 
@@ -1397,6 +1409,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.6.0 — 2026-11-17
+
+**Rodapé do Administrativo.** (1.6.0 é a versão da pasta.) No Administrativo (`administrativo.html` 1.5.0), o rodapé da lista passa a ter 7 px em cima, 16 px nas laterais e 5 px embaixo.
 
 ### 1.5.0 — 2026-11-17
 

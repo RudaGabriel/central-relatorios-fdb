@@ -7,10 +7,10 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.28.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.34.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.29.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.35.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
-| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.1 |
+| [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
 | [`_criar-tarefa.ps1`](#_criar-tarefaps1) | 1.3.0 |
 | [`bootstrap.vbs`](#bootstrapvbs) | removido |
@@ -25,22 +25,26 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.29.0 — 2026-11-17
+
+**Ícones em SVG.** O selo de recarga (auto ou ao vivo) e o aviso "Há vendas novas", injetados no relatório clássico, passam a usar ícones SVG no lugar dos símbolos de texto. O aviso de correção de horário perdeu o emoji do relógio.
 
 ### 2.28.0 — 2026-11-16
 
@@ -189,7 +193,7 @@ A página de configurações (`/config`) estava inteira sem acentos ("Configurac
 - `/qr` ganhou a seção **"Fora da loja"**: mostra o QR code do endereço do Tailscale, ou o passo a passo para ativar. `/api/qr` traz o campo `externo`, e `/qr.svg?externo=1` gera a imagem.
 - **Segurança com túnel ou proxy** (cloudflared, ngrok, proxy reverso nesta máquina): um pedido com `X-Forwarded-For`, `Forwarded`, `CF-Connecting-IP`, `X-Real-IP` ou `True-Client-IP` chega de `127.0.0.1`, mas vem da internet. Ele nunca é tratado como o computador do servidor nem como rede local. Antes, ganharia acesso total.
 - **Correção na página `/config`:** ela exigia intervalo mínimo de 200 ms, mas o servidor aceita a partir de 100 ms e a própria página diz "De 100 ms". Salvar 100 dava "Intervalo mínimo é 200 ms". Agora usa os mesmos limites do servidor (100 a 60000).
-- **Recarga automática respeita o aparelho.** Com a opção desligada (gerador 3.23.0+), a página não recarrega sozinha. Aparece o aviso fixo "● Há vendas novas" com o botão **Atualizar** (e × para ocultar). O selo vira "⏸ manual".
+- **Recarga automática respeita o aparelho.** Com a opção desligada (gerador 3.23.0+), a página não recarrega sozinha. Aparece o aviso fixo "Há vendas novas" com o botão **Atualizar** (e × para ocultar). O selo vira "manual".
   - Religar a opção com venda pendente atualiza na hora.
   - A volta do servidor depois de uma queda continua recarregando sempre.
 
@@ -382,6 +386,15 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.35.0 — 2026-11-17
+
+**Ícones em SVG e acentuação.**
+
+- Painel Duplicatas e Auto-teste: as bolinhas de situação (confirmado, provável, crítico, aviso) e a marca de "Escolha aplicada" passam a ser ícones SVG. O aviso do Auto-teste diz "Crítico:" em vez de usar um símbolo.
+- Item novo em Configurações: a marca ao lado do nome passa a ser um ícone SVG (máscara no CSS).
+- Ações das teclas de atalho: a lista (campo de seleção, que não aceita ícones) fica só com o texto, sem marcadores.
+- O título do formulário passa a ser "Gerar por período", com acento.
 
 ### 3.34.0 — 2026-11-16
 
@@ -705,7 +718,7 @@ Antes saía `067427	356,50	CREDITO | DEBITO` (só o total). Agora sai `067427	17
 
 **Rastro da escolha no painel Duplicatas; badge do total nunca estoura.**
 
-- Painel Duplicatas: a opção escolhida fica preenchida com "✓" e "Escolha aplicada: …", o par pisca e um aviso confirma. Trocar a escolha de um par já decidido aplica na hora (a página recarrega e reabre o painel no par). Na tabela, a venda que ficou ganha o chip "Duplicata: <documento> oculta" (ou "também aparece"), com o porquê no tooltip; clicar no chip abre o painel com o par destacado.
+- Painel Duplicatas: a opção escolhida fica marcada como escolhida e "Escolha aplicada: …", o par pisca e um aviso confirma. Trocar a escolha de um par já decidido aplica na hora (a página recarrega e reabre o painel no par). Na tabela, a venda que ficou ganha o chip "Duplicata: <documento> oculta" (ou "também aparece"), com o porquê no tooltip; clicar no chip abre o painel com o par destacado.
 - Badge #bDiaBrk ainda estourava: a verificação só rodava quando a largura da barra mudava, e a fonte web chegando depois do carregamento alargava o texto sem novo ajuste. Agora o próprio CSS garante: sem espaço, os badges descem de linha e o total quebra por dentro em último caso. O ajuste por etapas (oculta hora, encolhe o botão de vendedor, compacta) também reage a mudança de conteúdo e ao fim do carregamento das fontes.
 - Filtros "NFC-e"/"NF-e" não quebram mais em duas linhas quando o espaço aperta, e a caixa de busca não some mais (sumia perto de 1100 px): tem largura mínima e, sem espaço, os botões descem para a linha de baixo.
 
@@ -904,6 +917,10 @@ Cliente de linha de comando.
 
 Ícone da bandeja.
 
+### 1.9.2 — 2026-11-17
+
+**Sem símbolos de texto.** O status no topo do menu ("No ar · banco conectado" ou "Servidor fora do ar") perdeu a bolinha; a cor do texto continua indicando o estado.
+
 ### 1.9.1 — 2026-11-16
 
 **Diagnóstico da inicialização automática sem falso alarme.** A tarefa de outra pasta (por exemplo, outro sistema instalado no mesmo computador) só gera aviso quando nenhuma tarefa abre a pasta deste sistema. Quando a inicialização deste sistema está configurada, as demais tarefas aparecem apenas como informação, com a observação de que não interferem.
@@ -1015,10 +1032,10 @@ O vigia (watchdog) da bandeja reiniciava o servidor sem necessidade, a cada minu
   - cabeçalho com o nome do sistema e status ao vivo (servidor no ar, banco conectado, telas abertas, aparelhos na rede);
   - **Abrir relatório** e **Abrir em nova aba do navegador**;
   - **Atualizar dados de hoje** e **Gerar por período...**;
-  - **Telas abertas ▸** trazer o relatório para frente, recarregar todas as telas, enviar aviso para as telas, tema das telas (lista lida do servidor);
+  - **Telas abertas** (submenu): trazer o relatório para frente, recarregar todas as telas, enviar aviso para as telas, tema das telas (lista lida do servidor);
   - **Dispositivos conectados...** — janela com nome do aparelho, IP, tipo, sistema, navegador, telas, horários, requisições e rotas; atualiza a cada 5 s;
-  - **Configurações ▸** editar configurações, selecionar banco (FDB), status do banco de dados;
-  - **Ferramentas ▸** informações do sistema, copiar endereço de acesso (para abrir em outro PC ou celular), abrir pasta do sistema, abrir o log, acompanhar o log ao vivo, cliente da API (`api.ps1`), programas (lista do `config.json`);
+  - **Configurações** (submenu): editar configurações, selecionar banco (FDB), status do banco de dados;
+  - **Ferramentas** (submenu): informações do sistema, copiar endereço de acesso (para abrir em outro PC ou celular), abrir pasta do sistema, abrir o log, acompanhar o log ao vivo, cliente da API (`api.ps1`), programas (lista do `config.json`);
   - **Reiniciar servidor** e **Sair** (como antes).
 - Ícones vetoriais coloridos — os mesmos SVG (Lucide) do relatório, desenhados por um leitor de SVG embutido (C# compatível com o PowerShell 5.1), nítidos em qualquer escala de tela; menu com fundo branco, destaque azul-claro e textos com acento (o arquivo continua 100% ASCII). Sem `favicon.png`, a bandeja usa um ícone próprio em vez do genérico do Windows.
 - Se o visual não puder ser montado (C# bloqueado na máquina, por exemplo), o menu funciona igual, só sem ícones — registrado no log como aviso.
@@ -1381,6 +1398,18 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
 
+### 1.5.0 — 2026-11-17
+
+**Ícones em SVG em todos os painéis.** (1.5.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
+
+- Nenhum emoji nem símbolo de texto usado como ícone:
+  - abas do celular (Resumo, Vendas, Pagamentos e Equipe) e dica de navegação da lista (`corpo.html` 1.2.0);
+  - lupa da busca nos temas Relevo, Relevo escuro, Vidro e Nítido (1.3.0);
+  - ordenação da tabela e "Todos" dos vendedores (`painel.js` 1.4.0);
+  - tema escolhido no menu Tema e setas dos links de Configurações (`base.css` 1.4.0);
+  - marcadores dos títulos e do "ao vivo" na Central de comando (1.3.0) e no menu lateral do Administrativo (1.4.0).
+- Todos os ícones seguem o padrão do projeto: traço, `viewBox` 24×24 e a cor do texto.
+
 ### 1.4.0 — 2026-11-16
 
 **Coluna de desconto, dicas personalizadas e nova disposição do Administrativo.** (1.4.0 é a versão da pasta; a versão de cada arquivo está entre parênteses e na tabela do início.)
@@ -1401,7 +1430,7 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 
 - **Logo próprio dos painéis** (`painel.js` 1.2.0, `base.css` 1.2.0, todos os temas 1.2.0):
   - o logo preenche o quadro inteiro, sem bordas;
-  - clicar no logo (ou **⚙ Configurações → Sistema → Trocar o logo**) escolhe uma imagem PNG, JPEG ou ICO de até 2 MB;
+  - clicar no logo (ou **Configurações → Sistema → Trocar o logo**) escolhe uma imagem PNG, JPEG ou ICO de até 2 MB;
   - a troca vale **só para o logo dos painéis**, em todos os aparelhos. O ícone do sistema (`favicon.png`) não muda;
   - **Logo padrão** volta a usar o ícone do sistema. Só no computador do servidor.
 - **Conversões em nota fiscal** (`painel.js` 1.2.0, com o gerador 3.34.0): passam a aparecer, inclusive as gerenciais que o PDV marca como convertidas; o texto ficou mais curto para não cortar o número da nota.
@@ -1444,10 +1473,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
     - filtros por tipo, com a contagem de cada um;
     - consulta por período, relatório clássico, modo claro ou escuro e configurações do sistema;
     - no computador, recolhe em ícones (a escolha fica salva); em tablet e celular, abre por cima;
-  - **Modo claro ou escuro:** botão ☀/☾ no cabeçalho e no menu lateral; sem escolha, segue o modo do aparelho;
+  - **Modo claro ou escuro:** botão de sol e lua no cabeçalho e no menu lateral; sem escolha, segue o modo do aparelho;
   - tudo cabe na tela e só a lista de vendas rola, com as mesmas abas no celular.
 - **Desempenho fora do cabeçalho** (todos os painéis, 1.0.2):
-  - o controle Automático, Completo ou Leve sai do cabeçalho e vai para o novo botão **⚙ Configurações → Nesta tela → Desempenho**, como no relatório clássico;
+  - o controle Automático, Completo ou Leve sai do cabeçalho e vai para o novo botão **Configurações → Nesta tela → Desempenho**, como no relatório clássico;
   - o mesmo botão leva às **configurações do sistema** (que voltam para o painel) e ao **relatório clássico**;
   - o link "Clássico" do cabeçalho foi incorporado a ele.
 - **Cabeçalho no celular:** nome, Tema e Configurações cabem na mesma linha, também em aparelhos de 360 px. No Central de comando, o relógio do cabeçalho se esconde até 420 px de largura; a hora da atualização continua no rodapé da lista.

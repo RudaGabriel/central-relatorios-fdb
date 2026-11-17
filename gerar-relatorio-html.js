@@ -1,13 +1,12 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.34.0
+ * @version 3.35.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.34.0 - 2026-11-16 - Lista de conversões gerencial → NFC-e/NF-e (dados.conversoes) para o painel
- *            "Conversões em nota fiscal": pelo vínculo da coluna GERENCIAL e pelas gerenciais marcadas como
- *            convertidas (antes só entravam as que continuavam ativas, e a lista ficava vazia).
+ *   3.35.0 - 2026-11-17 - Ícones em SVG no lugar de emojis e símbolos de texto (Duplicatas, Auto-teste, item novo em Configurações) e
+ *            título "Gerar por período" com acento; ações das teclas de atalho sem marcadores.
  */
 
 (function() {
@@ -15,7 +14,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.34.0";
+    const SCRIPT_VERSION = "3.35.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -3242,7 +3241,7 @@ tbody tr:hover .tdItemDesc { color: var(--danger, #e55); border-color: var(--dan
 .kv:hover { border-color: var(--border-focus); background: var(--bg-hover); }
 .kv.kvSep { background: transparent; border-color: transparent; padding: 18px 20px 4px; }
 .kv.kvSep:hover { background: transparent; border-color: transparent; }
-.kv.kvNew .k::after { content: " ✦"; color: var(--accent); font-size: 10px; }
+.kv.kvNew .k::after { content: ""; display: inline-block; width: 10px; height: 10px; margin-left: 5px; vertical-align: 0; background: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z'/%3E%3C/svg%3E") center/contain no-repeat; }
 .k { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
 .v { font-size: 14px; font-weight: 500; color: var(--text-main); }
 .cards { display: none; padding: 16px; overflow-y: auto; }
@@ -4824,16 +4823,16 @@ const abrirDuplicatas=(itens, destaque)=>{
             ? 'mesmo valor/data e mesmos itens'+(d.diffMin != null ? ', +'+esc(d.diffMin)+'min' : '')
             : 'mesmo valor/data/vendedor, +'+esc(d.diffMin)+'min';
         const rotulo = d._tipo === "confirmado"
-            ? '<span style="color:var(--st-ok)">● confirmado</span> — '+origem+' <b>'+esc(d.gerencial)+'</b> → '+doc+' <b>'+esc(d.docNumero)+'</b> <span style="opacity:.6">(vínculo direto pela coluna Gerencial)</span>'
-            : '<span style="color:var(--st-warn)">● provável</span> — '+origem+' <b>'+esc(d.gerencial)+'</b> → '+doc+' <b>'+esc(d.docNumero)+'</b> <span style="opacity:.6">('+_motivo+(d.ambiguo?', havia mais de uma candidata':'')+')</span>';
+            ? '<span style="color:var(--st-ok)"><svg width="8" height="8" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:0;margin-right:5px"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>confirmado</span> — '+origem+' <b>'+esc(d.gerencial)+'</b> → '+doc+' <b>'+esc(d.docNumero)+'</b> <span style="opacity:.6">(vínculo direto pela coluna Gerencial)</span>'
+            : '<span style="color:var(--st-warn)"><svg width="8" height="8" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:0;margin-right:5px"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>provável</span> — '+origem+' <b>'+esc(d.gerencial)+'</b> → '+doc+' <b>'+esc(d.docNumero)+'</b> <span style="opacity:.6">('+_motivo+(d.ambiguo?', havia mais de uma candidata':'')+')</span>';
         const valor = Number(d.total || 0) > 0 ? ' <span style="opacity:.75">'+esc(Number(d.total).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}))+(d.vendedor?' · '+esc(d.vendedor):'')+'</span>' : '';
         const atual = decidida ? _dupLerEscolha(d) : null;
         const botao = (cls, txt, escolha) => atual===escolha
-            ? '<div class="btn '+cls+' dupEscolhido" aria-pressed="true" style="font-size:12px;padding:4px 10px">✓ '+txt+'</div>'
+            ? '<div class="btn '+cls+' dupEscolhido" aria-pressed="true" style="font-size:12px;padding:4px 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px;margin-right:4px"><path d="M20 6 9 17l-5-5"/></svg>'+txt+'</div>'
             : '<div class="btn '+cls+'" style="font-size:12px;padding:4px 10px">'+txt+'</div>';
         return '<div class="dupItem" data-chave="'+esc(_dupChaveItem(d))+'" style="padding:10px;border-bottom:1px solid var(--line-soft);font-size:13px">'
             + '<div style="margin-bottom:6px">'+rotulo+valor+'</div>'
-            + (atual ? '<div class="dupEscolhaTxt">✓ Escolha aplicada: <b>'+esc(_DUP_ROTULO_ESCOLHA_CURTO[atual] ? _DUP_ROTULO_ESCOLHA_CURTO[atual](d) : atual)+'</b></div>' : '')
+            + (atual ? '<div class="dupEscolhaTxt"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px;margin-right:4px"><path d="M20 6 9 17l-5-5"/></svg>Escolha aplicada: <b>'+esc(_DUP_ROTULO_ESCOLHA_CURTO[atual] ? _DUP_ROTULO_ESCOLHA_CURTO[atual](d) : atual)+'</b></div>' : '')
             + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
             + botao("dupBtnFiscal", "Manter apenas "+doc, "fiscal")
             + botao("dupBtnTodas1", "Manter as duas", "todas")
@@ -7081,7 +7080,7 @@ const _fnLimpar=()=>_movTransicao(()=>{vendAtual="";qAtual="";qInc="";tipoBusca=
 qs("#limpar").addEventListener("click",_fnLimpar);
 const _btnLimTab=qs("#limparTabela");if(_btnLimTab)_btnLimTab.addEventListener("click",_fnLimpar);
 
-// Visibilidade do ✕ dentro do input — aparece só quando há conteúdo no campo (variável string, não emoji)
+// Visibilidade do botão de limpar (X, em SVG) dentro do campo de busca — aparece só quando há conteúdo no campo
 const _atualizarXLimpar = () => {
     const btnX = qs("#limpar");
     const qEl  = qs("#q");
@@ -7296,22 +7295,22 @@ document.addEventListener("keydown",e=>{
 // ── AÇÕES VINCULÁVEIS A TECLAS DE ATALHO ──────────────────────────────
 const ACOES_DISPONIVEIS = [
     { value: "",                          label: "(nenhuma — só executa o comando)" },
-    { value: "click:#aCopiarTudo",        label: "\u25b8 Copiar tudo" },
-    { value: "click:#aCopiarTudoItens",   label: "\u25b8 Copiar tudo + itens" },
-    { value: "click:#aCopiarSemDinheiro", label: "\u25b8 Copiar sem dinheiro" },
-    { value: "click:#aCopiarGerencial",   label: "\u25b8 Copiar só gerencial" },
-    { value: "click:#aProibidos",         label: "\u25b8 Editar proibidos" },
-    { value: "click:#aVendedores",        label: "\u25b8 Filtrar por vendedor" },
-    { value: "click:#aAjuda",             label: "\u25b8 Ajuda de coringas" },
-    { value: "click:#aLimpar",            label: "\u25b8 Limpar filtros" },
-    { value: "click:#btnTema",            label: "\u25b8 Abrir menu de temas" },
-    { value: "tema:proximo",              label: "\u25b8 Próximo tema (alternar)" },
-    { value: "tema:anterior",             label: "\u25b8 Tema anterior" },
-    { value: "click:#btnModalPeriodo",    label: "\u25b8 Gerar por período" },
-    { value: "radio:tipoBusca:todos",     label: "\u25cf Tipo: Todos" },
-    { value: "radio:tipoBusca:gerencial", label: "\u25cf Tipo: Gerencial" },
-    { value: "radio:tipoBusca:nfce",      label: "\u25cf Tipo: NFC-e" },
-    { value: "radio:tipoBusca:nfe",       label: "\u25cf Tipo: NF-e" }
+    { value: "click:#aCopiarTudo",        label: "Copiar tudo" },
+    { value: "click:#aCopiarTudoItens",   label: "Copiar tudo + itens" },
+    { value: "click:#aCopiarSemDinheiro", label: "Copiar sem dinheiro" },
+    { value: "click:#aCopiarGerencial",   label: "Copiar só gerencial" },
+    { value: "click:#aProibidos",         label: "Editar proibidos" },
+    { value: "click:#aVendedores",        label: "Filtrar por vendedor" },
+    { value: "click:#aAjuda",             label: "Ajuda de coringas" },
+    { value: "click:#aLimpar",            label: "Limpar filtros" },
+    { value: "click:#btnTema",            label: "Abrir menu de temas" },
+    { value: "tema:proximo",              label: "Próximo tema (alternar)" },
+    { value: "tema:anterior",             label: "Tema anterior" },
+    { value: "click:#btnModalPeriodo",    label: "Gerar por período" },
+    { value: "radio:tipoBusca:todos",     label: "Tipo: Todos" },
+    { value: "radio:tipoBusca:gerencial", label: "Tipo: Gerencial" },
+    { value: "radio:tipoBusca:nfce",      label: "Tipo: NFC-e" },
+    { value: "radio:tipoBusca:nfe",       label: "Tipo: NF-e" }
 ];
 const _executarAcao = (v) => {
     v = String(v || "").trim(); if (!v) return;
@@ -7397,7 +7396,7 @@ var __abrirModalPeriodo = function() {
         '<div class="modal" role="dialog" aria-modal="true" style="max-width:420px">' +
           '<div class="mhead">' +
             '<div>' +
-              '<div class="mtitle">Gerar por periodo</div>' +
+              '<div class="mtitle">Gerar por período</div>' +
               '<div class="msub">Informe o intervalo de datas desejado</div>' +
             '</div>' +
             '<button class="btn" id="perFechar" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Fechar</button>' +
@@ -8408,7 +8407,7 @@ const abrirAutoTeste = (todos, verificacoes) => {
     const ordem = { critico: 0, aviso: 1, info: 2 };
     const itens = todos.slice().sort((a, b) => (ordem[a.nivel] - ordem[b.nivel]));
     const linha = a => '<div style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-size:13px">'
-        + '<span style="color:' + (cor[a.nivel] || cor.info) + '">● ' + esc(rotulo[a.nivel] || a.nivel) + '</span> '
+        + '<span style="color:' + (cor[a.nivel] || cor.info) + '"><svg width="8" height="8" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:0;margin-right:5px"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>' + esc(rotulo[a.nivel] || a.nivel) + '</span> '
         + '<b>' + esc(a.codigo) + '</b> <span style="opacity:.55">(' + esc(a.origem) + ')</span>'
         + '<div style="margin-top:3px;opacity:.9">' + esc(a.msg) + '</div></div>';
     const corpo = itens.length === 0
@@ -8458,8 +8457,8 @@ const iniciarAutoTeste = () => {
     try { localStorage.setItem(chaveVisto, assinatura); } catch (e) { /* idem */ }
     const crit = alertas.filter(a => a.nivel === "critico").length;
     const texto = alertas.length === 1
-        ? (crit ? "⚠ " : "") + alertas[0].msg
-        : (crit ? "⚠ " : "") + alertas.length + " alertas (" + crit + " crítico(s)) — abra o botão Auto-teste para ver";
+        ? (crit ? "Crítico: " : "") + alertas[0].msg
+        : alertas.length + " alertas (" + crit + " crítico(s)) — abra o botão Auto-teste para ver";
     toast("Auto-teste", texto.length > 220 ? texto.slice(0, 217) + "..." : texto);
     // Problema visto SÓ no navegador não chega ao log do servidor sozinho: reporta uma vez.
     for (const a of doNavegador) {

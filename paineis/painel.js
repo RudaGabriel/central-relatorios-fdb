@@ -1,7 +1,6 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.3.0
- *   1.3.0 - 2026-11-16 - Coluna "Desc." na lista (ordenável pelo percentual de desconto) e dicas personalizadas:
- *                        todo title dos painéis vira uma dica própria (mouse e teclado), no lugar da do navegador.
+ * @version 1.4.0
+ *   1.4.0 - 2026-11-17 - Ícones SVG no lugar de símbolos de texto: ordenação da tabela e "Todos" dos vendedores.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -15,6 +14,10 @@
   const ext = {pg: null, cx: null}; let ignora = null;          // filtros extras (forma de pagamento e caixa)
   const ord = {k: "hora", d: -1};                               // ordenação da tabela
   const E = () => window.ENG;
+  // Ícones SVG (traço, no padrão do projeto) — nada de emojis ou símbolos de texto na tela (regra do projeto).
+  const ICO = p => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const ICO_BAIXO = ICO('<path d="m6 9 6 6 6-6"/>'), ICO_CIMA = ICO('<path d="m18 15-6-6-6 6"/>');
+  const ICO_SOMA = ICO('<path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/>');
   const num = v => Number(v || 0).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const int = v => Math.round(Number(v) || 0).toLocaleString("pt-BR");
   const pct = (a, b) => b ? (a / b * 100) : 0;
@@ -64,7 +67,7 @@
     if (c) c.innerHTML = COLS.map(([k2, t]) => k2 === "pag" ? `<span class="c-${k2}">${t}</span>` : `<button type="button" class="c-${k2}" data-ord="${k2}">${t}<i></i></button>`).join("");
     marcaOrd();
   }
-  function marcaOrd(){ $$("[data-ord]").forEach(b => { const on = b.dataset.ord === ord.k; b.classList.toggle("on", on); const i = b.querySelector("i"); if (i) i.textContent = on ? (ord.d < 0 ? "▼" : "▲") : ""; }); }
+  function marcaOrd(){ $$("[data-ord]").forEach(b => { const on = b.dataset.ord === ord.k; b.classList.toggle("on", on); const i = b.querySelector("i"); if (i) i.innerHTML = on ? (ord.d < 0 ? ICO_BAIXO : ICO_CIMA) : ""; }); }
 
   // ── Linha da tabela ─────────────────────────────────────────────────────────
   function card(x){
@@ -102,7 +105,7 @@
     const sp = v.v ? (porVend[v.v] || {}) : null;
     const barra = sp ? en.T.concat(["Recebimento"]).filter(t => sp[t]).map(t => `<i style="width:${pct(sp[t], v.tot || 1).toFixed(2)}%;background:${COR[t]}" title="${t}: ${es(en.fmt(sp[t]))}"></i>`).join("") : `<i style="width:100%"></i>`;
     return `<div class="vd${on ? " on" : ""}" data-vend="${v.v ? es(v.v) : ""}" title="${v.v ? es(v.v) : "Todos os vendedores"}">` +
-      `<span class="vd-r mn">${v.v ? k + 1 : "∑"}</span><span class="vd-av" style="--av:${v.v ? corAv(v.v) : "var(--ac)"}">${v.v ? es(iniciais(v.v)) : "∑"}</span><span class="vd-n">${v.v ? es(v.v) : "Todos"}</span>` +
+      `<span class="vd-r mn">${v.v ? k + 1 : ICO_SOMA}</span><span class="vd-av" style="--av:${v.v ? corAv(v.v) : "var(--ac)"}">${v.v ? es(iniciais(v.v)) : ICO_SOMA}</span><span class="vd-n">${v.v ? es(v.v) : "Todos"}</span>` +
       `<span class="vd-t mn">${num(v.tot)}</span><span class="vd-p mn">${v.v ? pctTxt(p) : "100%"}</span>` +
       `<span class="vd-s">${en.pl(v.q)} · ticket <b class="mn">${num(tk)}</b></span><span class="vd-b">${barra}</span></div>`;
   }

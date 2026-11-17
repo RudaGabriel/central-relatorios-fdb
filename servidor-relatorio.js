@@ -5,15 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.28.0
+ * @version 2.29.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.28.0 - 2026-11-16 - Logo próprio dos painéis (logo-painel.png): /logo-painel.png (logo, senão o
- *     favicon), /api/upload-logo e /api/remover-logo, só no computador do servidor. O favicon.png
- *     (ícone do sistema, da aba e da bandeja) não é alterado.
+ *   2.29.0 - 2026-11-17 - Selo de recarga e aviso "Há vendas novas" do relatório clássico com ícones
+ *     SVG; aviso de correção de horário sem emoji.
  */
 
 
@@ -21,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.28.0";
+const SERVER_VERSION = "2.29.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -1917,7 +1916,7 @@ var _registrarCorrecoesHora = function(json) {
         var itens = porTipo[t], para = String(itens[0].para || "");
         logTs("Hora corrigida na tela (banco não alterado): " + itens.length + " " + t + " → " + para + " — " +
               itens.map(function(c) { return _textoSeguroLog(String(c.numero) + " (era " + String(c.de) + ")", 40); }).join(", ") + ".");
-        _pushCorrecao("🕐 " + itens.length + " " + t + (itens.length > 1 ? "s" : "") + " com hora antiga exibida(s) como " + para,
+        _pushCorrecao(itens.length + " " + t + (itens.length > 1 ? "s" : "") + " com hora antiga exibida(s) como " + para,
                       "rgba(251,191,36,.45)", true);
     });
 };
@@ -2293,7 +2292,8 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "background:rgba(0,200,80,.18);border:1px solid rgba(0,200,80,.35);border-radius:6px;" +
             "padding:3px 8px;font-size:10px;color:rgba(0,220,80,.9);font-family:monospace;" +
             "pointer-events:none;transition:opacity .5s;opacity:1';" +
-            "_badge.textContent=(typeof window.__recargaAutoDesligada==='function'&&window.__recargaAutoDesligada())?'\\u21bb ao vivo':'\\u21bb auto';" +
+            "window.__icoRecarga='<svg width=\\\"10\\\" height=\\\"10\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"2.6\\\" stroke-linecap=\\\"round\\\" stroke-linejoin=\\\"round\\\" aria-hidden=\\\"true\\\" style=\\\"vertical-align:-1px;margin-right:4px\\\"><path d=\\\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\\\"/><path d=\\\"M21 3v5h-5\\\"/></svg>';" +
+            "_badge.innerHTML=window.__icoRecarga+((typeof window.__recargaAutoDesligada==='function'&&window.__recargaAutoDesligada())?'ao vivo':'auto');" +
             "document.body.appendChild(_badge);" +
             "setTimeout(function(){_badge.style.opacity='0.18';},3000);" +
             "}catch(_){}" +
@@ -2343,7 +2343,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "a.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:2147483646;display:flex;align-items:center;gap:10px;" +
             "max-width:calc(100vw - 24px);padding:8px 8px 8px 14px;border-radius:999px;background:#0f172a;color:#f1f5f9;border:1px solid rgba(34,197,94,.55);" +
             "box-shadow:0 8px 30px rgba(0,0,0,.55);font:600 13px Inter,Arial,sans-serif';" +
-            "var t=document.createElement('span');t.textContent='\\u25cf H\\u00e1 vendas novas';t.style.cssText='color:#4ade80;white-space:nowrap';a.appendChild(t);" +
+            "var t=document.createElement('span');t.innerHTML='<svg width=\\\"8\\\" height=\\\"8\\\" viewBox=\\\"0 0 24 24\\\" aria-hidden=\\\"true\\\" style=\\\"margin-right:6px;vertical-align:0\\\"><circle cx=\\\"12\\\" cy=\\\"12\\\" r=\\\"10\\\" fill=\\\"currentColor\\\"/></svg>H\\u00e1 vendas novas';t.style.cssText='color:#4ade80;white-space:nowrap';a.appendChild(t);" +
             "var b=document.createElement('button');b.type='button';b.textContent='Atualizar';" +
             "b.style.cssText='border:0;border-radius:999px;padding:6px 14px;background:#22c55e;color:#04210f;font:700 13px Inter,Arial,sans-serif;cursor:pointer';" +
             "b.onclick=function(){_recarregar(true);};a.appendChild(b);" +
@@ -2367,7 +2367,7 @@ var gerarEmBackground=function(inicio,fim,chave,_pollTriggered){
             "try{if(typeof window.__antesRecarga==='function')window.__antesRecarga(forcar?{}:{limpar:true});}catch(_){}" +
             "window.location.replace(window.location.href);};" +
             // Chamada pelo menu ao trocar a opção: ligou com venda pendente → atualiza já.
-            "window.__srvRecargaMudou=function(lig){try{var bd=document.getElementById('__srv_badge');if(bd)bd.textContent=lig?'\\u21bb auto':'\\u21bb ao vivo';}catch(_){}" +
+            "window.__srvRecargaMudou=function(lig){try{var bd=document.getElementById('__srv_badge');if(bd)bd.innerHTML=(window.__icoRecarga||'')+(lig?'auto':'ao vivo');}catch(_){}" +
             "if(lig&&_recPend)_recarregar(true);};" +
             // SSE (primário)
             "var _es=null,_connTry=0;" +

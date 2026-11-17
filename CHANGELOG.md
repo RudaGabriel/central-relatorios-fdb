@@ -25,8 +25,8 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.1 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.8.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -1423,6 +1423,12 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.11.0 — 2026-11-17
+
+**Lista de vendas alinhada.** (1.11.0 é a versão da pasta.) Hora, tipo, número e caixa passam a ficar centralizados (título e conteúdo), como desconto e pagamento; o título Itens também fica centralizado sobre a coluna; o total fica à direita e vendedor, cliente e itens à esquerda (`base.css` 1.8.0). No celular, a hora continua à esquerda.
+
+**Correção:** a foto ampliada do vendedor aparecia com a dica do navegador ("Clique para trocar ou remover a foto") por cima; o texto fica só dentro da caixa da foto (`painel.js` 1.7.1).
 
 ### 1.10.0 — 2026-11-17
 

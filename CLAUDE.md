@@ -42,6 +42,11 @@
   `stroke="currentColor"`, traço 2, pontas arredondadas; no CSS, máscara com SVG). Onde SVG
   não é possível (`<option>`, bandeja do Windows, log), use só texto. Setas em frases
   ("Configurações → Nesta tela") e no log continuam permitidas.
+- **Alinhamento:** o usuário sente conforto ao ver tudo alinhado. Em tabelas, listas e
+  painéis: rótulos curtos e etiquetas centralizados (título e conteúdo da coluna), valores em
+  dinheiro à direita, textos longos à esquerda; colunas da direita juntas, sem espaços vazios
+  entre elas (o espaço que sobra vai para a coluna de texto). Nada desalinhado entre linhas,
+  colunas ou campos lado a lado.
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII
   (acentos no tray como `\uXXXX`, convertidos por `L()`); preservar BOM/CRLF onde existir.
 - **Antes de entregar:** `npm test` verde; validar no navegador (Playwright) o que

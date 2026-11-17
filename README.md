@@ -370,7 +370,8 @@ Em todos os painéis você encontra:
   - colunas: hora com segundos, tipo, número, caixa, vendedor, cliente ou natureza, itens com quantidade, pagamento (com o valor de cada forma) e total;
   - nos itens, os produtos aparecem primeiro e a linha de desconto fica no fim; a quantidade não conta o desconto;
   - a coluna **Desc.**, entre Itens e Pagamento, mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse; clique no título para ordenar pelo desconto;
-  - Desc., Pagamento e Total ficam juntos à direita, centralizados; o espaço que sobra vai para os Itens; com mais de uma forma, aparece a primeira e "+1" (todas, com os valores, ficam na dica);
+  - Desc., Pagamento e Total ficam juntos à direita, centralizados; o espaço que sobra vai para os Itens;
+  - hora, tipo, número e caixa ficam centralizados; vendedor, cliente e itens à esquerda; o total à direita; com mais de uma forma, aparece a primeira e "+1" (todas, com os valores, ficam na dica);
   - as dicas dos itens e dos pagamentos mostram um por linha;
   - ao passar o mouse sobre um nome, item, pagamento ou botão, aparece uma **dica própria do painel**, nas cores do tema, junto da seta do mouse (também ao navegar com Tab, junto do elemento);
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;

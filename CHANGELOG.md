@@ -26,7 +26,7 @@ Versões em uso hoje:
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.1 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.8.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -1423,6 +1423,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.12.0 — 2026-11-17
+
+**Total centralizado.** (1.12.0 é a versão da pasta.) Na lista de vendas, o Total (título e valores) passa a ficar centralizado como as demais colunas curtas, e a coluna ficou um pouco mais estreita, mais perto do Pagamento (`base.css` 1.9.0). No celular, o total continua à direita da linha.
 
 ### 1.11.0 — 2026-11-17
 

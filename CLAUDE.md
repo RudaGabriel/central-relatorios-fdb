@@ -43,8 +43,9 @@
   não é possível (`<option>`, bandeja do Windows, log), use só texto. Setas em frases
   ("Configurações → Nesta tela") e no log continuam permitidas.
 - **Alinhamento:** o usuário sente conforto ao ver tudo alinhado. Em tabelas, listas e
-  painéis: rótulos curtos e etiquetas centralizados (título e conteúdo da coluna), valores em
-  dinheiro à direita, textos longos à esquerda; colunas da direita juntas, sem espaços vazios
+  painéis: rótulos curtos, etiquetas e valores das colunas estreitas da tabela centralizados
+  (título e conteúdo da coluna); em listas de nome e valor (detalhe da venda, painéis laterais),
+  o valor fica à direita; textos longos à esquerda; colunas da direita juntas, sem espaços vazios
   entre elas (o espaço que sobra vai para a coluna de texto). Nada desalinhado entre linhas,
   colunas ou campos lado a lado.
 - **Arquivos do Windows:** `iniciar-tray.ps1`, `api.ps1` e os `.vbs` ficam 100% ASCII

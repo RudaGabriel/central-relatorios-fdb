@@ -1,7 +1,6 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.8.0
-     1.8.0 - 2026-11-17 - Lista alinhada: hora, tipo, número e caixa centralizados (título e conteúdo), como desconto e
-                          pagamento; título Itens centralizado; total à direita; vendedor, cliente e itens à esquerda.
+   @version 1.9.0
+     1.9.0 - 2026-11-17 - Total centralizado (título e valores) e mais perto do Pagamento; no celular, continua à direita.
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -60,10 +59,10 @@ button{font:inherit;color:inherit}
 /* Tabela de vendas */
 .tabela{display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;container-type:inline-size}
 .tb-sc{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative}
-#cab,.lv{display:grid;grid-template-columns:var(--cols,86px 68px 66px 44px minmax(100px,1fr) minmax(90px,.9fr) minmax(170px,2.6fr) 58px 112px 92px);align-items:center}
+#cab,.lv{display:grid;grid-template-columns:var(--cols,86px 68px 66px 44px minmax(100px,1fr) minmax(90px,.9fr) minmax(170px,2.6fr) 58px 108px 86px);align-items:center}
 #cab{position:sticky;top:0;z-index:3;background:var(--cab,var(--pn));border-bottom:1px solid var(--ln)}
 #cab>*{border:0;background:none;text-align:left;padding:7px 8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:4px;align-items:center}
-#cab span{cursor:default}#cab .on{color:var(--tx)}#cab i{font-style:normal;font-size:8px;display:inline-flex}#cab i:empty{display:none}#cab i svg{width:11px;height:11px}#cab .c-total{justify-content:flex-end}
+#cab span{cursor:default}#cab .on{color:var(--tx)}#cab i{font-style:normal;font-size:8px;display:inline-flex}#cab i:empty{display:none}#cab i svg{width:11px;height:11px}#cab .c-total{justify-content:center}
 .lv{min-height:var(--lh,31px);border-bottom:1px solid var(--ln2,var(--ln));cursor:pointer;transition:background .15s}
 .lv:hover{background:var(--hv)}.lv.sel{background:var(--sel);box-shadow:inset 3px 0 0 var(--ac)}
 .lv>span{padding:3px 8px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -76,7 +75,7 @@ button{font:inherit;color:inherit}
 .c-pag{justify-content:safe center}#cab .c-pag{justify-content:center}.c-pag .pgMais{padding:1px 5px;color:var(--mu)}
 .c-dsc{flex:none;font-style:normal;font-size:10.5px;font-weight:700;line-height:1.5;padding:0 5px;border-radius:4px;color:var(--dsc,#e11d48);background:color-mix(in srgb,var(--dsc,#e11d48) 13%,transparent);border:1px solid color-mix(in srgb,var(--dsc,#e11d48) 30%,transparent)}
 .c-pag{display:flex;gap:4px;overflow:hidden}.c-pag i{font-style:normal;font-size:11px;font-weight:600;padding:1px 6px;border-radius:999px;border:1px solid var(--ln);white-space:nowrap;color:var(--tx2,var(--tx))}.c-pag em{font-style:normal;color:var(--mu);font-weight:500}
-.c-total{text-align:right;font-weight:700;font-size:13.5px}
+.c-total{text-align:center;font-weight:700;font-size:13.5px}
 .lv.novo{animation:novaLinha 2.4s ease-out 1}@keyframes novaLinha{0%,30%{background:color-mix(in srgb,var(--ac) 28%,transparent)}100%{background:transparent}}
 .lv.novo{box-shadow:inset 3px 0 0 var(--ac)}
 .lv.rec .c-total{color:var(--mu)}
@@ -84,7 +83,7 @@ button{font:inherit;color:inherit}
 #filtros{display:flex;gap:6px;flex-wrap:wrap}#filtros.vazio{display:none}
 #filtros button{border:1px solid var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--tx);border-radius:999px;padding:2px 10px;font-size:12px;cursor:pointer}#filtros b{margin-left:4px}
 #vazio,#mais{padding:18px;text-align:center;color:var(--mu);font-size:12.5px}
-@container (max-width:980px){#cab,.lv{--cols:84px 68px 64px minmax(100px,1fr) minmax(150px,2.4fr) 56px 108px 90px}.c-caixa,.c-cliente{display:none!important}}
+@container (max-width:980px){#cab,.lv{--cols:84px 68px 64px minmax(100px,1fr) minmax(150px,2.4fr) 56px 104px 84px}.c-caixa,.c-cliente{display:none!important}}
 @container (max-width:700px){#cab,.lv{--cols:82px 68px minmax(90px,1fr) minmax(110px,1.6fr) 54px 88px}.c-numero,.c-pag{display:none!important}}
 
 /* Detalhe da venda */
@@ -275,11 +274,11 @@ body{zoom:var(--zoom,1);height:calc(100vh / var(--zoom,1));height:calc(100dvh / 
 .vd-r svg,.vd-av svg{display:block;margin:auto}
 
 /* Alinhamento da lista (v1.8.0), regra do projeto: rótulos curtos e etiquetas centralizados (hora, tipo, número,
-   caixa, desconto, pagamento), valores à direita (total) e textos longos à esquerda (vendedor, cliente, itens).
+   caixa, desconto, pagamento e total) e textos longos à esquerda (vendedor, cliente, itens).
    Vale para o título e para o conteúdo de cada coluna. No celular (linha em dois andares), a hora fica à esquerda. */
 #cab .c-hora,#cab .c-tipo,#cab .c-numero,#cab .c-caixa,#cab .c-itens{justify-content:center}
 .lv>.c-hora,.lv>.c-tipo,.lv>.c-numero,.lv>.c-caixa{text-align:center}
-@media (max-width:820px){.lv>.c-hora{text-align:left}}
+@media (max-width:820px){.lv>.c-hora{text-align:left}.lv>.c-total{text-align:right}}
 
 /* Fotos dos vendedores (v1.5.0): a foto cobre o avatar inteiro; sem foto, as iniciais. */
 .vd-av[data-foto-vend]{cursor:pointer;position:relative;overflow:hidden}

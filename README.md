@@ -372,7 +372,7 @@ Em todos os painéis você encontra:
   - a coluna **Desc.**, entre Itens e Pagamento, mostra o **percentual de desconto** da venda (ex.: −5%), com o valor ao passar o mouse; clique no título para ordenar pelo desconto;
   - a coluna Pagamento é centralizada e fica perto do Total; com mais de uma forma, aparece a primeira e "+1" (todas, com os valores, ficam na dica);
   - as dicas dos itens e dos pagamentos mostram um por linha;
-  - ao passar o mouse sobre um nome, item, pagamento ou botão, aparece uma **dica própria do painel**, nas cores do tema (também ao navegar com Tab);
+  - ao passar o mouse sobre um nome, item, pagamento ou botão, aparece uma **dica própria do painel**, nas cores do tema, junto da seta do mouse (também ao navegar com Tab, junto do elemento);
   - clique no título da coluna para ordenar; o rodapé mostra quantidade, soma e ticket do que está na lista;
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
 - **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque; ao passar o mouse ou tocar numa barra, aparece uma dica com as vendas, o total, o ticket médio, a parte do dia e a divisão por tipo), produtos mais vendidos (sem a linha de desconto) e **conversões em nota fiscal** (cada gerencial convertida em NFC-e ou NF-e, inclusive as que o PDV marca como convertidas).

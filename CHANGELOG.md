@@ -7,7 +7,7 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.31.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.32.0 |
 | [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.35.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
@@ -25,8 +25,8 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -41,6 +41,10 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.32.0 — 2026-11-17
+
+**Versão do servidor para os painéis.** A página de cada painel recebe a versão do servidor (`FDB_TEMAS.srv`). Assim o painel sabe quando o servidor em execução ainda é o anterior e avisa que é preciso reiniciá-lo para usar uma função nova.
 
 ### 2.31.0 — 2026-11-17
 
@@ -1419,6 +1423,13 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.10.0 — 2026-11-17
+
+**Foto ampliada e aviso de reinício.** (1.10.0 é a versão da pasta.)
+
+- **Foto do vendedor ampliada** (`painel.js` 1.7.0, `base.css` 1.7.0): ao passar o mouse sobre um avatar com foto, a foto aparece grande junto da seta, com o nome do vendedor.
+- **Aviso de reinício:** os arquivos dos painéis são lidos do disco a cada abertura. Logo depois de uma atualização, a tela nova pode estar rodando com o servidor antigo, que ainda não conhece as rotas novas, e a foto falhava com "Não foi possível salvar a foto". Agora a foto e o logo avisam, antes de abrir a escolha do arquivo, que o servidor precisa ser reiniciado (bandeja → Reiniciar servidor). Uma resposta fora do formato esperado mostra a mesma orientação.
 
 ### 1.9.0 — 2026-11-17
 

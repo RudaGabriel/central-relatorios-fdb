@@ -1102,6 +1102,7 @@ test("servidor: painéis de tela única — /painel/<id>/ só da lista; /demos l
             assert.match(html, /window\.FDB_TEMAS=\{"atual":"/, "lista de temas embutida em " + p.id);
             const info = JSON.parse(html.match(/window\.FDB_TEMAS=(\{[\s\S]*?\});<\/script>/)[1]);
             assert.strictEqual(info.atual, p.id);
+            assert.match(String(info.srv), /^\d+\.\d+\.\d+$/, "versão do servidor para os painéis (avisar quando é preciso reiniciar)");
             assert.deepStrictEqual(info.classicos.map(t => t.id), ["ultra-dark", "light", "hud", "indigo", "executivo", "ambar", "brasa"], "temas clássicos intactos");
             assert.strictEqual(info.paineis.length, cat.paineis.length);
             assert.match(html, /id="btnTema"/); assert.match(html, /id="btnCfg"/, "botão Configurações em " + p.id);

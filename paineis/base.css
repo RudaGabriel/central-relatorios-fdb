@@ -1,7 +1,6 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.6.0
-     1.6.0 - 2026-11-17 - Rodapé da lista de vendas com o mesmo espaçamento em todos os painéis: 7 px em cima, 16 px nas
-                          laterais e 5 px embaixo.
+   @version 1.7.0
+     1.7.0 - 2026-11-17 - Foto do vendedor ampliada ao passar o mouse (#fotoZoom).
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -290,3 +289,10 @@ body{zoom:var(--zoom,1);height:calc(100vh / var(--zoom,1));height:calc(100dvh / 
 .buscaX:hover{color:var(--tx);background:var(--hv,rgba(127,127,127,.15))}
 .buscaX:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
 .busca.temQ .buscaX{display:grid}.busca.temQ kbd{display:none}
+
+/* Foto do vendedor ampliada ao passar o mouse (v1.7.0). */
+#fotoZoom{position:fixed;z-index:2147482700;width:176px;padding:8px;border-radius:14px;background:var(--mbg,var(--cab,var(--pn)));color:var(--tx);border:1px solid var(--ln);box-shadow:0 18px 40px -14px rgba(0,0,0,.55);pointer-events:none;opacity:0;visibility:hidden;transform:scale(.92);transform-origin:top left;transition:opacity .14s,transform .14s}
+#fotoZoom.on{opacity:1;visibility:visible;transform:none}
+#fotoZoom img{display:block;width:160px;height:160px;border-radius:10px;object-fit:cover}
+#fotoZoom b{display:block;margin-top:7px;font:700 12.5px Inter,"Segoe UI",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fotoZoom small{display:block;font:500 11px Inter,"Segoe UI",sans-serif;color:var(--mu)}

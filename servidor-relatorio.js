@@ -5,16 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.31.0
+ * @version 2.32.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.31.0 - 2026-11-17 - Fotos dos vendedores nos painéis (pasta fotos-vendedores, rotas
- *     /api/fotos-vendedores, /api/foto-vendedor, /api/remover-foto-vendedor e /foto-vendedor/...), só no
- *     computador do servidor; página de configurações com os campos lado a lado alinhados e sem as
- *     setas dos campos numéricos.
+ *   2.32.0 - 2026-11-17 - Os painéis recebem a versão do servidor (FDB_TEMAS.srv), para avisar quando ele
+ *     precisa ser reiniciado para ativar uma função nova (fotos dos vendedores, logo).
  */
 
 
@@ -22,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.31.0";
+const SERVER_VERSION = "2.32.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5235,7 +5233,7 @@ var _montarPainel = function(id, cat) {
         // Nada pode fechar a tag em que é embutido.
         if (/<\/(script|style)/i.test(painelJs + motor) || /<\/style/i.test(comum + base)) return null;
         if (pagina.indexOf("<!--COMUM-->") < 0 || pagina.indexOf("<!--MOTOR-->") < 0) return null;
-        var info = JSON.stringify({ atual: id, paineis: cat.paineis, classicos: classicos, app: APP_NAME, toastMs: TOAST_DURATION }).replace(/</g, "\\u003c");
+        var info = JSON.stringify({ atual: id, paineis: cat.paineis, classicos: classicos, app: APP_NAME, toastMs: TOAST_DURATION, srv: SERVER_VERSION }).replace(/</g, "\\u003c");
         var html = pagina.replace("<!--CORPO-->", function(){ return corpo; })
             .replace("<!--COMUM-->", function(){ return "<style>\n" + comum + "\n" + base + "\n</style>"; })
             .replace("<!--MOTOR-->", function(){ return "<script>window.FDB_TEMAS=" + info + ";</script>\n" + (busca ? "<script>\n" + busca + "\n</script>\n" : "") + "<script>\n" + painelJs + "\n</script>\n<script>\n" + motor + "\n</script>"; });

@@ -1,6 +1,7 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.6.0
- *   1.6.0 - 2026-11-17 - Dicas personalizadas abrem junto da seta do mouse (pelo teclado, junto do elemento).
+ * @version 1.7.0
+ *   1.7.0 - 2026-11-17 - Foto do vendedor ampliada ao passar o mouse; foto e logo avisam quando o servidor ainda
+ *                        está na versão anterior (é preciso reiniciá-lo), em vez de uma falha genérica.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -102,6 +103,15 @@
   // (com o enquadramento puxado para cima, onde costuma estar o rosto), reduz para 256×256 e envia
   // como JPEG leve. As fotos valem para todos os aparelhos e só são trocadas no computador do servidor.
   let fotos = {}, fotoIn = null, fotoAlvo = "", fotoMenu = null;
+  // v1.7.0: as funções novas dependem de rotas do servidor. Os arquivos dos painéis são lidos do disco a
+  // cada abertura, então, logo depois de uma atualização, a tela nova pode estar rodando com o servidor
+  // antigo (ainda não reiniciado). A versão do servidor chega em FDB_TEMAS.srv (servidor 2.32.0+).
+  const MSG_REINICIAR = "O servidor precisa ser reiniciado para ativar esta função: na bandeja do computador do servidor, clique em Reiniciar servidor.";
+  const verNum = v => String(v || "").split(".").map(n => parseInt(n, 10) || 0).reduce((a, n, i) => a + n * Math.pow(1000, 2 - i), 0);
+  const servidorTem = min => { const v = window.FDB_TEMAS && window.FDB_TEMAS.srv; return !!v && verNum(v) >= verNum(min); };
+  // Mensagem de uma resposta com erro: a do servidor; sem resposta no formato esperado (rota inexistente
+  // no servidor antigo), pede para reiniciar.
+  const erroDe = (r, j, padrao) => (j && j.erro) ? j.erro : (!j || r.status === 404 || r.status === 405) ? MSG_REINICIAR : padrao;
   const normVend = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim().slice(0, 120);
   function avatar(nome){
     const es = E().esc;
@@ -169,7 +179,7 @@
     try { r = await fetch("/api/foto-vendedor?nome=" + encodeURIComponent(nome), {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: blob, credentials: "same-origin"}); } catch (e) { r = null; }
     if (!r) { en.toast("<b>Foto</b> · Sem conexão com o servidor. Tente novamente."); return; }
     try { j = await r.json(); } catch (e) { j = null; }
-    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc((j && j.erro) || "Não foi possível salvar a foto.")); return; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc(erroDe(r, j, "Não foi possível salvar a foto."))); return; }
     if (j.foto) fotos[normVend(nome)] = j.foto;
     en.render(); en.toast("<b>Foto</b> · Foto de " + en.esc(nome) + " atualizada.");
   }
@@ -178,11 +188,28 @@
     try { r = await fetch("/api/remover-foto-vendedor?nome=" + encodeURIComponent(nome), {method: "POST", credentials: "same-origin"}); } catch (e) { r = null; }
     if (!r) { en.toast("<b>Foto</b> · Sem conexão com o servidor. Tente novamente."); return; }
     try { j = await r.json(); } catch (e) { j = null; }
-    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc((j && j.erro) || "Não foi possível remover a foto.")); return; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Foto</b> · " + en.esc(erroDe(r, j, "Não foi possível remover a foto."))); return; }
     delete fotos[normVend(nome)]; en.render(); en.toast("<b>Foto</b> · Foto de " + en.esc(nome) + " removida.");
   }
+  // Foto ampliada ao passar o mouse sobre um avatar com foto (v1.7.0), junto da seta, com o nome.
+  let fotoZoom = null, fotoZoomAlvo = null;
+  function zoomFoto(av, cx, cy){
+    const img = av.querySelector("img"); if (!img || !img.complete || !img.naturalWidth) return;
+    if (!fotoZoom) { fotoZoom = document.createElement("div"); fotoZoom.id = "fotoZoom"; fotoZoom.setAttribute("aria-hidden", "true"); fotoZoom.innerHTML = "<img alt=''><b></b><small>Clique para trocar ou remover a foto</small>"; document.body.appendChild(fotoZoom); }
+    if (fotoZoomAlvo !== av) { fotoZoom.querySelector("img").src = img.src; fotoZoom.querySelector("b").textContent = av.dataset.fotoVend || ""; fotoZoomAlvo = av; }
+    fotoZoom.classList.add("on");
+    const z = zLer(), w = fotoZoom.offsetWidth * z, a = fotoZoom.offsetHeight * z;
+    let x = cx + 14, y = cy + 18;
+    if (x + w > innerWidth - 8) x = cx - w - 10;
+    if (y + a > innerHeight - 8) y = cy - a - 10;
+    x = Math.max(8, Math.min(x, innerWidth - w - 8)); y = Math.max(8, Math.min(y, innerHeight - a - 8));
+    fotoZoom.style.left = Math.round(x / z) + "px"; fotoZoom.style.top = Math.round(y / z) + "px";
+  }
+  function zoomFotoFechar(){ if (fotoZoom) fotoZoom.classList.remove("on"); fotoZoomAlvo = null; }
   function cliqueAvatar(av){
+    zoomFotoFechar();
     const nome = av.dataset.fotoVend || ""; if (!nome) return;
+    if (!servidorTem("2.31.0")) { E().toast("<b>Foto</b> · " + E().esc(MSG_REINICIAR)); return; }
     if (fotos[normVend(nome)]) abrirFotoMenu(av, nome); else escolherFoto(nome);
   }
 
@@ -418,6 +445,7 @@
   // permite voltar a usar o ícone do sistema como logo.
   let logoIn = null;
   function escolherLogo(){
+    if (!servidorTem("2.28.0")) { E().toast("<b>Logo</b> · " + E().esc(MSG_REINICIAR)); return; }
     if (!logoIn) {
       logoIn = document.createElement("input"); logoIn.type = "file"; logoIn.hidden = true;
       logoIn.accept = "image/png,image/jpeg,image/x-icon,image/vnd.microsoft.icon,.png,.jpg,.jpeg,.ico";
@@ -434,7 +462,7 @@
     try { r = await fetch("/api/upload-logo", {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: f, credentials: "same-origin"}); } catch (e) { r = null; }
     if (!r) { en.toast("<b>Logo</b> · Sem conexão com o servidor. Tente novamente."); return; }
     try { j = await r.json(); } catch (e) { j = null; }
-    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc((j && j.erro) || "Não foi possível trocar o logo.")); return; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc(erroDe(r, j, "Não foi possível trocar o logo."))); return; }
     atualizarLogos(); en.toast("<b>Logo</b> · Logo do painel atualizado. O ícone do sistema não foi alterado.");
   }
   async function logoPadrao(){
@@ -442,7 +470,7 @@
     try { r = await fetch("/api/remover-logo", {method: "POST", credentials: "same-origin"}); } catch (e) { r = null; }
     if (!r) { en.toast("<b>Logo</b> · Sem conexão com o servidor. Tente novamente."); return; }
     try { j = await r.json(); } catch (e) { j = null; }
-    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc((j && j.erro) || "Não foi possível alterar o logo.")); return; }
+    if (!r.ok || !j || !j.ok) { en.toast("<b>Logo</b> · " + en.esc(erroDe(r, j, "Não foi possível alterar o logo."))); return; }
     atualizarLogos(); en.toast("<b>Logo</b> · O painel voltou a usar o ícone do sistema como logo.");
   }
   function atualizarLogos(){
@@ -519,7 +547,14 @@
     }, true);
     carregarFotos();
     // Dicas personalizadas no lugar do title do navegador (mouse e teclado).
-    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380, {x: e.clientX, y: e.clientY}); }, {passive: true});
+    // Avatar com foto: a foto ampliada substitui a dica de texto.
+    document.addEventListener("pointermove", e => {
+      if (e.pointerType === "touch") return;
+      const av = e.target.closest && e.target.closest(".vd-av.comFoto");
+      if (av) { dicaEsconder(); zoomFoto(av, e.clientX, e.clientY); } else if (fotoZoomAlvo) zoomFotoFechar();
+    }, {passive: true});
+    document.addEventListener("scroll", zoomFotoFechar, {passive: true, capture: true});
+    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; if (e.target.closest && e.target.closest(".vd-av.comFoto")) return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380, {x: e.clientX, y: e.clientY}); }, {passive: true});
     // A seta continua andando até a dica abrir: ela abre onde a seta estiver nesse momento.
     document.addEventListener("pointermove", e => { if (e.pointerType !== "touch" && dicaAlvo && dicaPonteiro && !(dicaEl && dicaEl.classList.contains("on"))) dicaPonteiro = {x: e.clientX, y: e.clientY}; }, {passive: true});
     document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120, null); });

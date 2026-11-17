@@ -6,7 +6,7 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.31.0" src="https://img.shields.io/badge/servidor-v2.31.0-2563EB?style=flat">
+<img alt="servidor: v2.32.0" src="https://img.shields.io/badge/servidor-v2.32.0-2563EB?style=flat">
 <img alt="gerador: v3.35.0" src="https://img.shields.io/badge/gerador-v3.35.0-2563EB?style=flat">
 <img alt="bandeja: v1.9.2" src="https://img.shields.io/badge/bandeja-v1.9.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
@@ -382,7 +382,7 @@ Em todos os painéis você encontra:
   - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
   - no celular aparecem só os ícones.
-- **Fotos dos vendedores** (no Administrativo, onde aparecem as iniciais): clique no avatar e escolha uma foto do computador ou do celular. O sistema recorta em quadrado, centraliza o rosto e reduz a imagem automaticamente. Com foto, o clique oferece **Trocar foto** ou **Remover foto**. Vale para todos os aparelhos e só pode ser feito no computador do servidor.
+- **Fotos dos vendedores** (no Administrativo, onde aparecem as iniciais): clique no avatar e escolha uma foto do computador ou do celular. O sistema recorta em quadrado, centraliza o rosto e reduz a imagem automaticamente. Com foto, passar o mouse mostra a foto ampliada, e o clique oferece **Trocar foto** ou **Remover foto**. Vale para todos os aparelhos e só pode ser feito no computador do servidor.
 - **Logo e nome da loja:**
   - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;
   - a troca vale **somente para o logo dos painéis**, para todos os aparelhos, e só pode ser feita no computador do servidor. O **ícone do sistema (`favicon.png`)**, usado na aba do navegador, no relatório clássico e na bandeja, **não é alterado**;
@@ -483,7 +483,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.31.0 | Gerador v3.35.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.32.0 | Gerador v3.35.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```
@@ -588,6 +588,7 @@ No Windows: duplo clique em **`test\executar-testes.bat`**. Os 40 testes cobrem 
 | Ao abrir um painel aparece "Painéis indisponíveis" ou "Painel incompleto" | Falta a pasta `paineis` (ou parte dela) na pasta do sistema. Baixe o projeto novamente e copie a pasta `paineis` inteira para o lado do `servidor-relatorio.js`. Enquanto isso, o relatório clássico continua em `http://localhost:7734/?classico=1` |
 | O painel "Conversões em nota fiscal" fica vazio mesmo depois de converter uma gerencial em NFC-e | Atualize o `gerar-relatorio-html.js` para a 3.34.0 ou mais nova: as gerenciais que o PDV marca como convertidas passaram a entrar na lista |
 | O log aponta a tarefa de outro sistema como problema da inicialização automática | Atualize o `iniciar-tray.ps1` para a 1.9.1 ou mais nova: a tarefa de outra pasta só gera aviso quando nenhuma tarefa abre a pasta deste sistema |
+| Ao trocar a foto de um vendedor ou o logo aparece "O servidor precisa ser reiniciado para ativar esta função" (ou "Não foi possível salvar a foto") | Os arquivos foram atualizados, mas o servidor em execução ainda é o anterior. Na bandeja do computador do servidor, clique em **Reiniciar servidor** e tente de novo |
 | O relatório sempre abre num painel e eu quero o de sempre | Em **Tema**, escolha um tema em **Temas clássicos** (ou abra `/?classico=1` só desta vez) |
 | Qualquer outro problema | O `relatorio.log` registra erros, avisos e a versão em uso |
 

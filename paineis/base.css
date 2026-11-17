@@ -1,6 +1,7 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
    @version 1.7.0
-     1.7.0 - 2026-11-17 - Foto do vendedor ampliada ao passar o mouse (#fotoZoom).
+     1.7.0 - 2026-11-17 - Foto do vendedor ampliada ao passar o mouse (#fotoZoom); Desc., Pagamento e Total com
+                          largura fixa, juntos à direita e centralizados (o espaço que sobra vai para os Itens).
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -59,7 +60,7 @@ button{font:inherit;color:inherit}
 /* Tabela de vendas */
 .tabela{display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;container-type:inline-size}
 .tb-sc{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative}
-#cab,.lv{display:grid;grid-template-columns:var(--cols,86px 68px 66px 44px minmax(100px,1fr) minmax(90px,.9fr) minmax(170px,2.3fr) 54px minmax(112px,.85fr) 88px);align-items:center}
+#cab,.lv{display:grid;grid-template-columns:var(--cols,86px 68px 66px 44px minmax(100px,1fr) minmax(90px,.9fr) minmax(170px,2.6fr) 58px 112px 92px);align-items:center}
 #cab{position:sticky;top:0;z-index:3;background:var(--cab,var(--pn));border-bottom:1px solid var(--ln)}
 #cab>*{border:0;background:none;text-align:left;padding:7px 8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:4px;align-items:center}
 #cab span{cursor:default}#cab .on{color:var(--tx)}#cab i{font-style:normal;font-size:8px;display:inline-flex}#cab i svg{width:11px;height:11px}#cab .c-total{justify-content:flex-end}
@@ -83,8 +84,8 @@ button{font:inherit;color:inherit}
 #filtros{display:flex;gap:6px;flex-wrap:wrap}#filtros.vazio{display:none}
 #filtros button{border:1px solid var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--tx);border-radius:999px;padding:2px 10px;font-size:12px;cursor:pointer}#filtros b{margin-left:4px}
 #vazio,#mais{padding:18px;text-align:center;color:var(--mu);font-size:12.5px}
-@container (max-width:980px){#cab,.lv{--cols:84px 68px 64px minmax(100px,1fr) minmax(150px,2.3fr) 52px minmax(104px,.8fr) 86px}.c-caixa,.c-cliente{display:none!important}}
-@container (max-width:700px){#cab,.lv{--cols:82px 68px minmax(90px,1fr) minmax(110px,1.6fr) 50px 84px}.c-numero,.c-pag{display:none!important}}
+@container (max-width:980px){#cab,.lv{--cols:84px 68px 64px minmax(100px,1fr) minmax(150px,2.4fr) 56px 108px 90px}.c-caixa,.c-cliente{display:none!important}}
+@container (max-width:700px){#cab,.lv{--cols:82px 68px minmax(90px,1fr) minmax(110px,1.6fr) 54px 88px}.c-numero,.c-pag{display:none!important}}
 
 /* Detalhe da venda */
 #ov .det{width:min(640px,100%);padding:24px 26px 20px}

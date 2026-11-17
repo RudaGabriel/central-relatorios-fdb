@@ -1429,6 +1429,7 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 **Foto ampliada e aviso de reinício.** (1.10.0 é a versão da pasta.)
 
 - **Foto do vendedor ampliada** (`painel.js` 1.7.0, `base.css` 1.7.0): ao passar o mouse sobre um avatar com foto, a foto aparece grande junto da seta, com o nome do vendedor.
+- **Colunas da direita juntas** (`base.css` 1.7.0): Desc., Pagamento e Total têm largura fixa e ficam lado a lado à direita, cada uma centralizada; o espaço que sobra vai para a coluna Itens, em vez de afastar essas colunas.
 - **Aviso de reinício:** os arquivos dos painéis são lidos do disco a cada abertura. Logo depois de uma atualização, a tela nova pode estar rodando com o servidor antigo, que ainda não conhece as rotas novas, e a foto falhava com "Não foi possível salvar a foto". Agora a foto e o logo avisam, antes de abrir a escolha do arquivo, que o servidor precisa ser reiniciado (bandeja → Reiniciar servidor). Uma resposta fora do formato esperado mostra a mesma orientação.
 
 ### 1.9.0 — 2026-11-17

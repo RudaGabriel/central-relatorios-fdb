@@ -25,7 +25,7 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
 | [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
@@ -1419,6 +1419,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.8.0 — 2026-11-17
+
+**Dicas junto da seta do mouse.** (1.8.0 é a versão da pasta.) As dicas personalizadas (`painel.js` 1.6.0) abrem logo abaixo e à direita da seta do mouse, em vez de centralizadas embaixo do elemento. Perto da borda da tela, viram para o outro lado e nunca saem da tela, inclusive com o texto ampliado. Pelo teclado (Tab), continuam junto do elemento focado.
 
 ### 1.7.0 — 2026-11-17
 

@@ -1,8 +1,6 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.5.0
- *   1.5.0 - 2026-11-17 - Botão X na busca (limpa o campo) quando há texto, no lugar do atalho "/"; foto do vendedor
- *                        (clique no avatar: recorte e redução automáticos); dicas de itens e pagamentos com um por
- *                        linha; várias formas de pagamento como "Pix +1".
+ * @version 1.6.0
+ *   1.6.0 - 2026-11-17 - Dicas personalizadas abrem junto da seta do mouse (pelo teclado, junto do elemento).
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -351,14 +349,26 @@
     if (!dicaEl) { dicaEl = document.createElement("div"); dicaEl.id = "dica"; dicaEl.setAttribute("role", "tooltip"); document.body.appendChild(dicaEl); }
     dicaEl.textContent = txt; dicaEl.classList.add("on");
     const z = zLer(), r = el.getBoundingClientRect(), w = dicaEl.offsetWidth * z, a = dicaEl.offsetHeight * z;
-    let x = r.left + r.width / 2 - w / 2, y = r.bottom + 8;
-    if (y + a > innerHeight - 8) y = r.top - a - 8;
-    if (y < 8) y = 8;
+    let x, y;
+    if (dicaPonteiro) {
+      // v1.6.0: junto da seta do mouse (abaixo e à direita da ponta); perto da borda, vira para o outro lado.
+      x = dicaPonteiro.x + 12; y = dicaPonteiro.y + 20;
+      if (x + w > innerWidth - 8) x = dicaPonteiro.x - w - 8;
+      if (y + a > innerHeight - 8) y = dicaPonteiro.y - a - 10;
+    } else {
+      // Teclado (Tab): junto do elemento focado.
+      x = r.left + r.width / 2 - w / 2; y = r.bottom + 8;
+      if (y + a > innerHeight - 8) y = r.top - a - 8;
+    }
+    y = Math.max(8, Math.min(y, innerHeight - a - 8));
     x = Math.max(8, Math.min(x, innerWidth - w - 8));
     dicaEl.style.left = Math.round(x / z) + "px"; dicaEl.style.top = Math.round(y / z) + "px";
   }
   function dicaEsconder(){ clearTimeout(dicaTm); dicaAlvo = null; if (dicaEl) dicaEl.classList.remove("on"); }
-  function dicaAgendar(el, ms){
+  // Posição da seta do mouse (null = aberta pelo teclado).
+  let dicaPonteiro = null;
+  function dicaAgendar(el, ms, ponto){
+    if (ponto !== undefined) dicaPonteiro = ponto;
     if (el === dicaAlvo) return;
     dicaEsconder();
     if (!el || !dicaPrep(el)) return;
@@ -509,8 +519,10 @@
     }, true);
     carregarFotos();
     // Dicas personalizadas no lugar do title do navegador (mouse e teclado).
-    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380); }, {passive: true});
-    document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120); });
+    document.addEventListener("pointerover", e => { if (e.pointerType === "touch") return; dicaAgendar(e.target.closest ? e.target.closest("[title],[data-tip]") : null, 380, {x: e.clientX, y: e.clientY}); }, {passive: true});
+    // A seta continua andando até a dica abrir: ela abre onde a seta estiver nesse momento.
+    document.addEventListener("pointermove", e => { if (e.pointerType !== "touch" && dicaAlvo && dicaPonteiro && !(dicaEl && dicaEl.classList.contains("on"))) dicaPonteiro = {x: e.clientX, y: e.clientY}; }, {passive: true});
+    document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[title],[data-tip]"); if (el && el.matches(":focus-visible")) dicaAgendar(el, 120, null); });
     document.addEventListener("focusout", dicaEsconder);
     document.addEventListener("pointerdown", dicaEsconder, {passive: true});
     document.addEventListener("keydown", e => { if (e.key === "Escape") dicaEsconder(); });

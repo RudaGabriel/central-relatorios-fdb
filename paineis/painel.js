@@ -628,7 +628,7 @@
       menu.innerHTML =
         `<div class="tmSec"><div class="tmCab"><b>Painéis de tela única</b><span>Tudo em uma tela; só a lista de vendas rola.</span></div><div class="tmGrade">` +
         TM.paineis.map(p => `<button type="button" class="tmCard" role="menuitemradio" aria-checked="${p.id === TM.atual}" data-tema-id="${es(p.id)}" title="${es(p.descricao || p.nome)}">${prevPainel(p)}<span class="tmNome">${es(p.nome)}</span></button>`).join("") +
-        `</div></div><div class="tmSec"><div class="tmCab"><b>Temas clássicos</b><span>O relatório completo, com todas as opções e configurações.</span></div><div class="tmGrade">` +
+        `</div></div><div class="tmSec"><div class="tmCab"><b>Temas clássicos</b><span>O relatório completo, com a tabela detalhada, o QR code e as ferramentas de cópia.</span></div><div class="tmGrade">` +
         TM.classicos.map(t => `<button type="button" class="tmCard" role="menuitemradio" aria-checked="false" data-tema-id="${es(t.id)}">${prevClassico(t)}<span class="tmNome">${es(t.nome)}</span></button>`).join("") +
         `</div></div><div class="tmPe"><span>Em uso: <b>${es(atualNome)}</b></span><a href="${es(urlClassico())}">Abrir o relatório clássico sem trocar o tema</a></div>`;
       document.body.appendChild(menu);
@@ -638,9 +638,9 @@
     menu.classList.add("on"); b.setAttribute("aria-expanded", "true");
     const sel = menu.querySelector('[aria-checked="true"]') || menu.querySelector(".tmCard"); if (sel) sel.focus({preventScroll: true});
   }
-  // ── Configurações do painel (v1.0.2): como no relatório clássico, o desempenho fica em
-  // Configurações → Nesta tela (fora do cabeçalho). Também leva às configurações do sistema
-  // (/config, que volta para este painel) e ao relatório clássico.
+  // ── Configurações do painel: como no relatório clássico, desempenho, atualização e tamanho do texto
+  // ficam em Configurações → Nesta tela. O menu também abre a janela "Editar configurações" /
+  // "Minhas preferências" (abrirEdCfg, abaixo), o relatório clássico e a troca do logo.
   let cfgM = null;
   // Rótulo da janela de configurações: no computador do servidor edita o padrão de todos; nos
   // aparelhos da rede, só as preferências do próprio aparelho.
@@ -1052,7 +1052,9 @@
       const t = teclas.find(x => x.tecla.toLowerCase() === s.toLowerCase()); if (!t) return;
       e.preventDefault(); e.stopPropagation();
       const en = E(), es = en.esc, okAcao = acaoPainel(t.acao), cmd = String(t.comando || "").trim();
-      if (cmd || !t.acao) { const q = $("#q"); if (q) { q.value = cmd; en.st.q = cmd; en.render(); try { q.dispatchEvent(new Event("input", {bubbles: true})); } catch (er) {} } }
+      if (cmd || okAcao) { const q = $("#q"); if (q) { q.value = cmd; en.st.q = cmd; en.render(); try { q.dispatchEvent(new Event("input", {bubbles: true})); } catch (er) {} } }
+      // Como no clássico, a busca sempre recebe o comando (vazio limpa a busca); a única exceção é a ação
+      // que o painel não tem, para não apagar a busca sem fazer nada.
       en.toast("<b>Atalho " + es(t.tecla) + "</b> · " + (cmd ? es(cmd) : (t.acao ? (okAcao ? "Ação executada." : "") : "Busca limpa.")) +
         (okAcao ? "" : (cmd ? " " : "") + "A ação “" + es(rotAcao(t.acao)) + "” só existe no relatório clássico."));
     }, true);

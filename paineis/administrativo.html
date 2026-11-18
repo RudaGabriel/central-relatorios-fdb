@@ -192,10 +192,10 @@ window.PAINEL_CFG={cores:{"Gerencial":"var(--t1)","NFC-e":"var(--t2)","NF-e":"va
  const h=document.documentElement,salvar=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
  const estreito=()=>innerWidth<=1180;
  function ligar(){
-  // Links do menu lateral: relatório clássico e configurações do sistema voltam para este painel.
+  // Link do menu lateral para o relatório clássico (mantém o período deste painel). O item Configurações abre a
+  // janela de configurações do painel (painel.js).
   const q=location.search,f=(function(){const p=new URLSearchParams(q),i=p.get("i")||"",fi=p.get("f")||"";return /^\d{4}-\d{2}-\d{2}$/.test(i)&&/^\d{4}-\d{2}-\d{2}$/.test(fi)?"/periodo?i="+i+"&f="+fi:"/";})();
   document.querySelectorAll(".sbCl").forEach(a=>a.setAttribute("href",f+(f.indexOf("?")>=0?"&":"?")+"classico=1"));
-  document.querySelectorAll(".sbCfg").forEach(a=>a.setAttribute("href","/config?voltar="+encodeURIComponent(location.pathname+location.search)));
   // Menu lateral: no computador recolhe e abre (a escolha fica salva); em telas estreitas abre por cima.
   const tgl=document.getElementById("sbTgl"),fundo=document.getElementById("sbFundo");
   const fechar=()=>h.classList.remove("menuAberto");

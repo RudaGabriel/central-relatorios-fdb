@@ -1177,6 +1177,12 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         const B = ctx.window.BUSCA;
         B.indexar(dados); B.proibidos(["AREIA"]);
         assert.deepStrictEqual([...B.lista()], ["AREIA"]);
+        // Janela "Editar configurações" dos painéis: mesmo formato de proibidos do clássico e teclas de atalho.
+        const fp = B.formatar("A; B\nA\n- C");
+        assert.deepStrictEqual([...fp.lista], ["A", "B", "C"], "formato dos proibidos igual ao do clássico (separadores, repetidos e marcadores)");
+        assert.strictEqual(B.maxProibidos, 500, "limite de proibidos igual ao do servidor");
+        assert.match(html, /function abrirEdCfg\(/, "janela de configurações no painel");
+        assert.match(html, /function teclasInit\(/, "teclas de atalho no painel");
         const conta = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, i) => B.passa(v, i, c)).length; };
         const nums = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, k) => B.passa(v, k, c)).map(v => String(v.numero).replace(/^0+/, "")).sort(); };
         assert.strictEqual(conta(""), 5, "sem busca: todas");

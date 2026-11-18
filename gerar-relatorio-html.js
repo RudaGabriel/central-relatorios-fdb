@@ -1,11 +1,12 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.36.0
+ * @version 3.37.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.36.0 - 2026-11-17 - Janela "Gerar por período" centralizada na tela também no celular.
+ *   3.37.0 - 2026-11-18 - Formato da lista de proibidos (formatarProibidos) compartilhado com os painéis de tela única,
+ *            que passam a ter a mesma janela de configurações do relatório.
  */
 
 (function() {
@@ -13,7 +14,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.36.0";
+    const SCRIPT_VERSION = "3.37.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -4417,6 +4418,7 @@ const setProibidosUser=(lista)=>{
 };
 /* ==/BUSCA-COMUM== */
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 // ── Formato da lista de proibidos (v3.4.0) ──────────────────────────────────
 // Formato aceito: UM termo por linha. Listas coladas de outros lugares chegam
 // em formatos diversos (separadas por vírgula, ponto e vírgula, tabulação ou
@@ -4478,6 +4480,7 @@ const formatarProibidos=texto=>{
     return {lista, texto:formatado, alterado, motivos:[...motivos],
             valores:lista.filter(_isValorProib).length, excedente:Math.max(0,lista.length-PROIB_MAX)};
 };
+/* ==/BUSCA-COMUM== */
 // Liga contador + formatação automática a uma textarea de proibidos.
 // Conta a cada tecla; formata ao colar e ao sair do campo (formatar durante a
 // digitação moveria o cursor). Devolve a função que formata e retorna a lista.

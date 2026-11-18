@@ -5,14 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.32.0
+ * @version 2.33.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.32.0 - 2026-11-17 - Os painéis recebem a versão do servidor (FDB_TEMAS.srv), para avisar quando ele
- *     precisa ser reiniciado para ativar uma função nova (fotos dos vendedores, logo).
+ *   2.33.0 - 2026-11-18 - A busca compartilhada dos painéis (window.BUSCA) passa a expor o formato da lista de
+ *     proibidos (formatar), usado pela janela "Editar configurações" dos painéis.
  */
 
 
@@ -20,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.32.0";
+const SERVER_VERSION = "2.33.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5213,7 +5213,9 @@ var _buscaComum = function() {
                 " passa: function(raw, i, c){ return passaFiltroFast(raw, i, c); },\n" +
                 " proibidos: function(lista){ setProibidosUser(Array.isArray(lista) ? lista.map(String) : []); },\n" +
                 " temProibido: function(raw){ return vendaTemProibido(raw); },\n" +
-                " lista: function(){ return valoresProibidos.slice(); } };\n})();";
+                " lista: function(){ return valoresProibidos.slice(); },\n" +
+                " formatar: function(t){ return (typeof formatarProibidos === \"function\") ? formatarProibidos(t) : null; },\n" +
+                " maxProibidos: (typeof PROIB_MAX === \"number\") ? PROIB_MAX : 500 };\n})();";
         }
         _buscaCache = { mt: mt, js: js };
         return js;

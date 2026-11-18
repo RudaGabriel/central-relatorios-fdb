@@ -26,7 +26,7 @@ Versões em uso hoje:
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.1 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.8.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -1429,6 +1429,10 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.12.0 — 2026-11-18
+
+**Lista de vendas alinhada no celular.** (1.12.0 é a versão da pasta.) A hora passa a ficar centralizada na coluna: o PDV grava algumas vendas só com hora e minuto, e assim "18:52" e "18:54:04" ficam alinhadas pelo centro. O rodapé da lista (quantidade de vendas, soma e ticket) fica centralizado, e "Atualizado às" ocupa uma linha própria, também centralizada; com valores muito grandes, as linhas extras continuam centralizadas (`base.css` 1.9.0).
 
 ### 1.11.0 — 2026-11-17
 

@@ -1,7 +1,7 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.8.0
-     1.8.0 - 2026-11-17 - Lista alinhada: hora, tipo, número e caixa centralizados (título e conteúdo), como desconto e
-                          pagamento; título Itens centralizado; total à direita; vendedor, cliente e itens à esquerda.
+   @version 1.9.0
+     1.9.0 - 2026-11-18 - Celular: hora centralizada na coluna da lista e rodapé da lista centralizado, com
+                          "Atualizado às" em uma linha própria.
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -279,7 +279,10 @@ body{zoom:var(--zoom,1);height:calc(100vh / var(--zoom,1));height:calc(100dvh / 
    Vale para o título e para o conteúdo de cada coluna. No celular (linha em dois andares), a hora fica à esquerda. */
 #cab .c-hora,#cab .c-tipo,#cab .c-numero,#cab .c-caixa,#cab .c-itens{justify-content:center}
 .lv>.c-hora,.lv>.c-tipo,.lv>.c-numero,.lv>.c-caixa{text-align:center}
-@media (max-width:820px){.lv>.c-hora{text-align:left}}
+/* Celular: a hora fica centralizada na coluna (o PDV grava algumas vendas só com hora e minuto,
+   e assim 18:52 e 18:54:04 ficam alinhadas pelo centro); o rodapé fica centralizado, com
+   "Atualizado às" em uma linha própria, também centralizada. */
+@media (max-width:820px){.lv>.c-hora{text-align:center}#rod{justify-content:center;text-align:center;gap:4px 12px;padding:7px 8px 5px}.rod-at{margin-left:0;flex-basis:100%}}
 
 /* Fotos dos vendedores (v1.5.0): a foto cobre o avatar inteiro; sem foto, as iniciais. */
 .vd-av[data-foto-vend]{cursor:pointer;position:relative;overflow:hidden}

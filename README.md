@@ -6,8 +6,8 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.32.0" src="https://img.shields.io/badge/servidor-v2.32.0-2563EB?style=flat">
-<img alt="gerador: v3.36.0" src="https://img.shields.io/badge/gerador-v3.36.0-2563EB?style=flat">
+<img alt="servidor: v2.33.0" src="https://img.shields.io/badge/servidor-v2.33.0-2563EB?style=flat">
+<img alt="gerador: v3.37.0" src="https://img.shields.io/badge/gerador-v3.37.0-2563EB?style=flat">
 <img alt="bandeja: v1.9.2" src="https://img.shields.io/badge/bandeja-v1.9.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
@@ -114,6 +114,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Usar um painel de tela única (tudo em uma tela) | Botão **Tema** → **Painéis de tela única** (veja [Painéis](#paineis)); para voltar, **Tema** → **Temas clássicos** |
 | Abrir o relatório clássico sem trocar o painel escolhido | No painel, **Configurações → Abrir o relatório clássico** · `http://IP:7734/?classico=1` |
 | Desempenho, atualização ou tamanho do texto num painel | **Configurações → Nesta tela** (os mesmos ajustes do relatório clássico) |
+| Mudar nome do sistema, avisos, proibidos ou teclas de atalho num painel | **Configurações → Editar configurações** (no computador do servidor) ou **Minhas preferências** (nos aparelhos da rede): a mesma janela do relatório clássico |
 | Ocultar as vendas com itens proibidos num painel | Botão **Proibidos**, no topo da lista de vendas (clique de novo para mostrar) |
 | Tirar todos os filtros de um painel | Botão **Limpar filtros**, no topo da lista de vendas |
 | Visualização, desempenho, recarregar ou não, tamanho do texto | **Configurações → Nesta tela** (a seção abre recolhida: clique no título; vale na hora, só neste aparelho) |
@@ -396,7 +397,12 @@ Em todos os painéis você encontra:
   - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve), com os três botões na largura do menu. No **Leve**, saem o desfoque e as animações contínuas.
   - **Nesta tela → Atualização:** ligada (padrão), a página é recarregada como no F5 a cada venda nova (a busca e os filtros são limpos); desligada, as vendas novas entram sem recarregar. É a mesma opção do relatório clássico.
   - **Nesta tela → Tamanho do texto:** de 80% a 140% (A− / Padrão / A+), separado para computador e celular, como no relatório clássico.
-  - **Configurações do sistema:** abre a página de configurações e volta para o painel.
+  - **Editar configurações** (no computador do servidor) ou **Minhas preferências** (nos aparelhos da rede): a mesma janela do relatório clássico, aberta no próprio painel e centralizada também no celular. No Administrativo, também pelo item **Configurações** da barra lateral.
+    - No computador do servidor: nome do sistema, intervalo de atualização, linhas do log, janela de correção de horário, ícone do sistema (favicon), duração dos avisos, termos proibidos, teclas de atalho e **Aparelhos da rede** (aplicar o padrão a todos ou editar as preferências de um aparelho conectado).
+    - Num aparelho da rede: nome do aparelho (apelido), duração dos avisos, termos proibidos (com **Importar do servidor** e **Juntar com os do servidor**), teclas de atalho e **Voltar ao padrão do servidor**.
+    - Os termos proibidos colados em outro formato (vírgula, ponto e vírgula, marcadores, repetidos) são ajustados automaticamente, como no relatório clássico.
+    - Enquanto a janela está aberta, a página não é recarregada por venda nova, para não perder o que está sendo digitado.
+  - **Teclas de atalho** funcionam também nos painéis: a tecla coloca o comando na busca e executa a ação escolhida (limpar filtros, editar proibidos, filtrar por vendedor, menu e troca de tema, tipo Todos/Gerencial/NFC-e/NF-e). As ações de copiar, a ajuda de coringas e o "Gerar por período" existem só no relatório clássico; no painel, a tecla aplica apenas o comando e um aviso informa isso.
   - **Abrir o relatório clássico.**
   - **Trocar o logo** e **Logo padrão** (logo dos painéis; o ícone do sistema não muda).
 
@@ -484,7 +490,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.32.0 | Gerador v3.36.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.33.0 | Gerador v3.37.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```

@@ -1,6 +1,6 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.3.0
- *   1.3.0 - 2026-11-17 - Evento "fotos" do servidor: as fotos dos vendedores são atualizadas nas telas abertas.
+ * @version 1.4.0
+ *   1.4.0 - 2026-11-18 - Evento "prefs" do servidor também atualiza as teclas de atalho do painel.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -210,7 +210,8 @@
       if (Array.isArray(d.proibidos) && (d.efetivo === true || d.proibidos.length)) { const antes = BUSCA.lista().join("\n"); BUSCA.proibidos(d.proibidos); if (BUSCA.lista().join("\n") !== antes) renderLista(); }
     }).catch(() => {});
   }
-  // Preferências do aparelho mudaram (SSE "prefs"): relê duração dos avisos e proibidos.
+  // Preferências do aparelho mudaram (SSE "prefs"): relê duração dos avisos e proibidos (as teclas
+  // de atalho são relidas pelo painel, em PAINEL.prefsMudaram).
   function aplicarPrefs(){
     fetch("/api/preferencias", {cache: "no-store", credentials: "same-origin"}).then(r => r.json()).then(d => {
       if (!d || !d.ok || !d.prefs) return;
@@ -284,7 +285,7 @@
         else if (d.type === "tema" && d.id) { if (window.PAINEL_TEMA) window.PAINEL_TEMA.aplicar(String(d.id), true); }
         else if (d.type === "navigate") { let u = String(d.url || "/"); if (u.charAt(0) !== "/" || u.charAt(1) === "/") u = "/"; location.assign(u); }
         else if (d.type === "aviso" && d.msg) toast("<b>Aviso</b> · " + esc(String(d.msg).slice(0, 300)));
-        else if (d.type === "prefs") aplicarPrefs();
+        else if (d.type === "prefs") { aplicarPrefs(); if (window.PAINEL && PAINEL.prefsMudaram) PAINEL.prefsMudaram(); }
         else if (d.type === "fotos") { if (window.PAINEL && PAINEL.fotosMudaram) PAINEL.fotosMudaram(); }
         else if (d.type === "encerrando") aviso(d.reiniciando ? "O servidor está reiniciando — reconectando…" : "O servidor de relatórios foi encerrado.");
       } catch (e) {} };

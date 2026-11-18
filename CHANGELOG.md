@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.32.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.36.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.33.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.37.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
@@ -24,9 +24,9 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.7.1 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.8.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.10.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -34,13 +34,17 @@ Versões em uso hoje:
 | [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
 
 ---
 
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.33.0 — 2026-11-18
+
+**Formato dos proibidos para os painéis.** A busca compartilhada com os painéis (`window.BUSCA`) passa a incluir o mesmo formato da lista de proibidos do relatório clássico (`formatar`) e o limite de termos (`maxProibidos`), usados pela janela de configurações dos painéis.
 
 ### 2.32.0 — 2026-11-17
 
@@ -412,6 +416,10 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.37.0 — 2026-11-18
+
+**Formato dos proibidos compartilhado.** O trecho que ajusta a lista de proibidos (um termo por linha, separadores, marcadores, aspas e repetidos) passa a ser compartilhado com os painéis de tela única, que usam o mesmo ajuste na janela de configurações. Nada muda no relatório clássico.
 
 ### 3.36.0 — 2026-11-17
 
@@ -1429,6 +1437,18 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.13.0 — 2026-11-18
+
+**Todas as configurações do relatório clássico nos painéis.** (1.13.0 é a versão da pasta.)
+
+- **Janela de configurações** (`painel.js` 1.8.0, `base.css` 1.10.0): em Configurações, **Editar configurações** (no computador do servidor) ou **Minhas preferências** (nos aparelhos da rede) abre, no próprio painel, a mesma janela do relatório clássico, com os mesmos campos e as mesmas regras:
+  - no computador do servidor: nome do sistema, intervalo de atualização, linhas do log, janela de correção de horário, ícone do sistema (favicon), duração dos avisos, termos proibidos, teclas de atalho e aparelhos da rede (aplicar o padrão a todos ou editar as preferências de um aparelho conectado);
+  - num aparelho da rede: apelido, duração dos avisos, termos proibidos (com Importar do servidor e Juntar com os do servidor), teclas de atalho e Voltar ao padrão do servidor; só o que mudou é enviado.
+- A janela fica centralizada também no celular; no celular, cada atalho ocupa três linhas (tecla e botões, comando e ação).
+- Enquanto a janela está aberta, a página não é recarregada por venda nova, para não perder o que está sendo digitado.
+- **Teclas de atalho nos painéis** (`painel.js` 1.8.0, `motor.js` 1.4.0): a tecla coloca o comando na busca e executa a ação escolhida (limpar filtros, editar proibidos, filtrar por vendedor, menu e troca de tema, tipo da venda). As ações sem equivalente no painel (copiar, ajuda de coringas e gerar por período) aparecem marcadas como "só no relatório clássico"; nelas, a tecla aplica só o comando e um aviso informa isso. As teclas são atualizadas quando as preferências mudam em outro aparelho.
+- **Administrativo** (`administrativo.html` 1.6.0): o item Configurações da barra lateral abre a mesma janela, em vez da página `/config`.
 
 ### 1.12.0 — 2026-11-18
 

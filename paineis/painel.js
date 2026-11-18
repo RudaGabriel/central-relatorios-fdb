@@ -1,6 +1,7 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.7.1
- *   1.7.1 - 2026-11-17 - Foto ampliada sem a dica do navegador por cima (o title do avatar com foto é retirado).
+ * @version 1.8.0
+ *   1.8.0 - 2026-11-18 - Janela "Editar configurações" (ou "Minhas preferências", nos aparelhos da rede) igual à do
+ *                        relatório clássico, e teclas de atalho funcionando nos painéis.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -431,7 +432,7 @@
   function alternarProibidos(){
     const q = $("#q"); if (!q) return; const en = E();
     const lista = window.BUSCA && BUSCA.lista ? BUSCA.lista() : [];
-    if (!PROIB_RE.test(q.value) && !lista.length) { en.toast("<b>Proibidos</b> · Nenhum termo proibido cadastrado. Cadastre em Configurações do sistema → Proibidos."); return; }
+    if (!PROIB_RE.test(q.value) && !lista.length) { en.toast("<b>Proibidos</b> · Nenhum termo proibido cadastrado. Cadastre em Configurações → " + en.esc(rotEdCfg()) + " → Termos proibidos."); return; }
     q.value = PROIB_RE.test(q.value) ? q.value.replace(/\s*\[(proibidos|1p)\]\s*/ig, " ").trim() : (q.value.trim() + " [proibidos]").trim();
     en.st.q = q.value; en.render();
     en.toast(PROIB_RE.test(q.value) ? "<b>Proibidos</b> · Vendas com itens proibidos ocultas." : "<b>Proibidos</b> · Filtro removido.");
@@ -565,7 +566,7 @@
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
     document.addEventListener("keydown", e => {
-      if ($("#ov.on") || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
+      if ($("#ov.on") || edAberta() || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
       if ((e.key === "Enter" || e.key === " ") && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("logo")) { e.preventDefault(); escolherLogo(); return; }
       if (e.key === "/" && document.activeElement !== q && q) { e.preventDefault(); q.focus(); q.select(); return; }
       if (e.key === "Escape" && document.activeElement === q && q.value) { q.value = ""; E().st.q = ""; E().render(); return; }
@@ -627,7 +628,7 @@
       menu.innerHTML =
         `<div class="tmSec"><div class="tmCab"><b>Painéis de tela única</b><span>Tudo em uma tela; só a lista de vendas rola.</span></div><div class="tmGrade">` +
         TM.paineis.map(p => `<button type="button" class="tmCard" role="menuitemradio" aria-checked="${p.id === TM.atual}" data-tema-id="${es(p.id)}" title="${es(p.descricao || p.nome)}">${prevPainel(p)}<span class="tmNome">${es(p.nome)}</span></button>`).join("") +
-        `</div></div><div class="tmSec"><div class="tmCab"><b>Temas clássicos</b><span>O relatório completo, com todas as opções e configurações.</span></div><div class="tmGrade">` +
+        `</div></div><div class="tmSec"><div class="tmCab"><b>Temas clássicos</b><span>O relatório completo, com a tabela detalhada, o QR code e as ferramentas de cópia.</span></div><div class="tmGrade">` +
         TM.classicos.map(t => `<button type="button" class="tmCard" role="menuitemradio" aria-checked="false" data-tema-id="${es(t.id)}">${prevClassico(t)}<span class="tmNome">${es(t.nome)}</span></button>`).join("") +
         `</div></div><div class="tmPe"><span>Em uso: <b>${es(atualNome)}</b></span><a href="${es(urlClassico())}">Abrir o relatório clássico sem trocar o tema</a></div>`;
       document.body.appendChild(menu);
@@ -637,10 +638,13 @@
     menu.classList.add("on"); b.setAttribute("aria-expanded", "true");
     const sel = menu.querySelector('[aria-checked="true"]') || menu.querySelector(".tmCard"); if (sel) sel.focus({preventScroll: true});
   }
-  // ── Configurações do painel (v1.0.2): como no relatório clássico, o desempenho fica em
-  // Configurações → Nesta tela (fora do cabeçalho). Também leva às configurações do sistema
-  // (/config, que volta para este painel) e ao relatório clássico.
+  // ── Configurações do painel: como no relatório clássico, desempenho, atualização e tamanho do texto
+  // ficam em Configurações → Nesta tela. O menu também abre a janela "Editar configurações" /
+  // "Minhas preferências" (abrirEdCfg, abaixo), o relatório clássico e a troca do logo.
   let cfgM = null;
+  // Rótulo da janela de configurações: no computador do servidor edita o padrão de todos; nos
+  // aparelhos da rede, só as preferências do próprio aparelho.
+  const rotEdCfg = () => { const a = window.__APARELHO__; return a && a.servidor === false ? "Minhas preferências" : "Editar configurações"; };
   const PERF_EST = () => { const en = E(), pref = en.perfPref ? en.perfPref() : "auto", lv = en.leve();
     return pref === "leve" ? "Leve (escolhido)" : pref === "completo" ? "Completo (escolhido)" : "Automático — " + (lv ? "leve" : "completo"); };
   // Tamanho do texto: 80% a 140%, salvo separado no celular e no computador (mesmas chaves
@@ -669,7 +673,7 @@
   function fecharCfg(){ if (!cfgM) return; cfgM.classList.remove("on"); const b = $("#btnCfg"); if (b) b.setAttribute("aria-expanded", "false"); }
   function montarCfg(){
     if (cfgM) return cfgM;
-    const es = E().esc, voltar = encodeURIComponent(location.pathname + location.search);
+    const es = E().esc;
     cfgM = document.createElement("div"); cfgM.id = "cfgMenu"; cfgM.className = "tmMenu cfgMenu"; cfgM.setAttribute("role", "dialog"); cfgM.setAttribute("aria-label", "Configurações");
     cfgM.innerHTML =
       `<div class="tmSec"><div class="tmCab"><b>Nesta tela</b><span>Vale só para este aparelho.</span></div>` +
@@ -680,7 +684,7 @@
       `<div class="cfgLin"><div class="cfgRot"><b>Tamanho do texto</b><span class="cfgZEst"></span></div><div class="cfgZ" role="group" aria-label="Tamanho do texto"><button type="button" data-z="-1" aria-label="Diminuir o texto">A−</button><button type="button" data-z="0" aria-label="Tamanho padrão">Padrão</button><button type="button" data-z="1" aria-label="Aumentar o texto">A+</button></div>` +
       `<p class="cfgDica">Os mesmos ajustes do relatório clássico, válidos somente para este aparelho.</p></div></div>` +
       `<div class="tmSec"><div class="tmCab"><b>Sistema</b></div><div class="cfgLinks">` +
-      `<a href="/config?voltar=${voltar}">Configurações do sistema</a><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a>` +
+      `<button type="button" data-ed-abrir>${es(rotEdCfg())}</button><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a>` +
       `<div class="cfgLogo" title="O logo vale só para os painéis e só pode ser trocado no computador do servidor. O ícone do sistema (aba e bandeja) não muda.">` +
       `<button type="button" data-logo="trocar">Trocar o logo</button><button type="button" data-logo="padrao">Logo padrão</button></div></div></div>`;
     document.body.appendChild(cfgM);
@@ -714,9 +718,351 @@
     addEventListener("resize", fecharCfg);
   }
 
+  // ── Editar configurações (v1.8.0): a mesma janela do relatório clássico ────────────────
+  // Três modos, como no clássico: no computador do servidor, o padrão de todos (nome do
+  // sistema, intervalo, log, janela de correção, ícone do sistema, avisos, proibidos, teclas e
+  // aparelhos da rede); num aparelho da rede, "Minhas preferências" (apelido, avisos, proibidos
+  // e teclas, só dele); e, no servidor, as preferências de um aparelho escolhido na lista.
+  // Rotas usadas (as mesmas do clássico): /api/config, /api/dispositivos,
+  // /api/proibidos-servidor e /api/upload-favicon. O logo dos painéis continua separado
+  // (Configurações → Trocar o logo) e nunca altera o ícone do sistema.
+  // Ações das teclas: os valores são os mesmos do relatório clássico (a lista é compartilhada
+  // no config.json); "pn" diz se o painel tem o equivalente.
+  const ACOES = [
+    {v: "", r: "(nenhuma — só executa o comando)", pn: true},
+    {v: "click:#aCopiarTudo", r: "Copiar tudo"}, {v: "click:#aCopiarTudoItens", r: "Copiar tudo + itens"},
+    {v: "click:#aCopiarSemDinheiro", r: "Copiar sem dinheiro"}, {v: "click:#aCopiarGerencial", r: "Copiar só gerencial"},
+    {v: "click:#aProibidos", r: "Editar proibidos", pn: true}, {v: "click:#aVendedores", r: "Filtrar por vendedor", pn: true},
+    {v: "click:#aAjuda", r: "Ajuda de coringas"}, {v: "click:#aLimpar", r: "Limpar filtros", pn: true},
+    {v: "click:#btnTema", r: "Abrir menu de temas", pn: true}, {v: "tema:proximo", r: "Próximo tema (alternar)", pn: true},
+    {v: "tema:anterior", r: "Tema anterior", pn: true}, {v: "click:#btnModalPeriodo", r: "Gerar por período"},
+    {v: "radio:tipoBusca:todos", r: "Tipo: Todos", pn: true}, {v: "radio:tipoBusca:gerencial", r: "Tipo: Gerencial", pn: true},
+    {v: "radio:tipoBusca:nfce", r: "Tipo: NFC-e", pn: true}, {v: "radio:tipoBusca:nfe", r: "Tipo: NF-e", pn: true}
+  ];
+  const TIPO_ACAO = {todos: "todos", gerencial: "Gerencial", nfce: "NFC-e", nfe: "NF-e"};
+  const rotAcao = v => { const a = ACOES.find(x => x.v === v); return a ? a.r : v; };
+  // Teclas aceitas (as mesmas do clássico): F1 a F12, Insert, Delete, Home, End, PageUp,
+  // PageDown e Ctrl/Alt com qualquer tecla.
+  const TECLAS_ESP = ["Insert", "Delete", "Home", "End", "PageUp", "PageDown"];
+  const teclaValida = (k, ctrl, alt) => !!k && (/^F\d+$/.test(k) || TECLAS_ESP.indexOf(k) >= 0 || ((ctrl || alt) && k.length >= 1));
+  const teclaDoEvento = e => { const k = String(e.key || "");
+    if (/^F\d+$/.test(k) || TECLAS_ESP.indexOf(k) >= 0) return (e.ctrlKey ? "Ctrl+" : "") + (e.altKey ? "Alt+" : "") + k;
+    return e.ctrlKey && !e.altKey ? "Ctrl+" + k : (e.altKey && !e.ctrlKey ? "Alt+" + k : null); };
+  const teclasOk = l => (Array.isArray(l) ? l : []).filter(t => t && typeof t === "object" && String(t.tecla || "").trim() && (String(t.comando || "") || String(t.acao || "")))
+    .map(t => ({tecla: String(t.tecla).trim(), comando: String(t.comando || ""), acao: String(t.acao || "").trim()}));
+  let teclas = []; try { const a = window.__APARELHO__; if (a && a.prefs) teclas = teclasOk(a.prefs.teclasPersonalizadas); } catch (e) {}
+  // Formato da lista de proibidos: o mesmo do clássico (window.BUSCA.formatar); com um servidor
+  // antigo, que não envia o formatador, uma versão simples (um termo por linha, sem repetidos).
+  const PROIB_MAX = () => (window.BUSCA && Number(BUSCA.maxProibidos)) || 500;
+  function formatarPr(txt){
+    try { if (window.BUSCA && typeof BUSCA.formatar === "function") { const r = BUSCA.formatar(txt); if (r && Array.isArray(r.lista)) return r; } } catch (e) {}
+    const vistos = new Set(), lista = [];
+    String(txt == null ? "" : txt).replace(/\r\n?/g, "\n").split("\n").forEach(l => { const s = l.replace(/\s+/g, " ").trim().slice(0, 200); const k = s.toLowerCase(); if (s && !vistos.has(k)) { vistos.add(k); lista.push(s); } });
+    const texto = lista.join("\n");
+    return {lista, texto, alterado: texto !== String(txt == null ? "" : txt).replace(/\r\n?/g, "\n").replace(/\s+$/, ""), motivos: [], valores: 0, excedente: Math.max(0, lista.length - PROIB_MAX())};
+  }
+  async function jsonDe(url, op){
+    const r = await fetch(url, Object.assign({cache: "no-store", credentials: "same-origin"}, op || {}));
+    let j = null; try { j = await r.json(); } catch (e) {}
+    return {r, j};
+  }
+  const ICO_X = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  const ICO_VOLTA = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.42"/></svg>';
+  const ICO_PASTA = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+  const ICO_MAIS = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  const ICO_BAIXAR = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  const ICO_SALVAR = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+  let edOv = null, edFecharFn = null, edCapturando = false;
+  const edAberta = () => !!(edOv && edOv.isConnected);
+  function edFechar(){ if (edFecharFn) edFecharFn(); }
+  async function abrirEdCfg(alvoIn, foco){
+    if (edAberta()) return;
+    fecharCfg(); fecharMenu();
+    const en = E(), es = en.esc, toast = t => en.toast(t);
+    let alvo = typeof alvoIn === "string" ? alvoIn : "";
+    edOv = document.createElement("div"); edOv.id = "edCfg"; edOv.className = "edOv on";
+    edOv.innerHTML = '<div class="edJan edCarr" role="dialog" aria-modal="true" aria-label="Configurações"><p>Carregando configurações…</p></div>';
+    document.body.appendChild(edOv);
+    const anterior = document.activeElement;
+    let escH = null;
+    edFecharFn = () => {
+      if (escH) document.removeEventListener("keydown", escH, true);
+      edCapturando = false; edFecharFn = null;
+      const ov = edOv; edOv = null; if (ov) ov.remove();
+      try { if (anterior && anterior.focus && anterior.isConnected) anterior.focus({preventScroll: true}); } catch (e) {}
+    };
+    escH = e => { if (e.key === "Escape" && !edCapturando) { e.preventDefault(); e.stopPropagation(); edFechar(); } };
+    document.addEventListener("keydown", escH, true);
+    edOv.addEventListener("click", e => { if (e.target === edOv) edFechar(); });
+    let c = {};
+    try { const {j} = await jsonDe("/api/config" + (alvo ? "?aparelho=" + encodeURIComponent(alvo) : "")); c = j && typeof j === "object" ? j : {}; } catch (e) { c = {}; }
+    if (!edOv) return;                                    // fechada enquanto carregava
+    if (!Object.keys(c).length) { edOv.querySelector(".edJan").innerHTML = '<p>Não foi possível carregar as configurações. Verifique a conexão com o servidor e tente novamente.</p><button type="button" class="edBtn" data-ed="fechar">' + ICO_X + 'Fechar</button>';
+      edOv.querySelector('[data-ed="fechar"]').addEventListener("click", edFechar); return; }
+    const ap = window.__APARELHO__ || null;
+    const remoto = c.servidor === false || (c.servidor === undefined && !!ap && ap.servidor === false);
+    if (remoto) alvo = "";                               // aparelho da rede só edita as dele
+    const soPrefs = remoto || !!alvo;
+    const pers = c.personalizado && typeof c.personalizado === "object" ? c.personalizado : {};
+    const ROT_PERS = {toastDuration: "duração dos avisos", proibidos: "termos proibidos", teclasPersonalizadas: "teclas de atalho"};
+    const listaPers = Object.keys(ROT_PERS).filter(k => pers[k]).map(k => ROT_PERS[k]);
+    const apTxt = c.aparelho && c.aparelho.texto ? String(c.aparelho.texto) : "";
+    const int0 = (v, p) => { const n = parseInt(v, 10); return isFinite(n) ? n : p; };
+    const td0 = int0(c.toastDuration, 5000), jh0 = int0(c.janelaCorrecaoHoraMin, 180);
+    const pr0 = (Array.isArray(c.proibidos) ? c.proibidos : []).map(String);
+    let tl = teclasOk(Array.isArray(c.teclasPersonalizadas) ? c.teclasPersonalizadas : (alvo ? [] : teclas));
+    const normT = a => JSON.stringify(teclasOk(a).map(t => [t.tecla, t.comando, t.acao]));
+    const tl0 = normT(tl), apelido0 = String((c.aparelho && c.aparelho.apelido) || "").trim();
+    const titulo = alvo ? "Preferências do aparelho" : (remoto ? "Minhas preferências" : "Editar configurações");
+    const sub = alvo ? "Aparelho: <b>" + es(apTxt || "?") + "</b> — valem só para ele e são aplicadas na tela dele imediatamente."
+      : remoto ? "Válidas somente para este aparelho" + (apTxt ? " (" + es(apTxt) + ")" : "") + " — os outros não são afetados. Nome do sistema, intervalo, log, janela de correção e ícone só podem ser alterados no computador do servidor."
+      : "Padrão de todos os aparelhos (cada um pode ter as suas preferências). Avançado: config.json.";
+    const campo = (rot, html, extra) => `<div class="edCampo"${extra || ""}><label class="edRot">${rot}</label>${html}</div>`;
+    const nota = t => ` <span class="edNota">${t}</span>`;
+    const srvCampos = soPrefs ? "" :
+      campo("Nome do sistema", `<input type="text" id="edAppName" class="edIn" maxlength="80" placeholder="ex.: Minha Loja" value="${es(c.appName || "")}">`) +
+      `<div class="edPar">` +
+      campo("Intervalo de atualização automática (ms)", `<input type="number" id="edPoll" class="edIn" min="100" step="50" value="${int0(c.pollInterval, 100)}">`) +
+      campo("Máx. linhas de log interno", `<input type="number" id="edLog" class="edIn" min="100" step="100" value="${int0(c.maxLogLines, 1000)}">`) + `</div>` +
+      campo(`Janela de correção de horário (min)${nota("gerenciais com hora no futuro ou entre 3 min e este tempo atrás passam a usar a hora atual; mais antigas são ignoradas")}`,
+        `<div class="edLinha"><input type="number" id="edJanela" class="edIn" min="5" max="720" step="5" value="${jh0}"><button type="button" class="edBtn" data-ed="janPadrao" title="Restaurar a janela padrão (3 horas)">${ICO_VOLTA}Padrão (3h)</button></div>`) +
+      campo(`Ícone do sistema (favicon)${nota("aba do navegador e bandeja; o logo dos painéis é trocado à parte, em Configurações → Trocar o logo")}`,
+        `<div class="edLinha"><input type="text" id="edFav" class="edIn" placeholder="Caminho do arquivo ou vazio para o padrão" value="${es(c.favicon || "")}"><button type="button" class="edBtn" data-ed="favEscolher" title="Selecionar um arquivo de imagem do computador">${ICO_PASTA}Procurar</button><input type="file" id="edFavArq" accept=".png,.ico,.jpg,.jpeg" hidden></div>` +
+        `<div class="edInfo" id="edFavInfo">${c.favicon ? "Atual: " + es(c.favicon) : "Usando o favicon.png padrão da pasta do sistema."}</div>`);
+    edOv.innerHTML = `<div class="edJan" role="dialog" aria-modal="true" aria-labelledby="edTit">` +
+      `<div class="edCab"><div class="edCabTx"><h2 id="edTit">${titulo}</h2><p class="edSub">${sub}</p>` +
+      (soPrefs ? `<p class="edSub" id="edPers">${listaPers.length ? "Próprias: " + es(listaPers.join(", ")) + "." : "Seguindo o padrão do servidor."}</p>` : "") +
+      `</div><button type="button" class="edBtn" data-ed="fechar">${ICO_X}Fechar</button></div>` +
+      `<div class="edCorpo">` +
+      (soPrefs ? campo(`${alvo ? "Nome do aparelho" : "Nome deste aparelho"}${nota("apelido para reconhecer na lista de aparelhos e no log" + (c.aparelho && c.aparelho.nome ? " — o nome real “" + es(c.aparelho.nome) + "” não muda" : " — não muda o nome real do aparelho"))}`,
+        `<input type="text" id="edApelido" class="edIn" maxlength="40" autocomplete="off" placeholder="ex.: Celular do Caixa 1" value="${es(apelido0)}">`) : "") +
+      srvCampos +
+      campo("Duração das mensagens de aviso (ms)", `<div class="edLinha"><input type="number" id="edToast" class="edIn" min="500" max="60000" step="500" value="${td0}"><button type="button" class="edBtn" data-ed="toastPadrao" title="Restaurar a duração padrão (5 segundos)">${ICO_VOLTA}Padrão (5s)</button></div>`) +
+      campo(`Termos proibidos${nota("um por linha — oculta as vendas com esses produtos; listas coladas em outro formato são ajustadas automaticamente")}`,
+        `<textarea id="edProib" class="edIn edTa" spellcheck="false"></textarea><div class="edInfo" id="edProibCont" aria-live="polite"></div>` +
+        (soPrefs ? `<div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="prImportar" title="Troca a lista deste aparelho pela lista padrão do servidor">${ICO_BAIXAR}Importar do servidor</button><button type="button" class="edBtn" data-ed="prJuntar" title="Acrescenta à lista deste aparelho os termos do servidor que ainda não estão nela">${ICO_MAIS}Juntar com os do servidor</button></div>` : ""), ' id="edCampoProib"') +
+      campo(`Teclas de atalho${nota("tecla → executa o comando na caixa de busca")}`,
+        `<div class="edInfo">Aceita F1 a F12, Insert, Delete, Home, End, PageUp, PageDown e combinações com Ctrl e Alt. Clique em “Gravar tecla” e pressione a tecla desejada. O comando aceita todos os coringas da busca. As ações marcadas “só no relatório clássico” funcionam apenas lá; no painel, a tecla aplica somente o comando.</div>` +
+        `<div id="edTeclas" class="edTeclas"></div><div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="teclaNova">${ICO_MAIS}Adicionar atalho</button></div>`) +
+      (soPrefs
+        ? `<div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="restaurar"${listaPers.length ? "" : " disabled"}>${ICO_VOLTA}Voltar ao padrão do servidor</button></div>`
+        : campo("Aparelhos da rede", `<label class="edChk"><input type="checkbox" id="edTodos"><span>Aplicar a duração dos avisos, os proibidos e as teclas a TODOS os aparelhos (apaga as preferências próprias deles)</span></label>` +
+          `<div class="edLinha"><select id="edApSel" class="edIn"><option value="">Editar as preferências de um aparelho conectado…</option></select><button type="button" class="edBtn" data-ed="apEditar" disabled>Editar</button></div>`)) +
+      `</div><div class="edPe"><button type="button" class="edBtn edSalvar" data-ed="salvar">${ICO_SALVAR}<span>${soPrefs ? "Salvar preferências" : "Salvar configurações"}</span></button>` +
+      `<div class="edAutor">Central de Relatórios FDB — criado e mantido por Ruda Gabriel</div></div></div>`;
+    const J = s => edOv.querySelector(s);
+    // Proibidos: contador e ajuste do formato ao colar e ao sair do campo (como no clássico).
+    const ta = J("#edProib"), cont = J("#edProibCont"); ta.value = pr0.join("\n");
+    let prAviso = "";
+    const prPintar = r => { const n = r.lista.length;
+      let t = n === 0 ? "Nenhum termo adicionado" : (n === 1 ? "1 termo adicionado" : n + " termos adicionados"); let cls = "";
+      if (r.valores) t += " (" + r.valores + (r.valores === 1 ? " filtro" : " filtros") + " de valor)";
+      if (r.excedente) { t += " — limite de " + PROIB_MAX() + ": os " + r.excedente + " últimos não serão salvos"; cls = "edErro"; }
+      else if (prAviso) { t += " — " + prAviso; cls = "edOk"; }
+      else if (r.alterado && r.motivos && r.motivos.length) { t += " — o formato será ajustado ao sair do campo"; cls = "edAtencao"; }
+      cont.textContent = t; cont.className = "edInfo " + cls; };
+    const prAplicar = () => { const r = formatarPr(ta.value); if (r.alterado) { ta.value = r.texto; prAviso = r.motivos && r.motivos.length ? "formato ajustado automaticamente (" + r.motivos.join(", ") + ")" : ""; } prPintar(r); return r.lista.slice(0, PROIB_MAX()); };
+    ta.addEventListener("input", () => { prAviso = ""; prPintar(formatarPr(ta.value)); });
+    ta.addEventListener("paste", () => setTimeout(prAplicar, 0));
+    ta.addEventListener("blur", prAplicar);
+    prAplicar();
+    async function importarPr(modo){
+      const bs = [J('[data-ed="prImportar"]'), J('[data-ed="prJuntar"]')]; bs.forEach(b => { if (b) b.disabled = true; });
+      try {
+        const {j} = await jsonDe("/api/proibidos-servidor");
+        const srv = j && Array.isArray(j.proibidos) ? j.proibidos.map(s => String(s).trim()).filter(Boolean) : null;
+        if (!srv) { toast("<b>Importar do servidor</b> · " + es((j && j.erro) || "Não foi possível ler a lista do servidor.")); return; }
+        if (!srv.length) { toast("<b>Importar do servidor</b> · O servidor não tem termos proibidos no padrão."); return; }
+        const atual = String(ta.value || "").split("\n").map(s => s.trim()).filter(Boolean); let nova, novos;
+        if (modo === "juntar") { const tem = new Set(atual.map(s => s.toLowerCase())); const extra = srv.filter(s => { const k = s.toLowerCase(); if (tem.has(k)) return false; tem.add(k); return true; }); nova = atual.concat(extra); novos = extra.length; }
+        else { nova = srv.slice(); novos = srv.filter(s => !atual.some(a => a.toLowerCase() === s.toLowerCase())).length; }
+        if (nova.join("\n") === atual.join("\n")) { toast("<b>Importar do servidor</b> · A lista já está igual à do servidor."); return; }
+        ta.value = nova.join("\n"); prAplicar();
+        toast("<b>Importar do servidor</b> · " + (modo === "juntar" ? novos + (novos === 1 ? " termo acrescentado" : " termos acrescentados") : srv.length + (srv.length === 1 ? " termo importado" : " termos importados")) + ". Confira a lista e clique em Salvar.");
+      } catch (e) { toast("<b>Importar do servidor</b> · Falha na conexão com o servidor."); }
+      finally { bs.forEach(b => { if (b) b.disabled = false; }); }
+    }
+    // Teclas de atalho: tecla gravada, comando, ação e remover.
+    const lstT = J("#edTeclas");
+    let pararCaptura = null;
+    function linhasTeclas(){
+      if (pararCaptura) pararCaptura(true);
+      lstT.innerHTML = tl.length ? "" : '<div class="edInfo">Nenhum atalho cadastrado.</div>';
+      tl.forEach((t, i) => {
+        const row = document.createElement("div"); row.className = "edTecla";
+        const conhecida = ACOES.some(a => a.v === t.acao);
+        const opts = ACOES.map(a => `<option value="${es(a.v)}"${a.v === t.acao ? " selected" : ""}>${es(a.r + (a.pn ? "" : " (só no relatório clássico)"))}</option>`).join("") +
+          (conhecida ? "" : `<option value="${es(t.acao)}" selected>${es("Ação não reconhecida: " + t.acao)}</option>`);
+        row.innerHTML = `<input type="text" class="edIn edTk" readonly placeholder="Clique em Gravar" value="${es(t.tecla)}" title="Tecla de atalho" aria-label="Tecla de atalho">` +
+          `<button type="button" class="edBtn edGrav">Gravar tecla</button>` +
+          `<input type="text" class="edIn edCmd" maxlength="500" placeholder="ex.: [-proibidos,dinheiro]>150" value="${es(t.comando)}" title="Comando executado na caixa de busca ao pressionar a tecla (opcional se houver ação)" aria-label="Comando">` +
+          `<select class="edIn edAc" title="Ação opcional disparada antes do comando" aria-label="Ação">${opts}</select>` +
+          `<button type="button" class="edBtn edRem" title="Remover este atalho" aria-label="Remover este atalho">${ICO_X}</button>`;
+        const tk = row.querySelector(".edTk"), gr = row.querySelector(".edGrav");
+        row.querySelector(".edCmd").addEventListener("input", e => { t.comando = e.target.value; });
+        row.querySelector(".edAc").addEventListener("change", e => { t.acao = e.target.value; });
+        row.querySelector(".edRem").addEventListener("click", () => { tl.splice(i, 1); linhasTeclas(); });
+        gr.addEventListener("click", () => {
+          if (pararCaptura) { const era = pararCaptura.row === row; pararCaptura(true); if (era) return; }
+          let tm = 0;
+          const onKey = ev => {
+            if (["Control", "Alt", "Shift", "Meta"].indexOf(ev.key) >= 0) return;
+            ev.preventDefault(); ev.stopPropagation();
+            if (ev.key === "Escape" && !ev.ctrlKey && !ev.altKey) { parar(true); return; }
+            const k = String(ev.key || "");
+            if (!teclaValida(k, ev.ctrlKey, ev.altKey)) { toast("<b>Tecla inválida</b> · Use F1 a F12, Insert, Delete, Home, End, PageUp, PageDown ou Ctrl/Alt com outra tecla."); parar(true); return; }
+            const s = (ev.ctrlKey ? "Ctrl+" : "") + (ev.altKey ? "Alt+" : "") + k;
+            if (tl.some((o, j) => j !== i && String(o.tecla || "").toLowerCase() === s.toLowerCase())) { toast("<b>Tecla já usada</b> · " + es(s) + " já está atribuída a outro atalho."); parar(true); return; }
+            t.tecla = s; tk.value = s; parar(false);
+          };
+          const parar = cancel => { document.removeEventListener("keydown", onKey, true); clearTimeout(tm); edCapturando = false; pararCaptura = null;
+            gr.textContent = "Gravar tecla"; gr.classList.remove("on"); tk.classList.remove("on"); if (cancel) tk.value = t.tecla || ""; };
+          parar.row = row; pararCaptura = parar; edCapturando = true;
+          gr.textContent = "Aguardando…"; gr.classList.add("on"); tk.classList.add("on"); tk.value = "";
+          document.addEventListener("keydown", onKey, true);
+          tm = setTimeout(() => parar(true), 8000);
+        });
+        lstT.appendChild(row);
+      });
+    }
+    linhasTeclas();
+    // Aparelhos da rede (só no computador do servidor).
+    const apSel = J("#edApSel"), apEd = J('[data-ed="apEditar"]');
+    if (apSel && apEd) {
+      jsonDe("/api/dispositivos").then(({j}) => {
+        if (!apSel.isConnected) return;
+        const l = j && Array.isArray(j.dispositivos) ? j.dispositivos.filter(x => x && x.chavePreferencias) : [];
+        if (!l.length) { apSel.options[0].textContent = "Nenhum aparelho conectado agora"; return; }
+        l.forEach(x => { const o = document.createElement("option"); o.value = String(x.chavePreferencias);
+          o.textContent = (x.apelido ? "“" + x.apelido + "” — " : "") + (x.nome ? x.nome + " — " : "") + (x.ip || "") + " — " + [x.tipo, x.modelo].filter(Boolean).join(" ") +
+            (Array.isArray(x.preferenciasProprias) && x.preferenciasProprias.length ? " (próprias: " + x.preferenciasProprias.join(", ") + ")" : " (padrão)");
+          apSel.appendChild(o); });
+      }).catch(() => { if (apSel.isConnected) apSel.options[0].textContent = "Não foi possível listar os aparelhos"; });
+      apSel.addEventListener("change", () => { apEd.disabled = !apSel.value; });
+    }
+    // Ícone do sistema: arquivo escolhido é enviado ao salvar (até 2 MB, como no clássico).
+    const MAX_FAV = 2 * 1024 * 1024, favArq = J("#edFavArq");
+    if (favArq) favArq.addEventListener("change", () => {
+      const f = favArq.files && favArq.files[0], info = J("#edFavInfo"); if (!f) return;
+      if (f.size > MAX_FAV) { favArq.value = ""; info.textContent = "Arquivo muito grande (" + Math.round(f.size / 1024) + " KB) — máximo permitido: " + Math.round(MAX_FAV / 1024) + " KB."; toast("<b>Ícone muito grande</b> · Escolha um arquivo de até " + Math.round(MAX_FAV / 1024) + " KB."); return; }
+      info.textContent = "Arquivo selecionado: " + f.name + " (" + Math.round(f.size / 1024) + " KB) — será enviado ao salvar."; J("#edFav").value = "";
+    });
+    const btnSalvar = J('[data-ed="salvar"]'), rotSalvar = soPrefs ? "Salvar preferências" : "Salvar configurações";
+    const ocupado = (sim, txt) => { btnSalvar.disabled = sim; btnSalvar.querySelector("span").textContent = sim ? (txt || "Salvando…") : rotSalvar; };
+    async function salvar(){
+      if (pararCaptura) pararCaptura(true);
+      const v = id => { const el = J(id); return el ? String(el.value || "").trim() : ""; };
+      const td = parseInt(v("#edToast"), 10), pr = prAplicar();
+      if (!(td >= 500 && td <= 60000)) { toast("<b>Erro</b> · A duração dos avisos deve estar entre 500 e 60.000 ms."); return; }
+      const semTecla = tl.filter(t => !String(t.tecla || "").trim() && (t.comando || t.acao)).length;
+      let corpo = {};
+      if (!soPrefs) {
+        const an = v("#edAppName"), pi = parseInt(v("#edPoll"), 10), ml = parseInt(v("#edLog"), 10), jh = parseInt(v("#edJanela"), 10);
+        if (!an) { toast("<b>Erro</b> · O nome do sistema não pode estar vazio."); return; }
+        if (!(pi >= 100)) { toast("<b>Erro</b> · O intervalo mínimo é de 100 ms."); return; }
+        if (!(ml >= 100)) { toast("<b>Erro</b> · O log deve ter, no mínimo, 100 linhas."); return; }
+        if (!(jh >= 5 && jh <= 720)) { toast("<b>Erro</b> · A janela de correção de horário deve estar entre 5 e 720 minutos."); return; }
+        corpo = {appName: an, pollInterval: pi, maxLogLines: ml, favicon: v("#edFav"), toastDuration: td, janelaCorrecaoHoraMin: jh, proibidos: pr, teclasPersonalizadas: teclasOk(tl), aplicarTodos: !!(J("#edTodos") && J("#edTodos").checked)};
+      } else {
+        const apv = J("#edApelido") ? String(J("#edApelido").value || "").replace(/\s+/g, " ").trim().slice(0, 40) : apelido0;
+        if (apv !== apelido0) corpo.apelido = apv;
+        if (td !== td0) corpo.toastDuration = td;
+        if (JSON.stringify(pr.map(String)) !== JSON.stringify(pr0)) corpo.proibidos = pr;
+        if (normT(tl) !== tl0) corpo.teclasPersonalizadas = teclasOk(tl);
+        if (!Object.keys(corpo).length) { toast("<b>Preferências</b> · Nada foi alterado."); edFechar(); return; }
+      }
+      ocupado(true);
+      try {
+        const f = !soPrefs && favArq && favArq.files && favArq.files[0];
+        if (f) {
+          ocupado(true, "Enviando o ícone…");
+          try { const {j} = await jsonDe("/api/upload-favicon", {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: await f.arrayBuffer()});
+            if (j && j.ok) corpo.favicon = ""; else toast("<b>Aviso — ícone</b> · " + es((j && j.erro) || "Falha no envio; o ícone anterior será mantido."));
+          } catch (e) { toast("<b>Aviso — ícone</b> · Não foi possível enviar o ícone; as demais configurações serão salvas."); }
+          ocupado(true);
+        }
+        const {r, j} = await jsonDe("/api/config" + (alvo ? "?aparelho=" + encodeURIComponent(alvo) : ""), {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(corpo)});
+        if (!j || !j.ok) { ocupado(false); toast("<b>Erro ao salvar</b> · " + es(erroDe(r, j, "Falha desconhecida."))); return; }
+        if (!alvo) {
+          if (corpo.toastDuration !== undefined) window.__TOAST_MS = Math.max(500, td);
+          if (corpo.teclasPersonalizadas !== undefined) teclas = teclasOk(corpo.teclasPersonalizadas);
+          if (corpo.proibidos !== undefined && window.BUSCA) { const antes = BUSCA.lista().join("\n"); BUSCA.proibidos(pr); if (BUSCA.lista().join("\n") !== antes) E().render(); }
+        }
+        const aviso = semTecla ? " " + semTecla + (semTecla === 1 ? " atalho sem tecla gravada foi descartado." : " atalhos sem tecla gravada foram descartados.") : "";
+        if (remoto) toast("<b>Preferências salvas</b> · " + (corpo.apelido !== undefined && Object.keys(corpo).length === 1 ? (corpo.apelido ? "Este aparelho agora se chama “" + es(corpo.apelido) + "”." : "Apelido removido.") : "Valem só para este aparelho.") + aviso);
+        else if (alvo) toast("<b>Preferências do aparelho salvas</b> · As alterações já foram aplicadas na tela do aparelho." + aviso);
+        else toast("<b>Configurações salvas</b> · " + (corpo.aplicarTodos ? "Padrão aplicado a todos os aparelhos. " : "") + "O relatório será atualizado em breve." + aviso);
+        edFechar();
+      } catch (e) { ocupado(false); toast("<b>Erro de rede</b> · Falha na conexão com o servidor."); }
+    }
+    async function restaurar(){
+      const b = J('[data-ed="restaurar"]'); if (b) b.disabled = true;
+      try { const {r, j} = await jsonDe("/api/config" + (alvo ? "?aparelho=" + encodeURIComponent(alvo) : ""), {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({restaurar: true})});
+        if (j && j.ok) { if (!alvo) aplicarPrefsTela(); toast("<b>Preferências</b> · " + (alvo ? "O aparelho voltou ao padrão do servidor." : "Este aparelho voltou ao padrão do servidor.")); edFechar(); }
+        else { if (b) b.disabled = false; toast("<b>Erro</b> · " + es(erroDe(r, j, "Falha desconhecida."))); }
+      } catch (e) { if (b) b.disabled = false; toast("<b>Erro de rede</b> · Falha na conexão com o servidor."); }
+    }
+    edOv.querySelector(".edJan").addEventListener("click", e => {
+      const b = e.target.closest("[data-ed]"); if (!b || b.disabled) return; const a = b.dataset.ed;
+      if (a === "fechar") edFechar();
+      else if (a === "salvar") salvar();
+      else if (a === "restaurar") restaurar();
+      else if (a === "toastPadrao") J("#edToast").value = 5000;
+      else if (a === "janPadrao") J("#edJanela").value = 180;
+      else if (a === "favEscolher") { if (favArq) favArq.click(); }
+      else if (a === "prImportar") importarPr("substituir");
+      else if (a === "prJuntar") importarPr("juntar");
+      else if (a === "teclaNova") { tl.push({tecla: "", comando: "", acao: ""}); linhasTeclas(); const g = lstT.querySelectorAll(".edGrav"); if (g.length) g[g.length - 1].click(); }
+      else if (a === "apEditar") { const ch = apSel && apSel.value; if (!ch) return; edFechar(); setTimeout(() => abrirEdCfg(ch), 60); }
+    });
+    if (foco === "proibidos") { const cp = J("#edCampoProib"); if (cp) cp.scrollIntoView({block: "start"}); ta.focus({preventScroll: true}); }
+    else { const f = J("#edApelido") || J("#edAppName") || J('[data-ed="fechar"]'); if (f) f.focus({preventScroll: true}); }
+  }
+  // Preferências deste aparelho mudaram (salvas aqui ou pelo computador do servidor):
+  // relê as teclas de atalho (o motor relê a duração dos avisos e os proibidos).
+  function aplicarPrefsTela(){
+    fetch("/api/preferencias", {cache: "no-store", credentials: "same-origin"}).then(r => r.json()).then(d => {
+      if (d && d.ok && d.prefs && Array.isArray(d.prefs.teclasPersonalizadas)) teclas = teclasOk(d.prefs.teclasPersonalizadas);
+    }).catch(() => {});
+  }
+  // Ação da tecla no painel (valores do relatório clássico). Devolve false quando o painel não
+  // tem o equivalente (copiar, ajuda de coringas, gerar por período).
+  function acaoPainel(v){
+    v = String(v || "").trim(); if (!v) return true;
+    if (v === "click:#aLimpar") { const b = $("#btnLimpar"); if (b && !b.disabled) b.click(); return true; }
+    if (v === "click:#aProibidos") { abrirEdCfg("", "proibidos"); return true; }
+    if (v === "click:#btnTema") { abrirMenu(); return true; }
+    if (v === "tema:proximo" || v === "tema:anterior") {
+      const l = TM.paineis; if (l.length < 2) return true;
+      const i = Math.max(0, l.findIndex(p => p.id === TM.atual)), n = l[(i + (v === "tema:proximo" ? 1 : -1) + l.length) % l.length];
+      if (n && n.id !== TM.atual) irPainel(n.id); return true;
+    }
+    if (v === "click:#aVendedores") { const ab = $('[data-aba="equipe"]'); if (ab && innerWidth <= 820) ab.click(); const vb = $("#vends"); if (vb) vb.scrollIntoView({block: "nearest"}); return true; }
+    const m = /^radio:tipoBusca:(\w+)$/.exec(v);
+    if (m && TIPO_ACAO[m[1]]) { const b = $('.seg [data-tipo="' + TIPO_ACAO[m[1]] + '"]') || $('[data-tipo="' + TIPO_ACAO[m[1]] + '"]'); if (b) b.click(); return true; }
+    return false;
+  }
+  function teclasInit(){
+    document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-ed-abrir]"); if (!b) return; e.preventDefault(); e.stopPropagation(); abrirEdCfg(""); });
+    document.addEventListener("keydown", e => {
+      if (!teclas.length || edAberta() || e.repeat) return;
+      const ae = document.activeElement;
+      if (ae && ae.id !== "q" && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable)) return;
+      const s = teclaDoEvento(e); if (!s) return;
+      const t = teclas.find(x => x.tecla.toLowerCase() === s.toLowerCase()); if (!t) return;
+      e.preventDefault(); e.stopPropagation();
+      const en = E(), es = en.esc, okAcao = acaoPainel(t.acao), cmd = String(t.comando || "").trim();
+      if (cmd || okAcao) { const q = $("#q"); if (q) { q.value = cmd; en.st.q = cmd; en.render(); try { q.dispatchEvent(new Event("input", {bubbles: true})); } catch (er) {} } }
+      // Como no clássico, a busca sempre recebe o comando (vazio limpa a busca); a única exceção é a ação
+      // que o painel não tem, para não apagar a busca sem fazer nada.
+      en.toast("<b>Atalho " + es(t.tecla) + "</b> · " + (cmd ? es(cmd) : (t.acao ? (okAcao ? "Ação executada." : "") : "Busca limpa.")) +
+        (okAcao ? "" : (cmd ? " " : "") + "A ação “" + es(rotAcao(t.acao)) + "” só existe no relatório clássico."));
+    }, true);
+  }
+
   function temaInit(){
     if (TM.atual && ehPainel(TM.atual)) salvarPainel(TM.atual); // o painel aberto passa a ser o escolhido
-    cfgInit();
+    cfgInit(); teclasInit();
     const b = $("#btnTema"); if (!b) return;
     b.addEventListener("click", e => { e.stopPropagation(); if (menu && menu.classList.contains("on")) fecharMenu(); else abrirMenu(); });
     document.addEventListener("click", e => { if (menu && menu.classList.contains("on") && !menu.contains(e.target)) fecharMenu(); });
@@ -724,5 +1070,5 @@
     addEventListener("resize", fecharMenu);
   }
 
-  window.PAINEL = {fotosMudaram: carregarFotos, recarregar: recLigada, limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
+  window.PAINEL = {fotosMudaram: carregarFotos, prefsMudaram: aplicarPrefsTela, recarregar: () => recLigada() && !edAberta(), limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
 })();

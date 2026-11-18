@@ -1,7 +1,8 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.8.0
- *   1.8.0 - 2026-11-18 - Janela "Editar configurações" (ou "Minhas preferências", nos aparelhos da rede) igual à do
- *                        relatório clássico, e teclas de atalho funcionando nos painéis.
+ * @version 1.9.0
+ *   1.9.0 - 2026-11-18 - Ferramentas do relatório clássico: Copiar (tudo, com itens, sem dinheiro, só gerencial e a
+ *                        venda aberta), Coringas, Gerar por período, Abrir no celular, Atualizar, Duplicatas,
+ *                        Auto-teste, atalhos Insert/Delete e comandos da bandeja; todas as ações das teclas.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -88,7 +89,7 @@
       `<span class="c-caixa mn">${es(x.cx || "—")}</span>` +
       `<span class="c-vendedor" title="${es(x.vend)}">${es(x.vend)}</span>` +
       `<span class="c-cliente${cli ? "" : " vz"}" title="${es(cli)}">${es(cli || "—")}</span>` +
-      `<span class="c-itens" title="${es(itDica || it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span></span>` +
+      `<span class="c-itens" title="${es(itDica || it)}"><b class="mn">${qtd(q)}</b><span class="c-it">${es(it || "—")}</span>${x.raw && x.raw._dupNota ? `<i class="dupChip" data-dup="${es(x.raw._dupNota.chave || "")}" title="${es(x.raw._dupNota.tip || "")}">Duplicata</i>` : ""}</span>` +
       `<span class="c-desc">${dsc}</span>` +
       // Várias formas: a primeira e "+N" (todas, com os valores, ficam na dica), para caberem sem corte.
       `<span class="c-pag" title="${es(pgDica)}">${fs.length ? `<i>${es(fs[0].k)}</i>` + (fs.length > 1 ? `<i class="pgMais mn">+${fs.length - 1}</i>` : "") : ""}</span>` +
@@ -404,7 +405,16 @@
   }
 
   // ── Detalhe da venda ────────────────────────────────────────────────────────
-  function detail(x){
+  // Detalhe da venda: os dados e, no fim, as cópias da venda (como no clássico) e o aviso de duplicata.
+  function detail(x){ return detalheBase(x) + detalheExtra(x); }
+  function detalheExtra(x){
+    const es = E().esc, B = window.BUSCA, r = x.raw; if (!r) return "";
+    const nota = r._dupNota ? `<div class="dt-dup"><span title="${es(r._dupNota.tip || "")}">${es(r._dupNota.rotulo || "Duplicata")}</span><button type="button" class="dupChip" data-dup="${es(r._dupNota.chave || "")}">Abrir Duplicatas</button></div>` : "";
+    if (!B || !B.copia) return nota;
+    const bt = (m, t) => `<button type="button" data-cp="${m}" data-id="${es(x.id)}">${ICO_COPIA}${t}</button>`;
+    return nota + `<div class="dt-cp">${B.copia.ehGerencial(r) ? bt("ger", "Só gerencial") : ""}${bt("sem", "Sem itens")}${bt("itens", "Com itens")}</div>`;
+  }
+  function detalheBase(x){
     const en = E(), es = en.esc, fs = formasDe(x), q = qProd(x), nl = prods(x).length;
     const info = [["Tipo", x.t], ["Número", x.n], ["Caixa", x.cx || "—"], ["Hora", x.seg || x.h], ["Vendedor", x.vend], ["Cliente", x.cli || "—"], ["Natureza", x.nat || "—"], ["Itens", qtd(q) + " un em " + nl + " linha" + (nl === 1 ? "" : "s")]];
     if (x.dsc) info.push(["Desconto", x.dsc.pct != null ? pctDesc(x.dsc.pct) + "% (−" + en.fmt(x.dsc.valor) + ")" : "sem valor registrado"]);
@@ -566,7 +576,7 @@
     // Teclado: ↑ ↓ escolhem a linha, Enter abre, / vai para a busca, Esc limpa a busca.
     let sel = -1; const linhas = () => $$("#feed .lv:not([data-saindo])");
     document.addEventListener("keydown", e => {
-      if ($("#ov.on") || edAberta() || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
+      if ($("#ov.on") || edAberta() || janelaAberta() || (menu && menu.classList.contains("on")) || (cfgM && cfgM.classList.contains("on"))) return; const q = $("#q");
       if ((e.key === "Enter" || e.key === " ") && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("logo")) { e.preventDefault(); escolherLogo(); return; }
       if (e.key === "/" && document.activeElement !== q && q) { e.preventDefault(); q.focus(); q.select(); return; }
       if (e.key === "Escape" && document.activeElement === q && q.value) { q.value = ""; E().st.q = ""; E().render(); return; }
@@ -683,6 +693,7 @@
       `<p class="cfgDica">Ligado: a cada nova venda, a página é recarregada como no F5 — a busca, os filtros e as janelas abertas são limpos. Desligado: as novas vendas são incluídas automaticamente, sem recarregar — filtros, busca e rolagem são mantidos.</p></div>` +
       `<div class="cfgLin"><div class="cfgRot"><b>Tamanho do texto</b><span class="cfgZEst"></span></div><div class="cfgZ" role="group" aria-label="Tamanho do texto"><button type="button" data-z="-1" aria-label="Diminuir o texto">A−</button><button type="button" data-z="0" aria-label="Tamanho padrão">Padrão</button><button type="button" data-z="1" aria-label="Aumentar o texto">A+</button></div>` +
       `<p class="cfgDica">Os mesmos ajustes do relatório clássico, válidos somente para este aparelho.</p></div></div>` +
+      `<div class="tmSec"><div class="tmCab"><b>Ferramentas</b><span>As mesmas do relatório clássico.</span></div><div class="cfgLinks cfgFer"></div></div>` +
       `<div class="tmSec"><div class="tmCab"><b>Sistema</b></div><div class="cfgLinks">` +
       `<button type="button" data-ed-abrir>${es(rotEdCfg())}</button><a class="cfgCl" href="${es(urlClassico())}">Abrir o relatório clássico</a>` +
       `<div class="cfgLogo" title="O logo vale só para os painéis e só pode ser trocado no computador do servidor. O ícone do sistema (aba e bandeja) não muda.">` +
@@ -707,7 +718,7 @@
   }
   function abrirCfg(){
     const b = $("#btnCfg"); if (!b) return; fecharMenu();
-    montarCfg(); posMenu(cfgM, b); cfgEstado(); cfgM.classList.add("on"); b.setAttribute("aria-expanded", "true");
+    montarCfg(); const fer = cfgM.querySelector(".cfgFer"); if (fer) fer.innerHTML = ferramentasHtml(); posMenu(cfgM, b); cfgEstado(); cfgM.classList.add("on"); b.setAttribute("aria-expanded", "true");
     const f = cfgM.querySelector('[aria-pressed="true"]') || cfgM.querySelector("button,a"); if (f) f.focus({preventScroll: true});
   }
   function cfgInit(){
@@ -727,17 +738,17 @@
   // /api/proibidos-servidor e /api/upload-favicon. O logo dos painéis continua separado
   // (Configurações → Trocar o logo) e nunca altera o ícone do sistema.
   // Ações das teclas: os valores são os mesmos do relatório clássico (a lista é compartilhada
-  // no config.json); "pn" diz se o painel tem o equivalente.
+  // no config.json); todas têm o equivalente no painel (acaoPainel).
   const ACOES = [
-    {v: "", r: "(nenhuma — só executa o comando)", pn: true},
+    {v: "", r: "(nenhuma — só executa o comando)"},
     {v: "click:#aCopiarTudo", r: "Copiar tudo"}, {v: "click:#aCopiarTudoItens", r: "Copiar tudo + itens"},
     {v: "click:#aCopiarSemDinheiro", r: "Copiar sem dinheiro"}, {v: "click:#aCopiarGerencial", r: "Copiar só gerencial"},
-    {v: "click:#aProibidos", r: "Editar proibidos", pn: true}, {v: "click:#aVendedores", r: "Filtrar por vendedor", pn: true},
-    {v: "click:#aAjuda", r: "Ajuda de coringas"}, {v: "click:#aLimpar", r: "Limpar filtros", pn: true},
-    {v: "click:#btnTema", r: "Abrir menu de temas", pn: true}, {v: "tema:proximo", r: "Próximo tema (alternar)", pn: true},
-    {v: "tema:anterior", r: "Tema anterior", pn: true}, {v: "click:#btnModalPeriodo", r: "Gerar por período"},
-    {v: "radio:tipoBusca:todos", r: "Tipo: Todos", pn: true}, {v: "radio:tipoBusca:gerencial", r: "Tipo: Gerencial", pn: true},
-    {v: "radio:tipoBusca:nfce", r: "Tipo: NFC-e", pn: true}, {v: "radio:tipoBusca:nfe", r: "Tipo: NF-e", pn: true}
+    {v: "click:#aProibidos", r: "Editar proibidos"}, {v: "click:#aVendedores", r: "Filtrar por vendedor"},
+    {v: "click:#aAjuda", r: "Ajuda de coringas"}, {v: "click:#aLimpar", r: "Limpar filtros"},
+    {v: "click:#btnTema", r: "Abrir menu de temas"}, {v: "tema:proximo", r: "Próximo tema (alternar)"},
+    {v: "tema:anterior", r: "Tema anterior"}, {v: "click:#btnModalPeriodo", r: "Gerar por período"},
+    {v: "radio:tipoBusca:todos", r: "Tipo: Todos"}, {v: "radio:tipoBusca:gerencial", r: "Tipo: Gerencial"},
+    {v: "radio:tipoBusca:nfce", r: "Tipo: NFC-e"}, {v: "radio:tipoBusca:nfe", r: "Tipo: NF-e"}
   ];
   const TIPO_ACAO = {todos: "todos", gerencial: "Gerencial", nfce: "NFC-e", nfe: "NF-e"};
   const rotAcao = v => { const a = ACOES.find(x => x.v === v); return a ? a.r : v; };
@@ -771,6 +782,9 @@
   const ICO_PASTA = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
   const ICO_MAIS = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
   const ICO_BAIXAR = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  const ICO_COPIA = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const ICO_CAL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  const ICO_OK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
   const ICO_SALVAR = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
   let edOv = null, edFecharFn = null, edCapturando = false;
   const edAberta = () => !!(edOv && edOv.isConnected);
@@ -842,7 +856,7 @@
         `<textarea id="edProib" class="edIn edTa" spellcheck="false"></textarea><div class="edInfo" id="edProibCont" aria-live="polite"></div>` +
         (soPrefs ? `<div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="prImportar" title="Troca a lista deste aparelho pela lista padrão do servidor">${ICO_BAIXAR}Importar do servidor</button><button type="button" class="edBtn" data-ed="prJuntar" title="Acrescenta à lista deste aparelho os termos do servidor que ainda não estão nela">${ICO_MAIS}Juntar com os do servidor</button></div>` : ""), ' id="edCampoProib"') +
       campo(`Teclas de atalho${nota("tecla → executa o comando na caixa de busca")}`,
-        `<div class="edInfo">Aceita F1 a F12, Insert, Delete, Home, End, PageUp, PageDown e combinações com Ctrl e Alt. Clique em “Gravar tecla” e pressione a tecla desejada. O comando aceita todos os coringas da busca. As ações marcadas “só no relatório clássico” funcionam apenas lá; no painel, a tecla aplica somente o comando.</div>` +
+        `<div class="edInfo">Aceita F1 a F12, Insert, Delete, Home, End, PageUp, PageDown e combinações com Ctrl e Alt. Clique em “Gravar tecla” e pressione a tecla desejada. O comando aceita todos os coringas da busca.</div>` +
         `<div id="edTeclas" class="edTeclas"></div><div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="teclaNova">${ICO_MAIS}Adicionar atalho</button></div>`) +
       (soPrefs
         ? `<div class="edLinha edLinhaE"><button type="button" class="edBtn" data-ed="restaurar"${listaPers.length ? "" : " disabled"}>${ICO_VOLTA}Voltar ao padrão do servidor</button></div>`
@@ -891,7 +905,7 @@
       tl.forEach((t, i) => {
         const row = document.createElement("div"); row.className = "edTecla";
         const conhecida = ACOES.some(a => a.v === t.acao);
-        const opts = ACOES.map(a => `<option value="${es(a.v)}"${a.v === t.acao ? " selected" : ""}>${es(a.r + (a.pn ? "" : " (só no relatório clássico)"))}</option>`).join("") +
+        const opts = ACOES.map(a => `<option value="${es(a.v)}"${a.v === t.acao ? " selected" : ""}>${es(a.r)}</option>`).join("") +
           (conhecida ? "" : `<option value="${es(t.acao)}" selected>${es("Ação não reconhecida: " + t.acao)}</option>`);
         row.innerHTML = `<input type="text" class="edIn edTk" readonly placeholder="Clique em Gravar" value="${es(t.tecla)}" title="Tecla de atalho" aria-label="Tecla de atalho">` +
           `<button type="button" class="edBtn edGrav">Gravar tecla</button>` +
@@ -1025,10 +1039,14 @@
       if (d && d.ok && d.prefs && Array.isArray(d.prefs.teclasPersonalizadas)) teclas = teclasOk(d.prefs.teclasPersonalizadas);
     }).catch(() => {});
   }
-  // Ação da tecla no painel (valores do relatório clássico). Devolve false quando o painel não
-  // tem o equivalente (copiar, ajuda de coringas, gerar por período).
+  // Ação da tecla no painel (valores do relatório clássico). Devolve false só para um valor
+  // desconhecido (config.json editado à mão).
+  const COPIA_ACAO = {"click:#aCopiarTudo": "tudo", "click:#aCopiarTudoItens": "itens", "click:#aCopiarSemDinheiro": "semDinheiro", "click:#aCopiarGerencial": "gerencial"};
   function acaoPainel(v){
     v = String(v || "").trim(); if (!v) return true;
+    if (COPIA_ACAO[v]) { copiar(COPIA_ACAO[v]); return true; }
+    if (v === "click:#aAjuda") { abrirAjuda(); return true; }
+    if (v === "click:#btnModalPeriodo") { abrirPeriodo(); return true; }
     if (v === "click:#aLimpar") { const b = $("#btnLimpar"); if (b && !b.disabled) b.click(); return true; }
     if (v === "click:#aProibidos") { abrirEdCfg("", "proibidos"); return true; }
     if (v === "click:#btnTema") { abrirMenu(); return true; }
@@ -1045,7 +1063,7 @@
   function teclasInit(){
     document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-ed-abrir]"); if (!b) return; e.preventDefault(); e.stopPropagation(); abrirEdCfg(""); });
     document.addEventListener("keydown", e => {
-      if (!teclas.length || edAberta() || e.repeat) return;
+      if (!teclas.length || edAberta() || janelaAberta() || e.repeat) return;
       const ae = document.activeElement;
       if (ae && ae.id !== "q" && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable)) return;
       const s = teclaDoEvento(e); if (!s) return;
@@ -1056,13 +1074,289 @@
       // Como no clássico, a busca sempre recebe o comando (vazio limpa a busca); a única exceção é a ação
       // que o painel não tem, para não apagar a busca sem fazer nada.
       en.toast("<b>Atalho " + es(t.tecla) + "</b> · " + (cmd ? es(cmd) : (t.acao ? (okAcao ? "Ação executada." : "") : "Busca limpa.")) +
-        (okAcao ? "" : (cmd ? " " : "") + "A ação “" + es(rotAcao(t.acao)) + "” só existe no relatório clássico."));
+        (okAcao ? "" : (cmd ? " " : "") + "A ação “" + es(rotAcao(t.acao)) + "” não é reconhecida."));
     }, true);
+  }
+
+  // ── Ferramentas do relatório clássico (v1.9.0) ──────────────────────────────────────────
+  // Copiar (tudo, com itens, sem dinheiro, só gerencial e a venda aberta), coringas da busca,
+  // gerar por período, abrir no celular (QR code), atualizar, duplicatas e auto-teste — com o
+  // mesmo texto, as mesmas regras e as mesmas escolhas salvas do relatório clássico (o servidor
+  // embute a lógica dele em window.BUSCA). Servidor antigo, sem essas funções: avisa para reiniciar.
+  const janelas = [];
+  const janelaAberta = () => janelas.length > 0;
+  // Janela no padrão dos painéis (a mesma da janela de configurações): título, texto, corpo e rodapé.
+  function janela(o){
+    if (document.getElementById(o.id)) return null;
+    fecharCfg(); fecharMenu();
+    const ov = document.createElement("div"); ov.id = o.id; ov.className = "edOv on";
+    ov.innerHTML = `<div class="edJan${o.cls ? " " + o.cls : ""}" role="dialog" aria-modal="true" aria-labelledby="${o.id}T">` +
+      `<div class="edCab"><div class="edCabTx"><h2 id="${o.id}T">${o.titulo}</h2>${o.sub ? `<p class="edSub">${o.sub}</p>` : ""}</div>` +
+      `<button type="button" class="edBtn" data-j="fechar">${ICO_X}Fechar</button></div>` +
+      `<div class="edCorpo">${o.corpo || ""}</div>${o.pe ? `<div class="edPe">${o.pe}</div>` : ""}</div>`;
+    document.body.appendChild(ov); janelas.push(ov);
+    const antes = document.activeElement;
+    const esc = e => { if (e.key === "Escape" && janelas[janelas.length - 1] === ov) { e.preventDefault(); e.stopPropagation(); fechar(); } };
+    function fechar(){
+      document.removeEventListener("keydown", esc, true);
+      const i = janelas.indexOf(ov); if (i >= 0) janelas.splice(i, 1);
+      ov.remove(); if (o.aoFechar) try { o.aoFechar(); } catch (e) {}
+      try { if (antes && antes.focus && antes.isConnected) antes.focus({preventScroll: true}); } catch (e) {}
+    }
+    document.addEventListener("keydown", esc, true);
+    ov.addEventListener("click", e => { if (e.target === ov) fechar(); });
+    ov.querySelector('[data-j="fechar"]').addEventListener("click", fechar);
+    const f = ov.querySelector(o.foco || '[data-j="fechar"]'); if (f) try { f.focus({preventScroll: true}); } catch (e) {}
+    return {ov, fechar, J: s => ov.querySelector(s)};
+  }
+  const semRecurso = nome => { E().toast("<b>" + E().esc(nome) + "</b> · " + E().esc(MSG_REINICIAR)); };
+  // Área de transferência: a API do navegador só existe em endereço seguro (https ou localhost);
+  // pelo IP da rede usa a cópia clássica (textarea + execCommand), como no relatório clássico.
+  function copiarTexto(txt){
+    const reserva = () => { try {
+      const ta = document.createElement("textarea"); ta.value = txt; ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
+      document.body.appendChild(ta); ta.focus({preventScroll: true}); ta.select(); ta.setSelectionRange(0, ta.value.length);
+      document.execCommand("copy"); ta.remove(); } catch (e) {} };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).catch(reserva); else reserva(); } catch (e) { reserva(); }
+  }
+  // Vendas da lista (com busca, tipo, vendedor, pagamento e caixa), na ordem do relatório.
+  const vendasDaLista = () => E().filtradas().filter(x => x.raw).sort((a, b) => a.ri - b.ri).map(x => x.raw);
+  const vendSel = () => { const v = E().st.vend; return v && v !== "(sem vendedor)" ? v : ""; };
+  const COPIAS = {
+    tudo: {r: "Copiar tudo", ok: "Conteúdo completo (com dinheiro)."},
+    itens: {r: "Copiar tudo + itens", ok: "Conteúdo completo + itens."},
+    semDinheiro: {r: "Copiar sem dinheiro", ok: "Vendas em dinheiro não incluídas."},
+    gerencial: {r: "Copiar só gerencial", ok: "Somente os números das gerenciais."}
+  };
+  function copiar(modo){
+    const B = window.BUSCA, en = E(); if (!B || !B.copia) { semRecurso("Copiar"); return; }
+    let l = vendasDaLista(), txt = "";
+    if (modo === "semDinheiro") l = l.filter(x => !B.copia.temDinheiro(x));
+    if (modo === "gerencial") txt = B.copia.gerencial(l, vendSel());
+    else txt = B.copia.texto(l, modo === "itens", vendSel());
+    if (!txt) { en.toast("<b>Copiar</b> · Nenhuma venda " + (modo === "gerencial" ? "gerencial " : "") + "na lista para copiar."); return; }
+    copiarTexto(txt); en.toast("<b>Copiado</b> · " + COPIAS[modo].ok);
+  }
+  function abrirCopiar(){
+    const j = janela({id: "jCopiar", titulo: "Copiar", sub: "Vendas da lista (com a busca e os filtros atuais) para a área de transferência.",
+      corpo: `<div class="edAcoes">${Object.keys(COPIAS).map(k => `<button type="button" class="edBtn edAcao" data-copia="${k}">${ICO_COPIA}${COPIAS[k].r}</button>`).join("")}</div>`, foco: "[data-copia]"});
+    if (!j) return;
+    j.ov.addEventListener("click", e => { const b = e.target.closest("[data-copia]"); if (!b) return; j.fechar(); copiar(b.dataset.copia); });
+  }
+  // Copiar a venda aberta no detalhe: com itens, sem itens ou só o número da gerencial.
+  function copiarVenda(id, modo){
+    const B = window.BUSCA, en = E(); if (!B || !B.copia) { semRecurso("Copiar"); return; }
+    const x = en.vendas.find(v => v.id === id); if (!x || !x.raw) return;
+    if (modo === "ger") { copiarTexto(String(x.raw.numero || "")); en.toast("<b>Copiado</b> · Somente gerencial."); return; }
+    copiarTexto((x.raw.vendedor || "(sem vendedor)") + ":\n" + B.copia.linha(x.raw, modo === "itens"));
+    en.toast("<b>Copiado</b> · " + (modo === "itens" ? "Linha (com itens)." : "Linha (sem itens)."));
+  }
+  // Coringas da busca (a mesma lista do relatório clássico).
+  function abrirAjuda(){
+    const B = window.BUSCA, es = E().esc; if (!B || !Array.isArray(B.ajuda)) { semRecurso("Coringas"); return; }
+    janela({id: "jAjuda", titulo: "Coringas disponíveis", sub: "Use no campo de busca para filtrar por valor e/ou excluir termos.", cls: "edLarga",
+      corpo: `<div class="edAjuda">${B.ajuda.map(([k, v]) => k ? `<div class="edAjL"><code>${es(k)}</code><span>${es(v)}</span></div>` : `<div class="edAjS">${es(v)}</div>`).join("")}</div>`});
+  }
+  // Gerar por período: abre este mesmo painel com o intervalo (?i=&f=), como o clássico abre /periodo.
+  function abrirPeriodo(){
+    const p = n => String(n).padStart(2, "0"), d = new Date(), hoje = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+    const q = new URLSearchParams(location.search), ok = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "");
+    const i0 = ok(q.get("i")) ? q.get("i") : hoje, f0 = ok(q.get("f")) ? q.get("f") : hoje;
+    const j = janela({id: "jPeriodo", titulo: "Gerar por período", sub: "Informe o intervalo de datas desejado.", cls: "edEstreita",
+      corpo: `<div class="edCampo"><label class="edRot" for="jPerI">Data inicial</label><input type="date" id="jPerI" class="edIn" value="${i0}" max="${hoje}"></div>` +
+        `<div class="edCampo"><label class="edRot" for="jPerF">Data final</label><input type="date" id="jPerF" class="edIn" value="${f0}" max="${hoje}"></div>` +
+        (ok(q.get("i")) ? `<div class="edLinha edLinhaE"><button type="button" class="edBtn" data-per="hoje">${ICO_VOLTA}Voltar para hoje</button></div>` : ""),
+      pe: `<button type="button" class="edBtn edSalvar" data-per="gerar">${ICO_CAL}<span>Gerar relatório</span></button>`, foco: "#jPerI"});
+    if (!j) return;
+    const base = "/painel/" + encodeURIComponent(TM.atual || "") + "/";
+    j.ov.addEventListener("click", e => {
+      const b = e.target.closest("[data-per]"); if (!b) return;
+      if (b.dataset.per === "hoje") { location.assign(base); return; }
+      const ini = j.J("#jPerI").value, fim = j.J("#jPerF").value;
+      if (!ok(ini) || !ok(fim)) { E().toast("<b>Período</b> · Informe as duas datas."); return; }
+      if (ini > fim) { E().toast("<b>Período</b> · A data inicial não pode ser posterior à data final."); return; }
+      if (fim > hoje) { E().toast("<b>Período</b> · A data final não pode ser posterior a hoje."); return; }
+      b.disabled = true; b.querySelector("span").textContent = "Gerando o relatório…";
+      location.assign(ini === hoje && fim === hoje ? base : base + "?i=" + ini + "&f=" + fim);
+    });
+  }
+  // Abrir no celular: o mesmo QR code do clássico (na loja e, com o Tailscale, fora da loja).
+  function abrirQr(){
+    const j = janela({id: "jQr", titulo: "Abrir no celular", sub: "Aponte a câmera do celular para o código.", cls: "edEstreita",
+      corpo: `<div class="cfgZ edQrAbas" role="tablist" aria-label="Onde o celular está"><button type="button" role="tab" data-qr="loja" aria-pressed="true">Na loja (Wi-Fi)</button><button type="button" role="tab" data-qr="fora" aria-pressed="false">Fora da loja</button></div>` +
+        `<div class="cfgZ edQrAbas" id="jQrTs" role="group" aria-label="Endereço do Tailscale" hidden><button type="button" data-qr-ts="1" aria-pressed="true">Nome (fixo)</button><button type="button" data-qr-ts="ip" aria-pressed="false">IP</button></div>` +
+        `<div class="edQr"><img id="jQrImg" alt="QR code do endereço do relatório" src="/qr.svg?t=${Date.now()}"></div>` +
+        `<div class="edQrUrl mn" id="jQrUrl">${E().esc(location.origin + "/")}</div>` +
+        `<button type="button" class="edBtn edAcao" data-qr="copiar">${ICO_COPIA}Copiar o endereço</button>` +
+        `<p class="edInfo" id="jQrDica"></p>`});
+    if (!j) return;
+    const DICA_LOJA = "O celular precisa estar no <b>mesmo Wi-Fi</b> desta máquina. Também é possível digitar o endereço no navegador do celular.";
+    const DICA_FORA = "Funciona em qualquer lugar (4G, outro Wi-Fi) com o app <b>Tailscale</b> ligado no celular, na <b>mesma conta</b> desta máquina. Rede privada e criptografada: somente os seus aparelhos têm acesso.";
+    const DICA_SEM = "<b>Para acessar fora da loja:</b> instale o <b>Tailscale</b> nesta máquina e no celular e entre com a <b>mesma conta</b> nos dois; depois, abra esta janela novamente.";
+    const dados = {url: location.origin + "/", externo: null, nome: null, ip: null};
+    let ts = "1";   // fora da loja: QR do nome do Tailscale (fixo) ou do IP
+    const img = j.J("#jQrImg");
+    img.addEventListener("error", () => { img.style.display = "none"; j.J("#jQrDica").textContent = "Não foi possível gerar o QR code. Verifique se o servidor está em execução."; });
+    img.addEventListener("load", () => { img.style.display = ""; });
+    let aba = "loja";
+    const mostrar = a => { aba = a;
+      j.ov.querySelectorAll('[data-qr="loja"],[data-qr="fora"]').forEach(b => b.setAttribute("aria-pressed", b.dataset.qr === a ? "true" : "false"));
+      const dois = a === "fora" && !!(dados.nome && dados.ip), tsBox = j.J("#jQrTs");
+      tsBox.hidden = !dois; if (!dois) ts = dados.nome || !dados.ip ? "1" : "ip";
+      tsBox.querySelectorAll("[data-qr-ts]").forEach(b => b.setAttribute("aria-pressed", b.dataset.qrTs === ts ? "true" : "false"));
+      const end = a === "fora" ? (ts === "ip" ? (dados.ip || dados.externo) : dados.externo) : dados.url;
+      j.J(".edQr").style.display = end ? "" : "none"; j.J("#jQrUrl").textContent = end || ""; j.J('[data-qr="copiar"]').style.display = end ? "" : "none";
+      if (end) img.src = "/qr.svg?" + (a === "fora" ? "externo=" + ts + "&" : "") + "t=" + Date.now();
+      j.J("#jQrDica").innerHTML = a === "fora" ? (end ? DICA_FORA : DICA_SEM) : DICA_LOJA; };
+    mostrar("loja");
+    jsonDe("/api/qr").then(({j: r}) => { if (r && r.url) dados.url = String(r.url); dados.externo = r && r.externo ? String(r.externo) : null;
+      dados.nome = r && r.externoNome ? String(r.externoNome) : null; dados.ip = r && r.externoIP ? String(r.externoIP) : null; if (j.ov.isConnected) mostrar(aba); }).catch(() => {});
+    j.ov.addEventListener("click", e => { const t = e.target.closest("[data-qr-ts]"); if (t) { ts = t.dataset.qrTs === "ip" ? "ip" : "1"; mostrar("fora"); return; }
+      const b = e.target.closest("[data-qr]"); if (!b) return;
+      if (b.dataset.qr === "copiar") { const u = j.J("#jQrUrl").textContent; if (u) { copiarTexto(u); E().toast("<b>Copiado</b> · Endereço do relatório: " + E().esc(u)); } }
+      else mostrar(b.dataset.qr); });
+  }
+  // Atualizar: refaz o relatório de hoje (mesma rota do botão Atualizar do clássico), sem recarregar a página.
+  async function atualizar(){
+    const en = E();
+    if (/[?&]i=\d{4}-\d{2}-\d{2}/.test(location.search)) { en.toast("<b>Atualizar</b> · Este painel mostra um período. Use Gerar por período → Voltar para hoje."); return; }
+    try { await fetch("/atualizar", {cache: "no-store", credentials: "same-origin", redirect: "manual"}); } catch (e) {}
+    en.toast("<b>Atualizar</b> · Atualizando os dados de hoje…"); en.recarregarDados();
+  }
+  // ── Duplicatas: as mesmas escolhas (salvas neste navegador) do relatório clássico ────────
+  const ROT_ESC = {fiscal: d => "manter apenas " + window.BUSCA.duplicatas.rotDoc(d), todas: () => "manter as duas", gerencial: d => "manter apenas a " + window.BUSCA.duplicatas.rotOrigem(d)};
+  let dupDepois = new Set(), dupAuto = false, dupRender = null;
+  const dupLista = () => { const D = window.BUSCA && BUSCA.duplicatas; return D ? {todas: D.todas(), pend: D.pendentes().filter(d => !dupDepois.has(D.chave(d)) && !D.escolha(d))} : {todas: [], pend: []}; };
+  function abrirDuplicatas(destaque){
+    const B = window.BUSCA, D = B && B.duplicatas, en = E(), es = en.esc; if (!D) { semRecurso("Duplicatas"); return; }
+    const j = janela({id: "jDup", titulo: "Duplicatas", sub: "Gerenciais convertidas em NFC-e/NF-e e NFC-e reemitidas como NF-e. Por padrão, o documento final prevalece (a origem fica fora da lista e da soma).", cls: "edLarga", corpo: '<div id="jDupC"></div>'});
+    if (!j) return;
+    const linha = (d, decidida) => {
+      const doc = D.rotDoc(d), origem = D.rotOrigem(d), atual = decidida ? D.escolha(d) : null;
+      const motivo = d.criterio === "itens" ? "mesmo valor/data e mesmos itens" + (d.diffMin != null ? ", +" + d.diffMin + " min" : "") : "mesmo valor/data/vendedor" + (d.diffMin != null ? ", +" + d.diffMin + " min" : "");
+      const bt = (esc_, txt) => `<button type="button" class="edBtn${atual === esc_ ? " on" : ""}" data-dup-esc="${esc_}"${atual === esc_ ? ' aria-pressed="true"' : ""}>${atual === esc_ ? ICO_OK : ""}${es(txt)}</button>`;
+      return `<div class="edDup" data-chave="${es(D.chave(d))}" data-dec="${decidida ? 1 : 0}">` +
+        `<div class="edDupT"><i class="edDupN ${d._tipo === "confirmado" ? "edOkB" : "edAtB"}">${d._tipo === "confirmado" ? "confirmado" : "provável"}</i>` +
+        `<b>${es(origem + " " + d.gerencial)}</b> → <b>${es(doc + " " + d.docNumero)}</b>` +
+        (Number(d.total) > 0 ? ` <span class="edInfo">${es(en.fmt(Number(d.total)))}${d.vendedor ? " · " + es(d.vendedor) : ""}</span>` : "") + `</div>` +
+        `<div class="edInfo">${es(motivo)}${atual ? " · escolha salva: " + es(ROT_ESC[atual](d)) : ""}</div>` +
+        `<div class="edLinha edLinhaE">${bt("fiscal", "Manter apenas " + doc)}${bt("todas", "Manter as duas")}${bt("gerencial", "Manter apenas a " + origem)}` +
+        (decidida ? "" : `<button type="button" class="edBtn" data-dup-esc="depois">Perguntar depois</button>`) + `</div></div>`;
+    };
+    const render = () => {
+      const {todas, pend} = dupLista(), mt = D.manterTodas();
+      const dec = todas.filter(d => D.escolha(d));
+      j.J("#jDupC").innerHTML = `<button type="button" class="edBtn edAcao" data-dup-todas>${mt ? "Desativar “manter todas”" : "Manter todas as duplicatas"}</button>` +
+        `<div class="edRot">Aguardando decisão (${pend.length})</div>` +
+        (pend.length ? pend.map(d => linha(d, false)).join("") : `<p class="edInfo">Nenhuma duplicata pendente de decisão.${mt ? " O modo “manter todas” está ativo: toda duplicata sem escolha salva é exibida e somada automaticamente." : ""}</p>`) +
+        (dec.length ? `<div class="edRot">Já decididas (${dec.length}) — clique em outra opção para trocar</div>` + dec.map(d => linha(d, true)).join("") : "");
+      if (destaque) { const el = [...j.ov.querySelectorAll(".edDup")].find(x => x.dataset.chave === destaque); if (el) { el.scrollIntoView({block: "nearest"}); el.classList.add("edDestaque"); } destaque = ""; }
+    };
+    render(); dupRender = () => { if (j.ov.isConnected) render(); else dupRender = null; };
+    j.ov.addEventListener("click", e => {
+      const t = e.target.closest("[data-dup-todas]");
+      if (t) { const ligar = !D.manterTodas(); D.manterTodas(ligar); en.recarregarDados(); setTimeout(render, 400);
+        en.toast("<b>Duplicatas</b> · " + (ligar ? "Todas as duplicatas sem escolha salva passam a ser exibidas e somadas." : "Modo “manter todas” desativado.")); return; }
+      const b = e.target.closest("[data-dup-esc]"); if (!b) return;
+      const item = b.closest(".edDup"), ch = item && item.dataset.chave, d = D.todas().find(x => D.chave(x) === ch); if (!d) return;
+      const esc_ = b.dataset.dupEsc;
+      if (esc_ === "depois") { dupDepois.add(ch); render(); return; }
+      if (D.escolha(d) === esc_) return;
+      D.salvar(d, esc_); en.recarregarDados();
+      en.toast("<b>Duplicatas</b> · Escolha aplicada: " + es(ROT_ESC[esc_](d)) + ".");
+      setTimeout(() => { if (j.ov.isConnected) { destaque = ch; render(); } }, 500);
+    });
+  }
+  // ── Auto-teste: o resultado do servidor + a conferência da tela (mesmas regras do clássico) ──
+  let autoTodos = [], autoVerif = 0;
+  function autoCalcular(dados){
+    const B = window.BUSCA, A = B && B.autoteste;
+    const srv = dados && dados.autoteste && Array.isArray(dados.autoteste.achados) ? dados.autoteste.achados : [];
+    autoVerif = (dados && dados.autoteste && Number(dados.autoteste.verificacoes)) || 0;
+    let tela = []; try { tela = A ? A.tela() : []; } catch (e) { tela = []; }
+    autoTodos = srv.map(a => ({nivel: a.nivel, codigo: a.codigo, msg: a.msg, origem: "servidor"})).concat(tela.map(a => ({nivel: a.nivel, codigo: a.codigo, msg: a.msg, origem: "navegador"})));
+    const alertas = autoTodos.filter(a => a.nivel !== "info");
+    // Aviso só quando o conjunto de alertas muda (mesma memória do relatório clássico).
+    if (!A) return;
+    const chave = A.chaveVisto + String((dados && dados.data) || ""), assin = alertas.map(a => a.codigo + ":" + a.msg).join("|");
+    let ant = null; try { ant = localStorage.getItem(chave); } catch (e) {}
+    if (!alertas.length) { try { localStorage.removeItem(chave); } catch (e) {} return; }
+    if (ant === assin) return;
+    try { localStorage.setItem(chave, assin); } catch (e) {}
+    const crit = alertas.filter(a => a.nivel === "critico").length;
+    const txt = alertas.length === 1 ? (crit ? "Crítico: " : "") + alertas[0].msg : alertas.length + " alertas (" + crit + " crítico(s)). Abra Configurações → Auto-teste para ver.";
+    E().toast("<b>Auto-teste</b> · " + E().esc(txt.length > 220 ? txt.slice(0, 217) + "…" : txt));
+  }
+  function abrirAutoteste(){
+    const es = E().esc, ord = {critico: 0, aviso: 1, info: 2}, rot = {critico: "crítico", aviso: "aviso", info: "informativo"};
+    const itens = autoTodos.slice().sort((a, b) => (ord[a.nivel] || 2) - (ord[b.nivel] || 2));
+    janela({id: "jAuto", titulo: "Auto-teste", sub: es(autoVerif) + " verificações no servidor + conferência da tela. Executado automaticamente a cada atualização.", cls: "edLarga",
+      corpo: itens.length ? itens.map(a => `<div class="edDup"><div class="edDupT"><i class="edDupN ${a.nivel === "critico" ? "edErB" : a.nivel === "aviso" ? "edAtB" : "edInB"}">${es(rot[a.nivel] || a.nivel)}</i><b>${es(a.codigo)}</b> <span class="edInfo">(${es(a.origem)})</span></div><div>${es(a.msg)}</div></div>`).join("")
+        : '<p class="edInfo">Nenhum problema encontrado nesta geração.</p>'});
+  }
+  // Itens da seção Ferramentas (menu Configurações), com as contagens atuais.
+  function ferramentasHtml(){
+    const es = E().esc, dup = dupLista(), al = autoTodos.filter(a => a.nivel !== "info").length;
+    const per = /[?&]i=\d{4}-\d{2}-\d{2}/.test(location.search);
+    return `<button type="button" data-fer="periodo">Gerar por período</button>` +
+      (per ? `<button type="button" data-fer="hoje">Voltar para hoje</button>` : `<button type="button" data-fer="atualizar">Atualizar os dados de hoje</button>`) +
+      `<button type="button" data-fer="qr" class="cfgSoPc">Abrir no celular (QR code)</button>` +
+      (dup.todas.length ? `<button type="button" data-fer="dup">Duplicatas (${es(dup.todas.length)}${dup.pend.length ? ", " + es(dup.pend.length) + " pendente" + (dup.pend.length === 1 ? "" : "s") : ""})</button>` : "") +
+      `<button type="button" data-fer="auto">Auto-teste${al ? " (" + es(al) + (al === 1 ? " alerta" : " alertas") + ")" : ""}</button>`;
+  }
+  function acaoFerramenta(a){
+    if (a === "periodo") abrirPeriodo(); else if (a === "hoje") location.assign("/painel/" + encodeURIComponent(TM.atual || "") + "/");
+    else if (a === "atualizar") atualizar(); else if (a === "qr") abrirQr(); else if (a === "dup") abrirDuplicatas(""); else if (a === "auto") abrirAutoteste();
+  }
+  // Dados novos (motor): auto-teste e, na primeira carga, as duplicatas pendentes (como no clássico).
+  function carregou(dados){
+    autoCalcular(dados);
+    if (dupRender) dupRender();
+    if (!dupAuto) { dupAuto = true; if (dupLista().pend.length && !edAberta() && !janelaAberta() && !$("#ov.on")) setTimeout(() => abrirDuplicatas(""), 600); }
+    const f = cfgM && cfgM.querySelector(".cfgFer"); if (f) f.innerHTML = ferramentasHtml();
+  }
+  // Bandeja → Configurações / Gerar por período (SSE navigate-hash), e ?cfgAparelho= (Dispositivos).
+  function hash(h){ if (h === "config") abrirEdCfg(""); else if (h === "periodo") abrirPeriodo(); }
+  function ferramentasInit(){
+    document.addEventListener("click", e => {
+      const b = e.target.closest && e.target.closest("[data-fer],[data-tb],[data-cp],.dupChip"); if (!b) return;
+      if (b.matches(".dupChip")) { e.preventDefault(); e.stopPropagation(); abrirDuplicatas(b.dataset.dup || ""); return; }
+      e.preventDefault(); e.stopPropagation();
+      if (b.dataset.fer) { fecharCfg(); acaoFerramenta(b.dataset.fer); }
+      else if (b.dataset.tb === "copiar") abrirCopiar(); else if (b.dataset.tb === "ajuda") abrirAjuda();
+      else if (b.dataset.cp) copiarVenda(b.dataset.id || "", b.dataset.cp);
+    }, true);
+    // Insert ou CapsLock+P: [proibidos]; Delete: [-proibidos] — com o tipo Gerencial e todos os
+    // vendedores, como no relatório clássico. Na busca, o Delete só vira atalho no fim do texto.
+    document.addEventListener("keydown", e => {
+      const k = String(e.key || ""), ins = k === "Insert", del = k === "Delete", capsP = k.toLowerCase() === "p" && e.getModifierState && e.getModifierState("CapsLock");
+      if (!ins && !del && !capsP) return;
+      if (e.ctrlKey || e.altKey || e.metaKey || edAberta() || janelaAberta() || $("#ov.on")) return;
+      if (teclas.some(t => t.tecla.toLowerCase() === k.toLowerCase())) return;   // tecla personalizada tem prioridade
+      const al = e.target, q = $("#q"); if (!q) return;
+      if (al && (al.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(al.tagName || ""))) {
+        if (al !== q || capsP) return;
+        if (del && !(q.selectionStart === q.selectionEnd && q.selectionEnd >= String(q.value || "").length)) return;
+      }
+      e.preventDefault();
+      const en = E(), termo = del ? "[-proibidos]" : "[proibidos]";
+      let v = String(q.value || "").replace(del ? /\s*\[(proibidos|1p)\]\s*/ig : /\s*\[-(proibidos|p)\]\s*/ig, " ").trim();
+      if (v.toLowerCase().indexOf(termo) < 0) v = (v + " " + termo).trim();
+      if (!capsP) { en.st.vend = null; const g = $('.seg [data-tipo="Gerencial"]') || $('[data-tipo="Gerencial"]'); if (g) g.click(); }
+      q.value = v; en.st.q = v; en.render(); try { q.dispatchEvent(new Event("input", {bubbles: true})); } catch (er) {}
+      en.toast("<b>Filtro</b> · Filtro " + termo + " aplicado.");
+    });
+    // Bandeja → Dispositivos → Configurações do aparelho (/?cfgAparelho=CHAVE, no computador do servidor).
+    try { const u = new URL(location.href), ch = u.searchParams.get("cfgAparelho");
+      if (ch) { u.searchParams.delete("cfgAparelho"); try { history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}
+        const ap = window.__APARELHO__; if (/^([a-f0-9]{32}|ip:[0-9A-Za-z.:%-]{2,60})$/.test(ch) && !(ap && ap.servidor === false)) setTimeout(() => abrirEdCfg(ch), 500); }
+    } catch (e) {}
   }
 
   function temaInit(){
     if (TM.atual && ehPainel(TM.atual)) salvarPainel(TM.atual); // o painel aberto passa a ser o escolhido
-    cfgInit(); teclasInit();
+    cfgInit(); teclasInit(); ferramentasInit();
     const b = $("#btnTema"); if (!b) return;
     b.addEventListener("click", e => { e.stopPropagation(); if (menu && menu.classList.contains("on")) fecharMenu(); else abrirMenu(); });
     document.addEventListener("click", e => { if (menu && menu.classList.contains("on") && !menu.contains(e.target)) fecharMenu(); });
@@ -1070,5 +1364,5 @@
     addEventListener("resize", fecharMenu);
   }
 
-  window.PAINEL = {fotosMudaram: carregarFotos, prefsMudaram: aplicarPrefsTela, recarregar: () => recLigada() && !edAberta(), limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
+  window.PAINEL = {fotosMudaram: carregarFotos, prefsMudaram: aplicarPrefsTela, recarregar: () => recLigada() && !edAberta() && !janelaAberta(), carregou, hash, limite: 400, card, vend, detail, ordenar, filtroExtra, intro, after, perfMudou: l => { cfgEstado(); if (cfg.perfMudou) cfg.perfMudou(l); }};
 })();

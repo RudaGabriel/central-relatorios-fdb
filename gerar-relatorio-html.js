@@ -1,12 +1,13 @@
 /**
  * gerar-relatorio-html.js
- * @version 3.37.0
+ * @version 3.38.0
  * @author Ruda Gabriel
  * @description Gerador de relatório HTML (subprocesso spawnado pelo servidor). SOMENTE LEITURA.
  * @changelog (único, exclusivo desta versão — sem acumular histórico de versões anteriores)
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   3.37.0 - 2026-11-18 - Formato da lista de proibidos (formatarProibidos) compartilhado com os painéis de tela única,
- *            que passam a ter a mesma janela de configurações do relatório.
+ *   3.38.0 - 2026-11-18 - Cópias (textoCopiaLista, textoCopiaGerencial), coringas da busca (AJUDA_CORINGAS), duplicatas
+ *            e auto-teste da tela compartilhados com os painéis de tela única; o endereço "/?cfgAparelho=" (bandeja)
+ *            passa a abrir no painel escolhido sem perder o aparelho.
  */
 
 (function() {
@@ -14,7 +15,7 @@
     // Embutida no HTML gerado (comentário + atributo data-*) para rastreabilidade:
     // suporte técnico consegue identificar qual versão do script gerou um relatório
     // específico sem precisar abrir o gerar-relatorio-html.js.
-    const SCRIPT_VERSION = "3.37.0";
+    const SCRIPT_VERSION = "3.38.0";
     // Lista-mestra dos temas. id = valor de data-theme no HTML e de "fdb_theme" salvo no navegador;
     // ordem = ordem no menu e no "próximo tema". O CSS de cada id é o bloco [data-theme="id"] do <style>
     // (variáveis) mais, nos temas de estilo, as regras html[data-theme="id"] (forma: cantos, bordas,
@@ -2352,7 +2353,11 @@
           if (!p) { try { p = decodeURIComponent((document.cookie.match(/(?:^|;\s*)fdb_painel=([^;]+)/) || [])[1] || ""); } catch (e2) {} }
           if (PAINEIS.indexOf(p) < 0) return;
           var dest = "";
-          if (location.pathname === "/") dest = "/painel/" + p + "/";
+          if (location.pathname === "/") {
+            dest = "/painel/" + p + "/";
+            var ca = new URLSearchParams(location.search).get("cfgAparelho") || "";
+            if (/^([a-f0-9]{32}|ip:[0-9A-Za-z.:%-]{2,60})$/.test(ca)) dest += "?cfgAparelho=" + encodeURIComponent(ca);
+          }
           else if (location.pathname === "/periodo") {
             var q = new URLSearchParams(location.search), i = q.get("i") || "", f = q.get("f") || "";
             if (/^\d{4}-\d{2}-\d{2}$/.test(i) && /^\d{4}-\d{2}-\d{2}$/.test(f)) dest = "/painel/" + p + "/?i=" + i + "&f=" + f;
@@ -4541,6 +4546,7 @@ const ligarEditorProibidos=(ta,elCont)=>{
     }catch(e){}
 })();
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 // ── Painel "Duplicatas" (v2.9.0; escolhas por par em v3.8.3) ─────────────
 // Gerenciais que o gerador suprimiu automaticamente nesta geração (já
 // convertidas em NFC-e/NF-e — vínculo pela coluna Gerencial ou reconciliação
@@ -4801,6 +4807,7 @@ const _dupAtualizarBotao = () => {
     }
 };
 _dupAtualizarBotao();
+/* ==/BUSCA-COMUM== */
 
 const _DUP_ROTULO_ESCOLHA = { todas: "manter as duas", fiscal: "manter apenas o documento final", gerencial: "manter apenas o documento de origem" };
 
@@ -5048,6 +5055,7 @@ const showToast=msg=>{
 };
 const toast=(titulo,desc)=>{ showToast(titulo&&desc?(titulo+" — "+desc):(titulo||desc)); };
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const limparItensVisuais=it=>{
     const s=String(it||"");
     if(!s)return"";
@@ -5064,6 +5072,7 @@ const limparItensVisuais=it=>{
     }
     return lim.join("\n");
 };
+/* ==/BUSCA-COMUM== */
 
 const numQtd=s=>{
     s=String(s||"").trim().replace(/\s+/g,"").replace(/\./g,"").replace(",",".");
@@ -5714,6 +5723,7 @@ const passaFiltro = (x, i) => {
 };
 /* ==/BUSCA-COMUM== */
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const limparPagamentoCopia=p=>String(p||"").split("|").map(s=>s.trim().replace(/^cartao(?: +|$)/i,"").trim()).filter(Boolean).join(" | ");
 const formasDe=x=>limparPagamentoCopia(x.pagamentos||"").split("|").map(s=>normP(s)).filter(Boolean);
 const temDinheiro=x=>formasDe(x).includes("DINHEIRO");
@@ -5732,24 +5742,6 @@ const formasComValorCopia=x=>{
     const pos=f=>{const k=normP(f);const i=nomes.findIndex(n=>normP(n)===k);return i<0?999:i;};
     ent.sort((a,b)=>pos(a[0])-pos(b[0]));
     return ent.map(([f,v])=>{const i=pos(f);return fmtCopia(v)+" "+(i<999?nomes[i]:f);}).join(" | ");
-};
-
-const montarTextoCopia=(ignorarDinheiro,ignorarProibidos)=>{
-    const filtradas=DADOS.vendas.filter((x,i)=>passaFiltro(x,i)).filter(x=>(!ignorarDinheiro||!temDinheiro(x))&&(!ignorarProibidos||!vendaTemProibido(x)));
-    const montarBloco=(nome,arr)=>{
-        let out=nome+":\n";
-        for(const x of arr){
-            const fvc=formasComValorCopia(x);
-            out+=String(x.numero||"")+"\t"+(fvc||(fmtCopia(x.total||0)+"\t"+limparPagamentoCopia(x.pagamentos||"")))+"\n";
-        }
-        return out.trim();
-    };
-    if(vendAtual)return montarBloco(vendAtual,filtradas);
-    const map=new Map();
-    for(const x of filtradas){ const v=x.vendedor||"(sem vendedor)"; if(!map.has(v))map.set(v,[]); map.get(v).push(x); }
-    const vendes=[...map.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
-    let out=""; for(const v of vendes)out+=montarBloco(v,map.get(v))+"\n\n";
-    return out.trim();
 };
 
 const linhaCopiaItens=x=>{
@@ -5777,16 +5769,49 @@ const linhaCopiaSemItens=x=>{
     const extraTab=(parts.includes("DEBITO")||parts.includes("PIX")||parts.includes("DINHEIRO"))?"\t":"";
     return String(x?.numero||"")+"\t"+fmtCopia(x?.total||0)+"\t"+forma+"\t"+extraTab;
 };
-
-const montarTextoCopiaItens=(ignorarDinheiro,ignorarProibidos)=>{
-    const filtradas=DADOS.vendas.filter((x,i)=>passaFiltro(x,i)).filter(x=>(!ignorarDinheiro||!temDinheiro(x))&&(!ignorarProibidos||!vendaTemProibido(x)));
-    const montarBloco=(nome,arr)=>{ let out=nome+":\n"; for(const x of arr)out+=linhaCopiaItens(x)+"\n"; return out.trim(); };
-    if(vendAtual)return montarBloco(vendAtual,filtradas);
+// Texto de cópia a partir de uma lista já filtrada (usado aqui e nos painéis de tela única):
+// agrupado por vendedor (em ordem alfabética) ou, com um vendedor escolhido, só o bloco dele.
+// comItens: cada linha com os itens (linhaCopiaItens); sem: número, total e pagamento.
+const textoCopiaLista=(filtradas,comItens,vend)=>{
+    const montarBloco=(nome,arr)=>{
+        let out=nome+":\n";
+        for(const x of arr){
+            if(comItens){ out+=linhaCopiaItens(x)+"\n"; continue; }
+            const fvc=formasComValorCopia(x);
+            out+=String(x.numero||"")+"\t"+(fvc||(fmtCopia(x.total||0)+"\t"+limparPagamentoCopia(x.pagamentos||"")))+"\n";
+        }
+        return out.trim();
+    };
+    if(vend)return montarBloco(vend,filtradas);
     const map=new Map();
     for(const x of filtradas){ const v=x.vendedor||"(sem vendedor)"; if(!map.has(v))map.set(v,[]); map.get(v).push(x); }
     const vendes=[...map.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
     let out=""; for(const v of vendes)out+=montarBloco(v,map.get(v))+"\n\n";
     return out.trim();
+};
+// Gerencial real: modelo 99 + número começa com 0 (padStart de gerencial) + NÃO é recebimento avulso.
+const ehGerencialReal=x=>Number(x&&x.modelo||0)===99&&!x.is_recebimento&&String(x&&x.numero||"").startsWith("0");
+// "Copiar só gerencial": só os números das gerenciais, agrupados por vendedor.
+const textoCopiaGerencial=(filtradas,vend)=>{
+    let out="";
+    if(vend){ out+=vend+":\n"; for(const x of filtradas)out+=String(x.numero||"")+"\n"; }
+    else{
+        const map=new Map();
+        for(const x of filtradas){ const v=x.vendedor||"(sem vendedor)"; if(!map.has(v))map.set(v,[]); map.get(v).push(x); }
+        const vendes=[...map.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
+        for(const v of vendes){ out+=v+":\n"; for(const x of map.get(v))out+=String(x.numero||"")+"\n"; out+="\n"; }
+    }
+    return out.trim();
+};
+/* ==/BUSCA-COMUM== */
+
+const montarTextoCopia=(ignorarDinheiro,ignorarProibidos)=>{
+    const filtradas=DADOS.vendas.filter((x,i)=>passaFiltro(x,i)).filter(x=>(!ignorarDinheiro||!temDinheiro(x))&&(!ignorarProibidos||!vendaTemProibido(x)));
+    return textoCopiaLista(filtradas,false,vendAtual);
+};
+const montarTextoCopiaItens=(ignorarDinheiro,ignorarProibidos)=>{
+    const filtradas=DADOS.vendas.filter((x,i)=>passaFiltro(x,i)).filter(x=>(!ignorarDinheiro||!temDinheiro(x))&&(!ignorarProibidos||!vendaTemProibido(x)));
+    return textoCopiaLista(filtradas,true,vendAtual);
 };
 
 const copiarTexto=txt=>{
@@ -6744,6 +6769,51 @@ const fecharModal=()=>{
     linhaAtual=null;
 };
 
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
+// Coringas da busca (fonte única, também usada pelos painéis de tela única): [termo, explicação];
+// termo vazio = título de seção.
+const AJUDA_CORINGAS=[
+    ["","Exclusão por colchetes"],
+    ["[proibidos] ou [1p]","Use Insert ou Caps+P para adicionar [proibidos] — oculta vendas com itens proibidos"],
+    ["[-proibidos] ou [-p]","Use Delete para adicionar [-proibidos] — mostra SOMENTE vendas com itens proibidos"],
+    ["[a,~b,=c]","Exclui termos da lista: a=token, ~b=contém (substring), =c=exato. Separe por vírgula. Ex: [granel,~entrega,=pix]"],
+    ["","Filtro por valor numérico"],
+    ["> ou >=","Maior que / Maior ou igual. Ex: >100  Ex com exclusão: >100-pix-debito"],
+    ["< ou <=","Menor que / Menor ou igual. Ex: <150  Ex com exclusão: <150-granel"],
+    ["100-200","Intervalo de valores (de 100 até 200, inclusive)"],
+    ["=151 ou =151*5","Combinação de vendas que somam até 151. Com tolerância: =151*5 (±5)"],
+    ["","Coringas numéricos (parte inteira)"],
+    ["*","1 ou mais dígitos e/ou vírgula — corresponde ao início do valor. Ex: 15* → 15,00 / 150,00 / 1500,00"],
+    ["/","1 ou mais dígitos antes da vírgula — busca dentro da parte inteira. Ex: /15/ → 115,90 / 2150,00"],
+    ["?","Exatamente 1 dígito na parte inteira. Ex: 1?0 → 100 / 110 / 190 (dentro do inteiro)"],
+    ["","Coringas textuais"],
+    ["palavra*","Começa com — ex.: RACAO* encontra RACAO PREMIUM, RACAO GATO etc."],
+    ["*palavra","Termina com — ex.: *GATO encontra RACAO GATO, ALIMENTO GATO etc."],
+    ["*palavra*","Contém (equivalente a ~palavra) — ex: *RACAO* encontra qualquer item com RACAO"],
+    ["p*lavra","Curinga livre — * corresponde a qualquer sequência. Ex.: R*CAO encontra RACAO, RAÇÃO, RAT CAO etc."],
+    ["","OU entre termos"],
+    ["A|B","Mostra vendas que contenham A OU B. Ex: dinheiro|pix  Ex: >100+debito|credito"],
+    ["A|B|C","Mais de dois termos. Ex.: granel|entrega|desconto (funciona na inclusão e na exclusão)"],
+    ["","Campo específico"],
+    ["vendedor:NOME","Filtra pelo vendedor exato (ou com curinga). Ex: vendedor:FULANO  vend:BELTRANO*"],
+    ["item:PRODUTO","Filtra por item comprado. Ex: item:*RACAO*  item:GRANEL"],
+    ["caixa:001","Filtra pelo caixa. Aliases: cx:1  caixa:001"],
+    ["numero:123","Filtra pelo número do cupom/NF. Alias: num:123"],
+    ["cliente:NOME","Filtra pelo nome do cliente. Alias: cli:FULANO*"],
+    ["hora:14","Filtra pelo horário. Ex: hora:14*  hora:08  (compara no campo hora)"],
+    ["pag:PIX","Filtra pela forma de pagamento. Aliases: pagamento:DINHEIRO  forma:CREDITO"],
+    ["nat:VENDA","Filtra pela natureza da operação. Alias: natureza:*VENDA*"],
+    ["tipo:ger","Filtra pelo tipo de documento. Valores: ger / nfce / nfe"],
+    ["","Frase exata"],
+    ['"ração gato"',"Busca a frase inteira no texto da venda (vendedor, itens, pagamento etc.)"],
+    ['"ND CAES"+>50',"Combina a frase exata com outros filtros usando +"],
+    ["","Combinações (E, com +)"],
+    ["+ (opcional)","Múltiplos filtros: a venda deve atender a todos (E). Ex: >50+dinheiro+-entrega"],
+    ["A-B-C","Inclusão A com exclusões B e C (sem +). Ex: carto-credito-debito"],
+    ["> ou < + exclusão","Ex: >100-pix-credito  <200-granel-gerencia-cartao"],
+    ["Tipo ao lado da busca","Escolha Todos, Gerencial, NFC-e ou NF-e para restringir a pesquisa ao tipo"]
+];
+/* ==/BUSCA-COMUM== */
 const abrirAjuda=()=>{
     linhaAtual=null;
     const b=qs("#copiarModal");if(b)b.style.display="none";const b1=qs("#copiarModalGer");if(b1)b1.style.display="none";const b2=qs("#copiarModalSemItens");if(b2)b2.style.display="none";
@@ -6751,55 +6821,12 @@ const abrirAjuda=()=>{
     qs("#mSub").textContent="Use no campo de busca para filtrar por valor e/ou excluir termos.";
     const body=qs("#mBody"); body.innerHTML="";
     const _escM=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const add=(k,v,destaque)=>{const d=document.createElement('div');d.className='kv'+(destaque?' kvNew':'');d.innerHTML='<div class="k">'+_escM(k)+'</div><div class="v">'+_escM(v)+'</div>';body.appendChild(d);};
-    const sep=(titulo)=>{const d=document.createElement('div');d.className='kv kvSep';d.innerHTML='<div class="k" style="opacity:.5;font-size:11px;letter-spacing:.06em;text-transform:uppercase">'+_escM(titulo)+'</div><div class="v"></div>';body.appendChild(d);};
-
-    sep("Exclusão por colchetes");
-    add("[proibidos] ou [1p]","Use Insert ou Caps+P para adicionar [proibidos] — oculta vendas com itens proibidos");
-    add("[-proibidos] ou [-p]","Use Delete para adicionar [-proibidos] — mostra SOMENTE vendas com itens proibidos");
-    add("[a,~b,=c]","Exclui termos da lista: a=token, ~b=contém (substring), =c=exato. Separe por vírgula. Ex: [granel,~entrega,=pix]");
-
-    sep("Filtro por valor numérico");
-    add("> ou >=","Maior que / Maior ou igual. Ex: >100  Ex com exclusão: >100-pix-debito");
-    add("< ou <=","Menor que / Menor ou igual. Ex: <150  Ex com exclusão: <150-granel");
-    add("100-200","Intervalo de valores (de 100 até 200, inclusive)");
-    add("=151 ou =151*5","Combinação de vendas que somam até 151. Com tolerância: =151*5 (±5)");
-
-    sep("Coringas numéricos (parte inteira)");
-    add("*","1 ou mais dígitos e/ou vírgula — corresponde ao início do valor. Ex: 15* → 15,00 / 150,00 / 1500,00");
-    add("/","1 ou mais dígitos antes da vírgula — busca dentro da parte inteira. Ex: /15/ → 115,90 / 2150,00");
-    add("?","Exatamente 1 dígito na parte inteira. Ex: 1?0 → 100 / 110 / 190 (dentro do inteiro)");
-
-    sep("Coringas textuais");
-    add("palavra*","Começa com — ex.: RACAO* encontra RACAO PREMIUM, RACAO GATO etc.");
-    add("*palavra","Termina com — ex.: *GATO encontra RACAO GATO, ALIMENTO GATO etc.");
-    add("*palavra*","Contém (equivalente a ~palavra) — ex: *RACAO* encontra qualquer item com RACAO");
-    add("p*lavra","Curinga livre — * corresponde a qualquer sequência. Ex.: R*CAO encontra RACAO, RAÇÃO, RAT CAO etc.");
-
-    sep("OU entre termos");
-    add("A|B","Mostra vendas que contenham A OU B. Ex: dinheiro|pix  Ex: >100+debito|credito");
-    add("A|B|C","Mais de dois termos. Ex.: granel|entrega|desconto (funciona na inclusão e na exclusão)");
-
-    sep("Campo específico");
-    add("vendedor:NOME","Filtra pelo vendedor exato (ou com curinga). Ex: vendedor:FULANO  vend:BELTRANO*");
-    add("item:PRODUTO","Filtra por item comprado. Ex: item:*RACAO*  item:GRANEL");
-    add("caixa:001","Filtra pelo caixa. Aliases: cx:1  caixa:001");
-    add("numero:123","Filtra pelo número do cupom/NF. Alias: num:123");
-    add("cliente:NOME","Filtra pelo nome do cliente. Alias: cli:FULANO*");
-    add("hora:14","Filtra pelo horário. Ex: hora:14*  hora:08  (compara no campo hora)");
-    add("pag:PIX","Filtra pela forma de pagamento. Aliases: pagamento:DINHEIRO  forma:CREDITO");
-    add("nat:VENDA","Filtra pela natureza da operação. Alias: natureza:*VENDA*");
-    add("tipo:ger","Filtra pelo tipo de documento. Valores: ger / nfce / nfe");
-
-    sep("Frase exata");
-    add('"ração gato"',"Busca a frase inteira no texto da venda (vendedor, itens, pagamento etc.)");
-    add('"ND CAES"+>50',"Combina a frase exata com outros filtros usando +");
-
-    sep("Combinações (E, com +)");
-    add("+ (opcional)","Múltiplos filtros: a venda deve atender a todos (E). Ex: >50+dinheiro+-entrega");
-    add("A-B-C","Inclusão A com exclusões B e C (sem +). Ex: carto-credito-debito");
-    add("> ou < + exclusão","Ex: >100-pix-credito  <200-granel-gerencia-cartao");
-    add("Rádio ao lado da busca","Escolha Todos, Gerencial, NFC-e ou NF-e para restringir a pesquisa ao tipo");
+    for(const [k,v] of AJUDA_CORINGAS){
+        const d=document.createElement('div');
+        if(!k){ d.className='kv kvSep'; d.innerHTML='<div class="k" style="opacity:.5;font-size:11px;letter-spacing:.06em;text-transform:uppercase">'+_escM(v)+'</div><div class="v"></div>'; }
+        else { d.className='kv'; d.innerHTML='<div class="k">'+_escM(k)+'</div><div class="v">'+_escM(v)+'</div>'; }
+        body.appendChild(d);
+    }
     qs("#ov").classList.add("on"); qs("#ov").setAttribute("aria-hidden","false");
 };
 
@@ -7101,19 +7128,8 @@ qs("#copiarTudo").addEventListener("click",()=>{copiarTexto(montarTextoCopia(fal
 qs("#copiarTudoItens").addEventListener("click",()=>{copiarTexto(montarTextoCopiaItens(false,false));toast("Copiado","Conteúdo completo + itens.");});
 qs("#copiarSemDinheiro").addEventListener("click",()=>{copiarTexto(montarTextoCopia(true,false));toast("Copiado","Vendas em dinheiro não incluídas.");});
 qs("#copiarGerencial").addEventListener("click",()=>{
-    // Gerencial real: modelo 99 + número começa com 0 (padStart de gerencial) + NÃO é recebimento avulso
-    const filtradas=DADOS.vendas.map((x,i)=>({x,i}))
-    .filter(o=>Number(o.x&&o.x.modelo||0)===99 && !o.x.is_recebimento && String(o.x&&o.x.numero||"").startsWith("0") && passaFiltro(o.x,o.i))
-    .map(o=>o.x);
-    let out="";
-    if(vendAtual){ out+=vendAtual+":\n"; for(const x of filtradas)out+=String(x.numero||"")+"\n"; }
-    else{
-        const map=new Map();
-        for(const x of filtradas){ const v=x.vendedor||"(sem vendedor)"; if(!map.has(v))map.set(v,[]); map.get(v).push(x); }
-        const vendes=[...map.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
-        for(const v of vendes){ out+=v+":\n"; for(const x of map.get(v))out+=String(x.numero||"")+"\n"; out+="\n"; }
-    }
-    copiarTexto(out.trim()); toast("Copiado","Somente os números das gerenciais.");
+    const filtradas=DADOS.vendas.map((x,i)=>({x,i})).filter(o=>ehGerencialReal(o.x)&&passaFiltro(o.x,o.i)).map(o=>o.x);
+    copiarTexto(textoCopiaGerencial(filtradas,vendAtual)); toast("Copiado","Somente os números das gerenciais.");
 });
 
 qs("#editarProibidos").addEventListener("click",abrirEditorProibidos);
@@ -8361,6 +8377,7 @@ if (typeof window.__nc_iniciarResize === "function") {
 // Sem ação do usuário: avisa por caixa de mensagem (toast) só quando o conjunto de alertas
 // muda, e mantém o botão "Auto-teste" para rever a lista a qualquer momento.
 // Nunca pode derrubar o relatório: tudo em try/catch.
+/* ==BUSCA-COMUM== (trecho compartilhado com os painéis de tela única: o servidor o embute em /painel/<id>/; manter sem interpolação do template) */
 const LS_AUTOTESTE_VISTO = "__autoteste_visto__::";
 const executarAutoTesteCliente = () => {
     const achados = [];
@@ -8398,6 +8415,7 @@ const executarAutoTesteCliente = () => {
     }
     return achados;
 };
+/* ==/BUSCA-COMUM== */
 
 const abrirAutoTeste = (todos, verificacoes) => {
     if (document.getElementById("ovAuto")) return; // guarda contra abertura dupla

@@ -1172,7 +1172,7 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes("window.BUSCA = {"));
         assert.ok(js, "busca do relatório clássico embutida no painel");
         const vm = require("node:vm"), mem = {};
-        const ctx = { window: {}, console, localStorage: { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); }, removeItem: k => { delete mem[k]; } } };
+        const ctx = { window: {}, console, document: { getElementById: () => null }, localStorage: { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); }, removeItem: k => { delete mem[k]; } } };
         vm.createContext(ctx); vm.runInContext(js, ctx);
         const B = ctx.window.BUSCA;
         B.indexar(dados); B.proibidos(["AREIA"]);
@@ -1183,6 +1183,11 @@ test("servidor: painéis usam a MESMA busca e os mesmos proibidos do relatório 
         assert.strictEqual(B.maxProibidos, 500, "limite de proibidos igual ao do servidor");
         assert.match(html, /function abrirEdCfg\(/, "janela de configurações no painel");
         assert.match(html, /function teclasInit\(/, "teclas de atalho no painel");
+        // Ferramentas do clássico nos painéis: cópias, coringas, duplicatas e auto-teste com o mesmo código.
+        assert.ok(B.copia && B.duplicatas && B.autoteste && Array.isArray(B.ajuda) && B.ajuda.length > 20, "ferramentas expostas na busca dos painéis");
+        const txtCopia = B.copia.texto(dados.vendas.filter(v => /^0*70[01]$/.test(String(v.numero))), false, "");
+        assert.match(txtCopia, /:\n/, "cópia agrupada por vendedor");
+        assert.match(html, /function abrirDuplicatas\(/); assert.match(html, /function abrirPeriodo\(/); assert.match(html, /function abrirQr\(/);
         const conta = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, i) => B.passa(v, i, c)).length; };
         const nums = (q, tipo) => { const c = B.ctx(q, tipo || "todos", ""); return dados.vendas.filter((v, k) => B.passa(v, k, c)).map(v => String(v.numero).replace(/^0+/, "")).sort(); };
         assert.strictEqual(conta(""), 5, "sem busca: todas");

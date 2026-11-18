@@ -6,8 +6,8 @@
 
 **Criado e mantido por Ruda Gabriel**
 
-<img alt="servidor: v2.33.0" src="https://img.shields.io/badge/servidor-v2.33.0-2563EB?style=flat">
-<img alt="gerador: v3.37.0" src="https://img.shields.io/badge/gerador-v3.37.0-2563EB?style=flat">
+<img alt="servidor: v2.34.0" src="https://img.shields.io/badge/servidor-v2.34.0-2563EB?style=flat">
+<img alt="gerador: v3.38.0" src="https://img.shields.io/badge/gerador-v3.38.0-2563EB?style=flat">
 <img alt="bandeja: v1.9.2" src="https://img.shields.io/badge/bandeja-v1.9.2-2563EB?style=flat">
 <img alt="plataforma: Windows 10 | 11" src="https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D4?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nd2hpdGUnPjxyZWN0IHg9JzMnIHk9JzMnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnLz48cmVjdCB4PScxMycgeT0nMycgd2lkdGg9JzgnIGhlaWdodD0nOCcvPjxyZWN0IHg9JzMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPHJlY3QgeD0nMTMnIHk9JzEzJyB3aWR0aD0nOCcgaGVpZ2h0PSc4Jy8%2BPC9zdmc%2B&logoColor=white">
 <img alt="idioma: pt-BR" src="https://img.shields.io/badge/idioma-pt--BR-16A34A?style=flat">
@@ -104,7 +104,7 @@ Só são tocados processos `node`, `powershell`, `wscript` e `cscript` que citam
 | Quero… | Como |
 |---|---|
 | Ver as vendas de hoje | Duplo clique no ícone da bandeja · `gerar_relatorio_do_dia.bat` · `http://IP:7734/` |
-| Abrir no celular | Botão **Celular** no topo (mostra um QR code) · bandeja → *Abrir no celular (QR code)* |
+| Abrir no celular | Botão **Celular** no topo (mostra um QR code) · nos painéis, **Configurações → Ferramentas → Abrir no celular** · bandeja → *Abrir no celular (QR code)* |
 | Abrir fora da loja (4G, outro Wi-Fi) | **Celular → Fora da loja** (com o Tailscale — veja [Fora da loja](#fora)) |
 | Liberar o acesso para outra pessoa | Painel do Tailscale → computador da loja → **⋯ → Share…** (veja [Liberar para outra pessoa](#compartilhar)) |
 | Ver uma data | `gerar_relatorio_por_data.bat` (aceita `D/M`, `DD/MM` ou `DD/MM/AA[AA]`) |
@@ -379,8 +379,11 @@ Em todos os painéis você encontra:
   - ↑ ↓ escolhem a linha, **Enter** abre o detalhe e **/** vai para a busca.
 - **Painéis em volta:** por tipo, formas de pagamento e caixas (do maior para o menor; um clique filtra a tabela), ranking de vendedores (com a divisão por tipo), vendas por hora (por tipo, com o pico em destaque; ao passar o mouse ou tocar numa barra, aparece uma dica com as vendas, o total, o ticket médio, a parte do dia e a divisão por tipo), produtos mais vendidos (sem a linha de desconto) e **conversões em nota fiscal** (cada gerencial convertida em NFC-e ou NF-e, inclusive as que o PDV marca como convertidas).
 - **Busca igual à do relatório clássico:** a mesma caixa de busca, com todos os coringas da seção [Busca e filtros](#busca) e os mesmos resultados. Com texto no campo, um **X** limpa a busca.
-- **Filtros ativos** aparecem como etiquetas; o **×** remove cada um.
+- **Filtros ativos** aparecem como etiquetas; o botão de cada etiqueta remove o filtro.
+- **Atalhos do relatório clássico:** fora dos campos de texto, **Insert** (ou **CapsLock + P**) acrescenta `[proibidos]` e **Delete** acrescenta `[-proibidos]` na busca, com o tipo Gerencial e todos os vendedores.
 - **Botões no topo da lista de vendas:**
+  - **Copiar:** as mesmas cópias do relatório clássico, com a busca e os filtros atuais: **Copiar tudo**, **Copiar tudo + itens**, **Copiar sem dinheiro** e **Copiar só gerencial**;
+  - **Coringas:** a mesma lista de coringas da busca do relatório clássico;
   - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
   - no celular aparecem só os ícones.
@@ -391,7 +394,7 @@ Em todos os painéis você encontra:
   - **Logo padrão** volta a usar o ícone do sistema; sem nenhum dos dois, aparece "FDB";
   - o nome declarado em `appName` aparece no cabeçalho e no título da aba.
 - **Avisos** no mesmo padrão do relatório clássico (botão fechar e barra de tempo, sem repetir o mesmo aviso), nas cores de cada painel, e barras de rolagem nas cores do tema.
-- **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, itens (sem contar a linha de desconto), o desconto (percentual e valor), cada item com o valor e, em **Pagamento** (título centralizado), cada forma centralizada com o valor à direita e o total à esquerda com o valor à direita.
+- **Detalhe da venda:** tipo, número, caixa, hora, vendedor, cliente, natureza, itens (sem contar a linha de desconto), o desconto (percentual e valor), cada item com o valor e, em **Pagamento** (título centralizado), cada forma centralizada com o valor à direita e o total à esquerda com o valor à direita. No fim, as cópias da venda, como no relatório clássico: **Só gerencial** (número da gerencial), **Sem itens** e **Com itens**. Venda que faz parte de uma duplicata mostra o aviso e o botão **Abrir Duplicatas**.
 - **No celular:** abas **Resumo**, **Vendas**, **Pagamentos** e **Equipe**, cada uma cabendo na tela.
 - **Configurações** (no cabeçalho de cada painel):
   - **Nesta tela → Desempenho:** o mesmo ajuste do relatório (Automático, Completo ou Leve), com os três botões na largura do menu. No **Leve**, saem o desfoque e as animações contínuas.
@@ -402,13 +405,19 @@ Em todos os painéis você encontra:
     - Num aparelho da rede: nome do aparelho (apelido), duração dos avisos, termos proibidos (com **Importar do servidor** e **Juntar com os do servidor**), teclas de atalho e **Voltar ao padrão do servidor**.
     - Os termos proibidos colados em outro formato (vírgula, ponto e vírgula, marcadores, repetidos) são ajustados automaticamente, como no relatório clássico.
     - Enquanto a janela está aberta, a página não é recarregada por venda nova, para não perder o que está sendo digitado.
-  - **Teclas de atalho** funcionam também nos painéis: a tecla coloca o comando na busca e executa a ação escolhida (limpar filtros, editar proibidos, filtrar por vendedor, menu e troca de tema, tipo Todos/Gerencial/NFC-e/NF-e). As ações de copiar, a ajuda de coringas e o "Gerar por período" existem só no relatório clássico; no painel, a tecla aplica apenas o comando e um aviso informa isso.
+  - **Teclas de atalho** funcionam também nos painéis, com todas as ações do relatório clássico: a tecla coloca o comando na busca e executa a ação escolhida (copiar, coringas, gerar por período, limpar filtros, editar proibidos, filtrar por vendedor, menu e troca de tema, tipo Todos/Gerencial/NFC-e/NF-e).
+  - **Ferramentas** (as mesmas do relatório clássico):
+    - **Gerar por período:** escolha as datas e o painel abre com o intervalo; num período, **Voltar para hoje**. A bandeja (*Gerar por período*) também abre esta janela.
+    - **Atualizar os dados de hoje:** refaz o relatório do dia sem recarregar a página.
+    - **Abrir no celular (QR code)**, no computador: **Na loja (Wi-Fi)** e **Fora da loja** (Tailscale, com o nome fixo ou o IP), com o botão de copiar o endereço.
+    - **Duplicatas:** gerenciais convertidas em NFC-e/NF-e e NFC-e reemitidas como NF-e, com as mesmas escolhas do relatório clássico (manter apenas o documento final, manter as duas, manter apenas a origem, perguntar depois e "manter todas"). As escolhas valem no painel e no relatório clássico do mesmo navegador. Com duplicata pendente, a janela abre ao carregar, e a venda envolvida mostra a etiqueta **Duplicata** na lista.
+    - **Auto-teste:** o resultado das verificações do servidor e da conferência da tela, com aviso quando surge um alerta novo.
   - **Abrir o relatório clássico.**
   - **Trocar o logo** e **Logo padrão** (logo dos painéis; o ícone do sistema não muda).
 
 **Atalhos úteis:**
 
-- **Configurações → Abrir o relatório clássico** (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha. Use para o **QR code** e as demais opções do relatório clássico.
+- **Configurações → Abrir o relatório clássico** (ou `?classico=1` no endereço, ex.: `http://localhost:7734/?classico=1`) abre o relatório clássico **sem trocar** a escolha (a tabela completa, no layout clássico).
 - Endereço direto de cada painel: `http://localhost:7734/painel/relevo/` (troque `relevo` por `relevo-escuro`, `comando`, `vidro`, `nitido` ou `administrativo`). Para um período, acrescente `?i=2026-11-01&f=2026-11-13`.
 - O controle remoto também troca para um painel, por exemplo `.\api.ps1 -Endpoint tema -Payload vidro` (veja [API](#api)).
 
@@ -490,7 +499,7 @@ Tudo vai para **`relatorio.log`**, na pasta do sistema, no formato `[DD-MM-AAAA]
 | `[DEBUG]` · `[SISTEMA]` | Detalhes (com `"logDebug": true`) · demais mensagens |
 
 ```
-[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.33.0 | Gerador v3.37.0
+[07-10-2026] [08:00:01] [SERVIDOR] === Servidor iniciado 07/10/2026 === Servidor v2.34.0 | Gerador v3.38.0
 [07-10-2026] [08:00:06] [BANCO] Índices: NFCE.DATA, PAGAMENT.DATA — ok (consultas rápidas).
 [07-10-2026] [12:43:31] [VENDAS] FastPoll: Gerencial: vendas 30 → 31 (↑ +1) ... → regerando.
 ```

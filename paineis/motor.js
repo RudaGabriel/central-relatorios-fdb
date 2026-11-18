@@ -1,6 +1,8 @@
 /* paineis/motor.js — Central de Relatórios FDB · motor dos painéis de tela única (dados reais, somente leitura).
- * @version 1.4.0
- *   1.4.0 - 2026-11-18 - Evento "prefs" do servidor também atualiza as teclas de atalho do painel.
+ * @version 1.5.0
+ *   1.5.0 - 2026-11-18 - Duplicatas com as escolhas salvas do relatório clássico, recarga silenciosa dos dados
+ *                        (recarregarDados), comandos da bandeja (Configurações, Gerar por período) e botão
+ *                        de fechar do detalhe com ícone SVG.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Nada aqui escreve no banco: as páginas só leem o que o servidor já entrega ao relatório. */
 (function(){
@@ -184,7 +186,7 @@
     const detalhe = PAINEL.detail ? PAINEL.detail(x) : ('<div class="k">' + esc(x.t) + ' · Nº ' + esc(x.n) + ' · ' + x.h + (x.cx ? ' · Caixa ' + esc(x.cx) : '') + '</div><h2>' + fmt(x.tot) + '</h2><div class="m">' + esc(x.vend) + ' · ' + esc(x.pg) + '</div>' +
       x.itens.map(i => '<div class="row"><span>' + i.q + '× ' + esc(i.d) + '</span><b>' + (i.tot != null ? fmt(i.tot) : '') + '</b></div>').join(''));
     let ov = $("#ov"); if (!ov) { ov = document.createElement("div"); ov.id = "ov"; document.body.appendChild(ov); }
-    ov.innerHTML = '<div class="det" role="dialog" aria-modal="true">' + detalhe + '<button class="fechar" type="button" aria-label="Fechar">×</button></div>';
+    ov.innerHTML = '<div class="det" role="dialog" aria-modal="true">' + detalhe + '<button class="fechar" type="button" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
     ov.className = "on"; const det = $(".det", ov);
     if (anima() && origem) { const r = origem.getBoundingClientRect(), d = det.getBoundingClientRect();
       det.animate([{transform: `translate(${r.left + r.width / 2 - (d.left + d.width / 2)}px,${r.top + r.height / 2 - (d.top + d.height / 2)}px) scale(${Math.max(.3, Math.min(1, r.width / d.width))})`, opacity: .2}, {transform: "none", opacity: 1}],
@@ -245,7 +247,9 @@
   // ── Carregar dados reais ────────────────────────────────────────────────────
   let carregando = false, primeira = true, tentativas = 0;
   function aviso(txt){ const a = $("#estado"); if (a) { a.textContent = txt; a.style.display = txt ? "" : "none"; } }
-  async function carregar(){
+  // silencioso: recarga pedida pelo próprio painel (escolha de duplicata, Atualizar) — as vendas que
+  // entram por causa dela não contam como "venda nova" (sem aviso e sem recarregar a página).
+  async function carregar(silencioso){
     if (carregando) return; carregando = true;
     try {
       const r = await fetch(FONTE, {cache: "no-store", credentials: "same-origin"});
@@ -255,8 +259,11 @@
       tentativas = 0; aviso("");
       DADOS = JSON.parse(m[1]); dataISO = String(DADOS.data || "");
       if (window.BUSCA) { try { BUSCA.indexar(DADOS); proibidosIniciais(); } catch (e) {} }
+      // Duplicatas: as mesmas escolhas salvas do relatório clássico (manter as duas, só o documento
+      // final ou só a gerencial) valem aqui antes de montar a lista.
+      if (window.BUSCA && BUSCA.duplicatas) { try { BUSCA.duplicatas.preparar(); } catch (e) {} }
       const novas = converter(DADOS), antigos = new Set(vendas.map(v => v.id));
-      const chegaram = primeira ? [] : novas.filter(v => !antigos.has(v.id));
+      const chegaram = primeira || silencioso === true ? [] : novas.filter(v => !antigos.has(v.id));
       // Atualização ligada: venda nova vinda da conferência de reserva também recarrega como F5.
       if (chegaram.length && window.PAINEL && PAINEL.recarregar && PAINEL.recarregar()) { location.reload(); return; }
       novas.forEach(v => v.novo = chegaram.some(c => c.id === v.id));
@@ -268,6 +275,7 @@
         const largo = p.getBoundingClientRect().width > innerWidth * 0.6;
         p.animate(largo ? [{filter: "brightness(1)"}, {filter: "brightness(1.35)"}, {filter: "brightness(1)"}] : [{transform: "scale(1)"}, {transform: "scale(1.03)"}, {transform: "scale(1)"}], {duration: 650, easing: "ease-out"}); } }
       primeira = false;
+      if (window.PAINEL && PAINEL.carregou) { try { PAINEL.carregou(DADOS); } catch (e) {} }
     } catch (e) {
       aviso("Sem conexão com o servidor de relatórios — tentando novamente…");
       setTimeout(() => { carregando = false; carregar(); }, 5000); return;
@@ -283,6 +291,8 @@
         if (d.type === "reload") { if (window.PAINEL && PAINEL.recarregar && PAINEL.recarregar()) { location.reload(); return; } carregar(); }
         // Controle remoto (api.ps1): troca de tema, navegação e aviso nas telas abertas.
         else if (d.type === "tema" && d.id) { if (window.PAINEL_TEMA) window.PAINEL_TEMA.aplicar(String(d.id), true); }
+        // Bandeja → Configurações ou Gerar por período: abre a janela no painel, como no clássico.
+        else if (d.type === "navigate-hash" && d.hash) { if (window.PAINEL && PAINEL.hash) PAINEL.hash(String(d.hash)); }
         else if (d.type === "navigate") { let u = String(d.url || "/"); if (u.charAt(0) !== "/" || u.charAt(1) === "/") u = "/"; location.assign(u); }
         else if (d.type === "aviso" && d.msg) toast("<b>Aviso</b> · " + esc(String(d.msg).slice(0, 300)));
         else if (d.type === "prefs") { aplicarPrefs(); if (window.PAINEL && PAINEL.prefsMudaram) PAINEL.prefsMudaram(); }
@@ -321,6 +331,6 @@
     carregar(); aoVivo();
   }
   window.ENG = {fmt, esc, pl, st, numero, resumo, toast, T, itensCurtos, leve: () => LEVE, anima, get vendas(){ return vendas; }, get dados(){ return DADOS; }, dataBR, norm, FONTE,
-    filtradas, render: () => renderLista(), abrir, perfCtl: () => controlePerf(), perfPref};
+    filtradas, render: () => renderLista(), abrir, recarregarDados: () => { if (carregando) setTimeout(() => carregar(true), 900); else carregar(true); }, perfCtl: () => controlePerf(), perfPref};
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ligar); else ligar();
 })();

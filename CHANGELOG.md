@@ -7,8 +7,8 @@ Versões em uso hoje:
 
 | Arquivo | Versão |
 |---|---|
-| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.33.0 |
-| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.37.0 |
+| [`servidor-relatorio.js`](#servidor-relatoriojs) | 2.34.0 |
+| [`gerar-relatorio-html.js`](#gerar-relatorio-htmljs) | 3.38.0 |
 | [`api.ps1`](#apips1) | 1.8.0 |
 | [`iniciar-tray.ps1`](#iniciar-trayps1) | 1.9.2 |
 | [`instalar-na-inicializacao.bat`](#instalar-na-inicializacaobat) | 1.16.0 |
@@ -24,11 +24,11 @@ Versões em uso hoje:
 | [`gerar_relatorio_intervalo.bat`](#gerar_relatorio_intervalobat) | 1.5.0 |
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.4.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.8.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.10.0 |
+| [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.0 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.11.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
-| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.2.0 |
+| [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/relevo-escuro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -41,6 +41,10 @@ Versões em uso hoje:
 ## `servidor-relatorio.js`
 
 Servidor.
+
+### 2.34.0 — 2026-11-18
+
+**Ferramentas do relatório clássico para os painéis.** A busca compartilhada com os painéis (`window.BUSCA`) passa a incluir as cópias (`copia`), os coringas da busca (`ajuda`), as duplicatas com as escolhas salvas (`duplicatas`) e a conferência da tela do auto-teste (`autoteste`), com o mesmo código do relatório clássico.
 
 ### 2.33.0 — 2026-11-18
 
@@ -416,6 +420,10 @@ Antes o servidor gravava o número cru do banco ("061449") e o gerador "61449" �
 ## `gerar-relatorio-html.js`
 
 Gerador do relatório.
+
+### 3.38.0 — 2026-11-18
+
+**Código das ferramentas compartilhado com os painéis.** O texto das cópias (`textoCopiaLista`, `textoCopiaGerencial`), a lista de coringas da busca (`AJUDA_CORINGAS`), as duplicatas e a conferência da tela do auto-teste passam a ser trechos compartilhados com os painéis de tela única; o relatório clássico usa o mesmo código e não muda. Na ajuda, "Rádio ao lado da busca" passa a se chamar "Tipo ao lado da busca". O endereço `/?cfgAparelho=` (bandeja → Dispositivos → Configurações do aparelho) passa a abrir no painel escolhido sem perder o aparelho.
 
 ### 3.37.0 — 2026-11-18
 
@@ -1437,6 +1445,19 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.14.0 — 2026-11-18
+
+**Todas as ferramentas do relatório clássico nos painéis.** (1.14.0 é a versão da pasta; `painel.js` 1.9.0, `motor.js` 1.5.0, `base.css` 1.11.0, `corpo.html` 1.3.0.)
+
+- **Copiar** e **Coringas** no topo da lista de vendas: as quatro cópias do clássico (tudo, tudo + itens, sem dinheiro e só gerencial), com a busca e os filtros atuais, e a mesma lista de coringas.
+- **Detalhe da venda:** cópias da venda (Só gerencial, Sem itens e Com itens) e, na venda que faz parte de uma duplicata, o aviso com o botão Abrir Duplicatas.
+- **Configurações → Ferramentas:** Gerar por período (e Voltar para hoje), Atualizar os dados de hoje, Abrir no celular (QR code na loja e fora dela, com nome ou IP do Tailscale), Duplicatas e Auto-teste.
+- **Duplicatas** com as mesmas escolhas do clássico, salvas no navegador e válidas nos dois; a janela abre ao carregar quando há duplicata pendente, e a venda envolvida ganha a etiqueta Duplicata na lista.
+- **Auto-teste:** verificações do servidor e conferência da tela, com aviso quando surge um alerta novo.
+- **Atalhos Insert, CapsLock + P e Delete** (`[proibidos]` e `[-proibidos]`), e **todas as ações das teclas de atalho** passam a funcionar no painel.
+- **Bandeja:** Configurações e Gerar por período abrem as janelas no painel aberto; Dispositivos → Configurações do aparelho abre as preferências do aparelho no painel.
+- O botão de fechar do detalhe da venda passa a usar ícone SVG.
 
 ### 1.13.0 — 2026-11-18
 

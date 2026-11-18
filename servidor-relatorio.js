@@ -5,14 +5,14 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 
 /**
  * servidor-relatorio.js
- * @version 2.33.0
+ * @version 2.34.0
  * @author Ruda Gabriel
  * @description Servidor HTTP + Firebird de relatórios com SSE, fast-poll e
  *              geração em subprocesso. SOMENTE LEITURA no banco.
  * @changelog
  *   (Histórico completo das versões: CHANGELOG.md no repositório.)
- *   2.33.0 - 2026-11-18 - A busca compartilhada dos painéis (window.BUSCA) passa a expor o formato da lista de
- *     proibidos (formatar), usado pela janela "Editar configurações" dos painéis.
+ *   2.34.0 - 2026-11-18 - A busca compartilhada dos painéis (window.BUSCA) passa a expor as cópias, os coringas da
+ *     busca, as duplicatas e o auto-teste da tela, iguais aos do relatório clássico.
  */
 
 
@@ -20,7 +20,7 @@ if (!process.env.UV_THREADPOOL_SIZE) process.env.UV_THREADPOOL_SIZE = "16";
 // Registrada na linha de início do log para que se saiba, ao investigar
 // qualquer ocorrência, qual versão do servidor estava no ar naquele momento
 // (o gerar-relatorio-html.js já faz o mesmo via SCRIPT_VERSION).
-const SERVER_VERSION = "2.33.0";
+const SERVER_VERSION = "2.34.0";
 
 // ===== Logger Global seguro — flush debounced 300ms =====
 const _fs = require('fs');
@@ -5215,7 +5215,21 @@ var _buscaComum = function() {
                 " temProibido: function(raw){ return vendaTemProibido(raw); },\n" +
                 " lista: function(){ return valoresProibidos.slice(); },\n" +
                 " formatar: function(t){ return (typeof formatarProibidos === \"function\") ? formatarProibidos(t) : null; },\n" +
-                " maxProibidos: (typeof PROIB_MAX === \"number\") ? PROIB_MAX : 500 };\n})();";
+                " maxProibidos: (typeof PROIB_MAX === \"number\") ? PROIB_MAX : 500,\n" +
+                // v2.34.0: cópias, coringas, duplicatas e auto-teste iguais aos do relatório clássico.
+                " copia: (typeof textoCopiaLista === \"function\") ? {\n" +
+                "   texto: function(lista, comItens, vend){ return textoCopiaLista(lista || [], !!comItens, vend || \"\"); },\n" +
+                "   gerencial: function(lista, vend){ return textoCopiaGerencial((lista || []).filter(ehGerencialReal), vend || \"\"); },\n" +
+                "   linha: function(x, comItens){ return comItens ? linhaCopiaItens(x) : linhaCopiaSemItens(x); },\n" +
+                "   temDinheiro: function(x){ return temDinheiro(x); }, ehGerencial: function(x){ return ehGerencialReal(x); } } : null,\n" +
+                " ajuda: (typeof AJUDA_CORINGAS !== \"undefined\") ? AJUDA_CORINGAS.map(function(a){ return a.slice(); }) : null,\n" +
+                " duplicatas: (typeof _dupAplicarSalvas === \"function\") ? {\n" +
+                "   preparar: function(){ _dupLerListas(); _dupAplicarSalvas(); try { _dupMarcarLinhas(); } catch (e) {} _indexarVendas(); },\n" +
+                "   todas: function(){ return _dupTodas.slice(); }, pendentes: function(){ return _dupPendentes.slice(); },\n" +
+                "   escolha: function(d){ return _dupLerEscolha(d); }, salvar: function(d, v){ _dupSalvarEscolha(d, v); },\n" +
+                "   manterTodas: function(v){ if (v === undefined) return _dupLerManterTodas(); _dupSalvarManterTodas(!!v); return !!v; },\n" +
+                "   chave: function(d){ return _dupChaveItem(d); }, rotDoc: function(d){ return _dupRotDoc(d); }, rotOrigem: function(d){ return _dupRotOrigem(d); } } : null,\n" +
+                " autoteste: (typeof executarAutoTesteCliente === \"function\") ? { tela: function(){ return executarAutoTesteCliente(); }, chaveVisto: LS_AUTOTESTE_VISTO } : null };\n})();";
         }
         _buscaCache = { mt: mt, js: js };
         return js;

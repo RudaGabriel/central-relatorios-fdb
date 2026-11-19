@@ -1,8 +1,7 @@
 /* paineis/painel.js — Central de Relatórios FDB · conteúdo comum dos painéis de tela única.
- * @version 1.9.0
- *   1.9.0 - 2026-11-18 - Ferramentas do relatório clássico: Copiar (tudo, com itens, sem dinheiro, só gerencial e a
- *                        venda aberta), Coringas, Gerar por período, Abrir no celular, Atualizar, Duplicatas,
- *                        Auto-teste, atalhos Insert/Delete e comandos da bandeja; todas as ações das teclas.
+ * @version 1.9.1
+ *   1.9.1 - 2026-11-19 - Etiquetas de filtro com ícone SVG de remover (sem o símbolo de texto) e o texto completo
+ *                        na dica quando a etiqueta é encurtada.
  * Histórico completo das versões: CHANGELOG.md no repositório.
  * Usa o motor (ENG) para os dados reais e o ao vivo. Cada tema só posiciona e estiliza os blocos
  * (ids): #kpis, #tipos, #pagtos, #caixas, #horas, #produtos, #conv, #vends, #cab, #feed, #rod,
@@ -322,7 +321,7 @@
     if (ext.pg) ch.push(["pg", "Pagamento: " + ext.pg]);
     if (ext.cx) ch.push(["cx", "Caixa " + ext.cx]);
     if (en.st.q.trim()) ch.push(["q", "Busca: " + en.st.q.trim()]);
-    f.innerHTML = ch.length ? ch.map(([k, t]) => `<button type="button" data-limpa="${k}" title="Remover este filtro">${es(t)} <b>×</b></button>`).join("") : "";
+    f.innerHTML = ch.length ? ch.map(([k, t]) => `<button type="button" data-limpa="${k}" title="${es("Remover este filtro: " + t)}"><span>${es(t)}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`).join("") : "";
     f.classList.toggle("vazio", !ch.length);
     const bl = $("#btnLimpar"); if (bl) { bl.disabled = !ch.length && ord.k === "hora" && ord.d === -1; }
     const bp = $("#btnProib"); if (bp) bp.setAttribute("aria-pressed", PROIB_RE.test(en.st.q) ? "true" : "false");

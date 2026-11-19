@@ -1,8 +1,7 @@
 <!doctype html>
 <!-- paineis/administrativo.html — Central de Relatórios FDB · painel de tela única "Administrativo (neutro, com menu lateral e modo claro ou escuro)".
-     @version 1.6.0
-       1.6.0 - 2026-11-18 - Item Configurações da barra lateral abre a janela de configurações do painel (a mesma do
-                            relatório clássico), em vez da página /config.
+     @version 1.6.1
+       1.6.1 - 2026-11-19 - No celular, os botões do topo da lista de vendas ficam alinhados à direita.
      Histórico completo das versões: CHANGELOG.md no repositório.
      Montado pelo servidor em /painel/administrativo/: o marcador COMUM recebe comum.css + base.css, o
      CORPO recebe corpo.html e o MOTOR recebe painel.js + motor.js. -->
@@ -146,7 +145,7 @@ html[data-menu="recolhido"] .sbTop,html[data-menu="recolhido"] .sbPe{justify-con
  .tt{display:none}.kpis{padding:10px 10px 0}
  .grade{display:flex;flex-direction:column;overflow:auto;gap:10px;padding:10px}.col,.dir,.esq{display:contents}
  .grade .pn{flex:none}.grade .cx-tab{flex:1 1 0;min-height:0}
- .abas{background:var(--bg)}.abas button.on{color:var(--tx)}.cx-tab>h3 em{display:none}}
+ .abas{background:var(--bg)}.abas button.on{color:var(--tx)}.cx-tab>h3 em{display:none}.cx-tab>h3 em+.tbAc{margin-left:auto}}
 .tst{border-radius:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.3)}.tst b{color:var(--tx)}.tst-br{background:var(--tx)}
 </style></head><body>
 <div class="shell">

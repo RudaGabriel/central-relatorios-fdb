@@ -386,7 +386,7 @@ Em todos os painéis você encontra:
   - **Coringas:** a mesma lista de coringas da busca do relatório clássico;
   - **Proibidos:** liga e desliga o filtro `[proibidos]`, que oculta as vendas com itens da lista de proibidos;
   - **Limpar filtros:** volta a lista ao início (sem busca, tipo, vendedor, pagamento ou caixa, e ordenada pela hora), como o "Limpar tudo" do relatório clássico;
-  - no celular aparecem só os ícones.
+  - quando falta espaço (lista estreita, celular ou filtros ativos), aparecem só os ícones, sempre alinhados à direita; o nome de cada botão continua na dica. As etiquetas de filtro ficam em uma linha, e a da busca é encurtada com reticências quando é longa.
 - **Fotos dos vendedores** (no Administrativo, onde aparecem as iniciais): clique no avatar e escolha uma foto do computador ou do celular. O sistema recorta em quadrado, centraliza o rosto e reduz a imagem automaticamente. Com foto, passar o mouse mostra a foto ampliada, e o clique oferece **Trocar foto** ou **Remover foto**. Vale para todos os aparelhos e só pode ser feito no computador do servidor.
 - **Logo e nome da loja:**
   - o logo preenche o quadro inteiro. Para trocá-lo, clique nele (ou use **Configurações → Sistema → Trocar o logo**) e escolha uma imagem PNG, JPEG ou ICO de até 2 MB;

@@ -25,8 +25,8 @@ Versões em uso hoje:
 | [`test/executar-testes.bat`](#testexecutar-testesbat) | 1.0.0 |
 | [`paineis/temas.json`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/motor.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.5.0 |
-| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.0 |
-| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.11.0 |
+| [`paineis/painel.js`](#paineis-pasta-dos-painéis-de-tela-única) | 1.9.1 |
+| [`paineis/base.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.12.0 |
 | [`paineis/comum.css`](#paineis-pasta-dos-painéis-de-tela-única) | 1.1.0 |
 | [`paineis/corpo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/relevo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
@@ -34,7 +34,7 @@ Versões em uso hoje:
 | [`paineis/comando.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/vidro.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
 | [`paineis/nitido.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.3.0 |
-| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.0 |
+| [`paineis/administrativo.html`](#paineis-pasta-dos-painéis-de-tela-única) | 1.6.1 |
 
 ---
 
@@ -1445,6 +1445,15 @@ Categoria de temas própria, separada dos temas clássicos. O servidor monta cad
 - `base.css` e `comum.css`: estrutura comum.
 - `corpo.html`: blocos da tela.
 - Um `.html` por painel, com cores e disposição próprias.
+
+### 1.15.0 — 2026-11-19
+
+**Topo da lista de vendas sem cortes.** (1.15.0 é a versão da pasta; `base.css` 1.12.0, `painel.js` 1.9.1, `administrativo.html` 1.6.1.)
+
+- Com filtros ativos ou lista estreita, os botões Copiar, Coringas, Proibidos e Limpar filtros ficam só com o ícone (o nome continua na dica), em vez de "Limpar filtros" ser cortado à direita.
+- Os botões ficam sempre alinhados à direita, também quando a dica de navegação some.
+- As etiquetas de filtro ficam em uma linha: tipo, vendedor, pagamento e caixa inteiros; a da busca é encurtada com reticências, com o texto completo na dica.
+- O botão de remover de cada etiqueta passa a ser um ícone SVG, em vez do símbolo de texto.
 
 ### 1.14.0 — 2026-11-18
 

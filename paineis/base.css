@@ -1,7 +1,8 @@
 /* paineis/base.css — Central de Relatórios FDB · estrutura comum dos painéis de tela única.
-   @version 1.11.0
-     1.11.0 - 2026-11-18 - Estilos das ferramentas do relatório clássico nos painéis (Copiar, Coringas, Gerar por
-                           período, Abrir no celular, Duplicatas e Auto-teste) e das cópias no detalhe da venda.
+   @version 1.12.0
+     1.12.0 - 2026-11-19 - Botões do topo da lista de vendas só com o ícone quando falta espaço (lista estreita ou
+                           filtros ativos), sem cortar "Limpar filtros" e sempre alinhados à direita; etiquetas de filtro em uma
+                           linha, com reticências quando longas.
    Histórico completo das versões: CHANGELOG.md no repositório.
    Cores e relevo vêm de cada tema (variáveis --bg, --pn, --tx, --mu, --ln, --ac, --hv, --sel). */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -82,7 +83,7 @@ button{font:inherit;color:inherit}
 .lv.rec .c-total{color:var(--mu)}
 #rod{flex:none;display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center;padding:7px 16px 5px;border-top:1px solid var(--ln);font-size:12px;color:var(--mu)}#rod b{color:var(--tx)}.rod-at{margin-left:auto}
 #filtros{display:flex;gap:6px;flex-wrap:wrap}#filtros.vazio{display:none}
-#filtros button{border:1px solid var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--tx);border-radius:999px;padding:2px 10px;font-size:12px;cursor:pointer}#filtros b{margin-left:4px}
+#filtros button{border:1px solid var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--tx);border-radius:999px;padding:2px 10px;font-size:12px;cursor:pointer}
 #vazio,#mais{padding:18px;text-align:center;color:var(--mu);font-size:12.5px}
 @container (max-width:980px){#cab,.lv{--cols:84px 68px 64px minmax(100px,1fr) minmax(150px,2.4fr) 56px 108px 90px}.c-caixa,.c-cliente{display:none!important}}
 @container (max-width:700px){#cab,.lv{--cols:82px 68px minmax(90px,1fr) minmax(110px,1.6fr) 54px 88px}.c-numero,.c-pag{display:none!important}}
@@ -236,8 +237,18 @@ body{zoom:var(--zoom,1);height:calc(100vh / var(--zoom,1));height:calc(100dvh / 
 .tbAc button:disabled{opacity:.45;cursor:default}
 .tbAc button[aria-pressed="true"]{background:color-mix(in srgb,var(--ac) 16%,transparent);border-color:var(--ac);color:var(--tx)}
 .cx-tab>h3{gap:8px}
-@media (max-width:1400px){.cx-tab>h3 em{display:none}}
+@media (max-width:1400px){.cx-tab>h3 em{display:none}.cx-tab>h3 em+.tbAc{margin-left:auto}}
 @media (max-width:480px){.tbAc span{display:none}.tbAc button{padding:0 8px}}
+/* Sem espaço para os rótulos (lista estreita, ou filtros ativos ocupando o título), os botões ficam só
+   com o ícone — a dica continua mostrando o nome. Nada é cortado à direita. */
+.cx-tab{container:cxtab/inline-size}
+#filtros{min-width:0;flex:0 1 auto;flex-wrap:nowrap;overflow:hidden}
+#filtros button{display:inline-flex;align-items:center;gap:5px;flex:0 1 auto;min-width:48px;max-width:260px;white-space:nowrap}
+#filtros button span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* Só a etiqueta da busca (texto livre) encurta; tipo, vendedor, pagamento e caixa ficam inteiros (até 200 px). */
+#filtros button:not([data-limpa="q"]){flex-shrink:0;max-width:200px}#filtros button svg{width:10px;height:10px;flex:none}
+@container cxtab (max-width:560px){.tbAc span{display:none}.tbAc button{padding:0 8px}}
+@container cxtab (max-width:1180px){.cx-tab>h3:has(#filtros:not(.vazio)) .tbAc span{display:none}.cx-tab>h3:has(#filtros:not(.vazio)) .tbAc button{padding:0 8px}}
 
 /* Configurações: Atualização e Tamanho do texto */
 .cfgLin+.cfgLin{margin-top:12px;padding-top:12px;border-top:1px solid var(--ln)}
